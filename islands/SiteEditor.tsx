@@ -107,11 +107,61 @@ export default function SiteEditor(
     [message, setMessage] = useState(""),
     [saveError, setSaveError] = useState("");
   const frame = useRef<HTMLIFrameElement>(null);
+  const editorBody = useRef<HTMLDivElement>(null);
+  const panelResize = useRef<
+    {
+      side: "left" | "right";
+      startX: number;
+      startWidth: number;
+    } | null
+  >(null);
+  const [leftWidth, setLeftWidth] = useState(218);
+  const [inspectorWidth, setInspectorWidth] = useState(278);
   const styleSignature = formatStyles(node?.styles ?? {});
   const cssPending = !!node && cssDraft !== styleSignature;
   const manifestPending = manifestDraft !== JSON.stringify(manifest, null, 2);
   const dirty = JSON.stringify({ document: website, manifest }) !== saved ||
     cssPending || manifestPending || layerPending || apiPending;
+  function resizePanel(side: "left" | "right", requestedWidth: number) {
+    const minWidth = side === "left" ? 160 : 220;
+    const maxWidth = side === "left" ? 420 : 480;
+    const otherWidth = side === "left" ? inspectorWidth : leftWidth;
+    const available = editorBody.current?.clientWidth ?? globalThis.innerWidth;
+    const limit = Math.max(
+      minWidth,
+      Math.min(maxWidth, available - otherWidth - 336),
+    );
+    const width = Math.max(minWidth, Math.min(limit, requestedWidth));
+    if (side === "left") setLeftWidth(width);
+    else setInspectorWidth(width);
+  }
+  function beginPanelResize(side: "left" | "right", event: PointerEvent) {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    const handle = event.currentTarget as HTMLElement;
+    const panel = side === "left"
+      ? handle.previousElementSibling
+      : handle.nextElementSibling;
+    const startWidth = panel instanceof HTMLElement
+      ? panel.getBoundingClientRect().width
+      : side === "left"
+      ? leftWidth
+      : inspectorWidth;
+    panelResize.current = { side, startX: event.clientX, startWidth };
+    handle.setPointerCapture(event.pointerId);
+  }
+  function movePanelResize(event: PointerEvent) {
+    const resize = panelResize.current;
+    if (!resize) return;
+    const delta = event.clientX - resize.startX;
+    resizePanel(
+      resize.side,
+      resize.startWidth + (resize.side === "left" ? delta : -delta),
+    );
+  }
+  function endPanelResize() {
+    panelResize.current = null;
+  }
   useEffect(() => {
     setCssDraft(styleSignature);
     setCssError("");
@@ -762,7 +812,9 @@ export default function SiteEditor(
         )
         : (
           <div
+            ref={editorBody}
             class={"editor-body " + (mode === "preview" ? "preview-mode" : "")}
+            style={`--editor-left-width:${leftWidth}px;--editor-inspector-width:${inspectorWidth}px`}
           >
             {mode === "design" && (
               <aside class="editor-left">
@@ -895,6 +947,30 @@ export default function SiteEditor(
                 </div>
               </aside>
             )}
+            {mode === "design" && (
+              <div
+                class="panel-resize-handle"
+                role="separator"
+                aria-label="Resize layers panel"
+                aria-orientation="vertical"
+                aria-valuemin={160}
+                aria-valuemax={420}
+                aria-valuenow={leftWidth}
+                tabIndex={0}
+                onPointerDown={(event) => beginPanelResize("left", event)}
+                onPointerMove={movePanelResize}
+                onPointerUp={endPanelResize}
+                onPointerCancel={endPanelResize}
+                onKeyDown={(event) => {
+                  if (event.key === "ArrowLeft") {
+                    resizePanel("left", leftWidth - 16);
+                  }
+                  if (event.key === "ArrowRight") {
+                    resizePanel("left", leftWidth + 16);
+                  }
+                }}
+              />
+            )}
             <section class="editor-canvas-area">
               <div class="canvas-toolbar">
                 <span>
@@ -962,6 +1038,30 @@ export default function SiteEditor(
                   : "Preview of your current draft · Publishing is not connected yet"}
               </div>
             </section>
+            {mode === "design" && (
+              <div
+                class="panel-resize-handle"
+                role="separator"
+                aria-label="Resize inspector panel"
+                aria-orientation="vertical"
+                aria-valuemin={220}
+                aria-valuemax={480}
+                aria-valuenow={inspectorWidth}
+                tabIndex={0}
+                onPointerDown={(event) => beginPanelResize("right", event)}
+                onPointerMove={movePanelResize}
+                onPointerUp={endPanelResize}
+                onPointerCancel={endPanelResize}
+                onKeyDown={(event) => {
+                  if (event.key === "ArrowLeft") {
+                    resizePanel("right", inspectorWidth + 16);
+                  }
+                  if (event.key === "ArrowRight") {
+                    resizePanel("right", inspectorWidth - 16);
+                  }
+                }}
+              />
+            )}
             {mode === "design" && (
               <aside class="editor-inspector">
                 <div class="editor-panel-title">
