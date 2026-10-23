@@ -100,7 +100,7 @@ Mailchimp uses double opt-in (`pending`) and requires an affirmative consent che
 
 JavaScript receives `element`, `options`, and `api` (`on`, `animate`, `cleanup`). Register listeners with `api.on` and teardown with `api.cleanup` so React page navigation can dispose of them. Presets support keyboard interaction, reduced-motion preferences, and menu Escape handling; carousel autoplay pauses for focus/hover and hidden tabs. Design selects layers without running widget scripts. Preview runs them in a sandbox without same-origin access or fetch connections; HTTPS images are allowed. This is deliberate author-owned code, not a general handwritten application workspace.
 
-The shared draft includes every page and API connection in one revisioned save. Apply or discard pending CSS, JavaScript, layer/API JSON, and manifest edits before saving or exporting. Existing drafts remain compatible; no new database migration is needed. Draft API bodies are capped at 2 MiB, so use remotely hosted image URLs for larger image collections.
+The shared draft includes every page and API connection in one revisioned save. Apply or discard pending CSS, JavaScript, layer/API JSON, and manifest edits before saving or exporting. Existing drafts remain compatible; no new database migration is needed. Draft API bodies are capped at 15 MiB to support embedded image uploads.
 
 ## Public homepage and account sign-in
 
@@ -195,7 +195,7 @@ Visit `/operator` to use the operator gate. The bootstrap operator uses HTTP Bas
 
 The operator gate is separate from GitHub/email user sessions and intentionally retains access to legacy unowned projects. GitHub identity sign-in does not authorize repository operations.
 
-Preview content runs in a sandboxed iframe with a restrictive content policy. The supported model excludes arbitrary HTML. Expert JavaScript is deliberately available for interactive layers and executes only in Preview inside the isolated frame; exported websites run that author-owned code in their own origin. Element CSS supports declarations rather than selectors, media-rule blocks, or external resource URLs. Images support HTTPS URLs and embedded PNG/JPEG/WebP/GIF uploads up to 200 KB each. A full asset library, responsive breakpoint authoring, and richer stylesheet editing remain future extensions.
+Preview content runs in a sandboxed iframe with a restrictive content policy. The supported model excludes arbitrary HTML. Expert JavaScript is deliberately available for interactive layers and executes only in Preview inside the isolated frame; exported websites run that author-owned code in their own origin. Element CSS supports declarations rather than selectors, media-rule blocks, or external resource URLs. Images support HTTPS URLs and embedded PNG/JPEG/WebP/GIF uploads up to 10 MB each. A full asset library, responsive breakpoint authoring, and richer stylesheet editing remain future extensions.
 
 The dashboard does not execute application code or expose a Docker socket. Future builds and runtimes belong behind separate execution and host-agent boundaries.
 

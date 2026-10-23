@@ -1,8 +1,9 @@
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import type { SiteNode } from "@/src/domain/site.ts";
 import {
   defaultFields,
   type LayerOptions,
+  MAX_IMAGE_BYTES,
   parseLayer,
 } from "@/src/domain/layers.ts";
 import { defaultJavascript } from "@/src/domain/interactions.ts";
@@ -25,14 +26,19 @@ export default function LayerInspector({
   pages: { name: string; path: string }[];
 }) {
   const o = node.layer ?? {};
+  const uploadDialog = useRef<HTMLDialogElement>(null);
   const [json, setJson] = useState<string | null>(null),
     [js, setJs] = useState<string | null>(null),
-    [error, setError] = useState("");
+    [error, setError] = useState(""),
+    [uploadError, setUploadError] = useState("");
   const pending = json !== null || js !== null;
   useEffect(() => {
     onPending(pending);
     return () => onPending(false);
   }, [pending]);
+  useEffect(() => {
+    if (uploadError) uploadDialog.current?.showModal();
+  }, [uploadError]);
   const change = (patch: Partial<LayerOptions>) => onChange({ ...o, ...patch });
   const interactive = ["carousel", "accordion", "nav", "navmenu"].includes(
     node.tag,
@@ -73,18 +79,47 @@ export default function LayerInspector({
                 onChange={(e) => {
                   const file = e.currentTarget.files?.[0];
                   if (!file) return;
-                  if (file.size > 200000) {
-                    setError(
-                      "Choose an image smaller than 200 KB, or use an HTTPS image URL.",
+                  e.currentTarget.value = "";
+                  if (file.size > MAX_IMAGE_BYTES) {
+                    setUploadError(
+                      "This image is larger than 10 MB. Choose a smaller PNG, JPEG, WebP, or GIF, or use an HTTPS image URL.",
+                    );
+                    return;
+                  }
+                  if (
+                    !["image/png", "image/jpeg", "image/webp", "image/gif"]
+                      .includes(file.type)
+                  ) {
+                    setUploadError(
+                      "This file type is not supported. Upload a PNG, JPEG, WebP, or GIF image up to 10 MB.",
                     );
                     return;
                   }
                   const reader = new FileReader();
                   reader.onload = () => {
-                    change({ src: String(reader.result) });
-                    setError("");
+                    if (typeof reader.result !== "string") {
+                      setUploadError(
+                        "The image could not be read. Try another image up to 10 MB, or use an HTTPS image URL.",
+                      );
+                      return;
+                    }
+                    change({ src: reader.result });
                   };
-                  reader.readAsDataURL(file);
+                  reader.onerror = () =>
+                    setUploadError(
+                      "The image could not be read. Try another image up to 10 MB, or use an HTTPS image URL.",
+                    );
+                  reader.onabort = () =>
+                    setUploadError(
+                      "The image upload was interrupted. Try again.",
+                    );
+                  try {
+                    reader.readAsDataURL(file);
+                  } catch {
+                    setUploadError(
+                      "The image could not be read. Try another image up to 10 MB, or use an HTTPS image URL.",
+                    );
+                  }
                 }}
               />
             </label>
@@ -470,6 +505,49 @@ export default function LayerInspector({
           </>
         )}
       </fieldset>
+      {uploadError && (
+        <dialog
+          ref={uploadDialog}
+          class="page-dialog upload-error-dialog"
+          aria-labelledby="image-upload-error-title"
+          onCancel={(event) => {
+            event.preventDefault();
+            uploadDialog.current?.close();
+            setUploadError("");
+          }}
+        >
+          <div class="page-dialog-heading">
+            <div>
+              <p class="eyebrow">IMAGE UPLOAD</p>
+              <h2 id="image-upload-error-title">Image upload failed</h2>
+              <p>{uploadError}</p>
+            </div>
+            <button
+              type="button"
+              class="dialog-close"
+              aria-label="Close image upload message"
+              onClick={() => {
+                uploadDialog.current?.close();
+                setUploadError("");
+              }}
+            >
+              ×
+            </button>
+          </div>
+          <div class="page-dialog-actions">
+            <button
+              type="button"
+              class="button primary"
+              onClick={() => {
+                uploadDialog.current?.close();
+                setUploadError("");
+              }}
+            >
+              Got it
+            </button>
+          </div>
+        </dialog>
+      )}
       {interactive && (
         <details class="expert-options">
           <summary>Expert · JavaScript</summary>

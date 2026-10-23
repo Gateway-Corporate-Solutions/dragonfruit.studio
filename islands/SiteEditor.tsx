@@ -20,6 +20,7 @@ import {
   reactAppSource,
   sourceZip,
 } from "@/src/domain/export.ts";
+import { DEPLOY_FILES } from "@/src/domain/deploy-assets.ts";
 import { BoxSpacing, StyleControl } from "@/components/StyleControl.tsx";
 import { useEffect, useRef, useState } from "preact/hooks";
 import type { Project } from "@/src/domain/models.ts";
@@ -365,7 +366,7 @@ export default function SiteEditor(
       return;
     }
     try {
-      const files = projectSourceFiles(website, exportFormat);
+      const files = projectSourceFiles(website, exportFormat, DEPLOY_FILES);
       const url = URL.createObjectURL(
         new Blob([sourceZip(files)], { type: "application/zip" }),
       );

@@ -104,10 +104,20 @@ Deno.test("Fresh and React exports include runnable scaffolds, every page and is
     "Team",
     "/company/team",
   );
-  const fresh = projectSourceFiles(website, "fresh"),
-    react = projectSourceFiles(website, "react");
+  const deploymentFiles = [
+    { name: "install.sh", content: "#!/usr/bin/env bash\n" },
+    { name: "examples/docker/Dockerfile", content: "FROM denoland/deno\n" },
+  ];
+  const fresh = projectSourceFiles(website, "fresh", deploymentFiles),
+    react = projectSourceFiles(website, "react", deploymentFiles);
   for (const files of [fresh, react]) {
     equal(files.some((f) => f.name === "README.md"), true);
+    equal(files.some((f) => f.name === "deploy/install.sh"), true);
+    equal(
+      files.find((f) => f.name === "deploy/examples/docker/Dockerfile")
+        ?.content,
+      "FROM denoland/deno\n",
+    );
     equal(new Set(files.map((f) => f.name)).size, files.length);
     const zip = sourceZip(files), view = new DataView(zip.buffer);
     equal(view.getUint32(0, true), 0x04034b50);

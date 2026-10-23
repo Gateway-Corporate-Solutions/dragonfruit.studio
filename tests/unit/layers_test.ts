@@ -1,6 +1,7 @@
 import { deepStrictEqual, equal, match, throws } from "node:assert/strict";
 import { parseSite, starterSite } from "../../src/domain/site.ts";
 import { parseLayer } from "../../src/domain/layers.ts";
+import { MAX_IMAGE_BYTES } from "../../src/domain/layers.ts";
 import { pageMarkup } from "../../src/domain/markup.ts";
 import { newConnection, parseConnections } from "../../src/domain/forms.ts";
 import {
@@ -122,6 +123,14 @@ Deno.test("new layers round-trip validated options and reject unsafe image/link/
       mergeFields: { FNAME: "__proto__" },
     }])
   );
+});
+Deno.test("uploaded image data URLs support the 10 MB file limit", () => {
+  const prefix = "data:image/png;base64,";
+  const maxDataUrlLength = 14 * 1024 * 1024;
+  const image = prefix + "A".repeat(maxDataUrlLength - prefix.length);
+  equal(MAX_IMAGE_BYTES, 10_000_000);
+  equal(parseLayer("img", { src: image })?.src, image);
+  throws(() => parseLayer("img", { src: image + "A" }));
 });
 Deno.test("markup escapes text and preserves semantic forms, images and interaction attributes", () => {
   const site = fixture();

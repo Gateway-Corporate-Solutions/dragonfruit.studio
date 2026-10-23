@@ -38,13 +38,15 @@ export interface LayerOptions {
 const fail = (s: string): never => {
   throw new ValidationError([s]);
 };
+export const MAX_IMAGE_BYTES = 10_000_000;
+const MAX_IMAGE_DATA_URL_LENGTH = 14 * 1024 * 1024;
 export function safeLink(s: string): boolean {
   return s.length <= 500 && !/[\s<>"']/.test(s) &&
     /^(#|\/(?!\/)|https:\/\/|mailto:|tel:)/i.test(s);
 }
 export function safeImage(s: string): boolean {
   return s === "" ||
-    s.length <= 300000 &&
+    s.length <= MAX_IMAGE_DATA_URL_LENGTH &&
       (/^data:image\/(?:png|jpeg|gif|webp);base64,[a-zA-Z0-9+/=]+$/.test(s) ||
         s.length <= 2000 && /^https:\/\/[^\s<>"']+$/.test(s) ||
         s.length <= 500 && /^\/(?!\/)[^\s<>"']+$/.test(s));
@@ -70,7 +72,7 @@ export function parseLayer(
   const result: LayerOptions = {};
   if (tag === "a") result.newTab = o.newTab === true;
   if (tag === "img") {
-    result.src = string(o.src, "", 300000);
+    result.src = string(o.src, "", MAX_IMAGE_DATA_URL_LENGTH);
     result.alt = string(o.alt, "Describe this image", 300);
     if (!safeImage(result.src)) {
       fail("Use an HTTPS image URL, local path, or uploaded PNG/JPEG/WebP/GIF");
@@ -126,7 +128,7 @@ export function parseLayer(
         title: string(i.title, "Item", 200),
         body: string(i.body, "", 3000),
         href: string(i.href, "#", 500),
-        image: string(i.image, "", 300000),
+        image: string(i.image, "", MAX_IMAGE_DATA_URL_LENGTH),
       };
       if (!safeLink(item.href) || !safeImage(item.image)) {
         fail("Invalid item link or image");

@@ -9,14 +9,15 @@ import { ConflictError, NotFoundError } from "../domain/models.ts";
 import type { Store } from "../storage/store.ts";
 const uuid =
   "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
+const MAX_REQUEST_BODY_BYTES = 15 * 1024 * 1024;
 const error = (message: string, status: number) =>
   Response.json({ error: message }, { status });
 async function body(req: Request): Promise<unknown> {
   if (!req.headers.get("content-type")?.startsWith("application/json")) {
     throw new ValidationError(["Use application/json"]);
   }
-  if (Number(req.headers.get("content-length")) > 2097152) {
-    throw new ValidationError(["Request body exceeds 2 MiB"]);
+  if (Number(req.headers.get("content-length")) > MAX_REQUEST_BODY_BYTES) {
+    throw new ValidationError(["Request body exceeds 15 MiB"]);
   }
   if (!req.body) throw new ValidationError(["JSON body is required"]);
   const reader = req.body.getReader();
@@ -27,9 +28,9 @@ async function body(req: Request): Promise<unknown> {
       const { done, value } = await reader.read();
       if (done) break;
       length += value.length;
-      if (length > 2097152) {
+      if (length > MAX_REQUEST_BODY_BYTES) {
         await reader.cancel();
-        throw new ValidationError(["Request body exceeds 2 MiB"]);
+        throw new ValidationError(["Request body exceeds 15 MiB"]);
       }
       chunks.push(value);
     }

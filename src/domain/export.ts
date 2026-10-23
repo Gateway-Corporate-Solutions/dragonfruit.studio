@@ -109,6 +109,7 @@ export default function App() {
 export function projectSourceFiles(
   input: WebsiteDocument,
   format: ExportFormat,
+  deploymentFiles: ProjectFile[] = [],
 ): ProjectFile[] {
   const website = parseWebsite(input);
   if (format !== "fresh" && format !== "react") {
@@ -137,6 +138,10 @@ export function projectSourceFiles(
     name: ".gitignore",
     content: "node_modules/\n_fresh/\ndist/\n.env\n",
   }];
+  const deploy = deploymentFiles.map((file) => ({
+    ...file,
+    name: "deploy/" + file.name,
+  }));
   if (format === "fresh") {
     const compilerOptions = {
       jsx: "precompile",
@@ -184,6 +189,7 @@ export function projectSourceFiles(
     );
     return [
       ...common,
+      ...deploy,
       {
         name: "server/site.ts",
         content: "export const website = " + pretty(website) + ";\n",
@@ -249,6 +255,7 @@ export function projectSourceFiles(
     ).join("\n");
   return [
     ...common,
+    ...deploy,
     {
       name: "package.json",
       content: pretty({

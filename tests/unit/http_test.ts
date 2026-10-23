@@ -119,7 +119,7 @@ Deno.test("project and validation API return usable records and idempotent jobs"
 });
 Deno.test("API rejects malformed and oversized JSON", async () => {
   const store = new MemoryStore();
-  for (const body of ["{", "x".repeat(2097153)]) {
+  for (const body of ["{", "x".repeat(15 * 1024 * 1024 + 1)]) {
     const res = await handleApi(
       new Request("http://localhost/api/projects", {
         method: "POST",
@@ -129,5 +129,9 @@ Deno.test("API rejects malformed and oversized JSON", async () => {
       store,
     );
     equal(res.status, 400);
+    if (body.length > 100) {
+      const result = await res.json();
+      equal(result.issues[0], "Request body exceeds 15 MiB");
+    }
   }
 });
