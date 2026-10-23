@@ -1,8 +1,17 @@
+import { COMMERCE_BROWSER_SOURCE } from "./commerce-runtime.ts";
 import { type LayerOptions, parseLayer, safeLink } from "./layers.ts";
 import { escapeHtml, LAYER_CSS, pageMarkup } from "./markup.ts";
 import { RUNTIME_SOURCE } from "./interactions.ts";
 import { ValidationError } from "./manifest.ts";
 export type ElementTag =
+  | "markdown"
+  | "blog"
+  | "shop"
+  | "product"
+  | "cart"
+  | "checkout"
+  | "calendar"
+  | "schedule"
   | "section"
   | "div"
   | "h1"
@@ -31,6 +40,14 @@ export interface SiteDocument {
   nodes: SiteNode[];
 }
 const tags = new Set([
+  "markdown",
+  "blog",
+  "shop",
+  "product",
+  "cart",
+  "checkout",
+  "calendar",
+  "schedule",
   "section",
   "div",
   "h1",
@@ -339,6 +356,7 @@ export function previewHtml(
   interactive: boolean,
   routes: string[] = [],
   pageId = "home",
+  commerce?: unknown,
 ): string {
   const navigation =
     "document.addEventListener('click',function(e){var a=e.target.closest('a');var n=e.target.closest('[data-node]');" +
@@ -349,9 +367,12 @@ export function previewHtml(
         ".includes(href)){e.preventDefault();parent.postMessage({type:'dragonfruit.navigate',path:href},'*')}else if(!href||href.charAt(0)!=='#'){e.preventDefault()}}") +
     "}, true);";
   const runtime = interactive
-    ? "document.addEventListener('submit',e=>e.preventDefault(),true);"
+    ? "document.addEventListener('submit',e=>e.preventDefault(),true);" +
+      COMMERCE_BROWSER_SOURCE + "\nmountCommerce(document,{},true," +
+      JSON.stringify(commerce ?? {}).replaceAll("<", "\\u003c") + ");"
     : RUNTIME_SOURCE.replace("export function mount", "function mount") +
-      "\nmount(document,true);";
+      "\nmount(document,true," +
+      JSON.stringify(commerce ?? {}).replaceAll("<", "\\u003c") + ");";
   return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src &#39;none&#39;; img-src https: data:; style-src &#39;unsafe-inline&#39;; script-src &#39;unsafe-inline&#39; &#39;unsafe-eval&#39;; form-action &#39;none&#39;; connect-src &#39;none&#39;"><title>' +
     escapeHtml(site.title) + "</title><style>" + LAYER_CSS +
     (interactive

@@ -68,7 +68,7 @@ In **Code**, choose **Fresh (Deno)** or **React (Vite)** and select **Download w
 | Fresh | Fresh 2 file routes, Preact rendering, Deno/Vite configuration, styles | `deno install`, then `deno task dev` |
 | React | React application, browser routing, page data, scoped styles, TypeScript/Vite configuration | `npm install`, then `npm run dev` |
 
-Fresh requires the tested Deno 2.9.5 runtime. React requires Node.js 22.12+ and npm. Dependencies install on first use; keep the generated lockfile. Both exports run independently of dragonfruit. React exports now include a Node backend and development proxy for form submissions. Run `npm start` after building to serve both the site and its API; static-only hosting requires a separate backend and `/api` proxy. Template contact details, prices, and posts are examples; payment processing and a CMS remain future work.
+Fresh requires the tested Deno 2.9.5 runtime. React requires Node.js 22.12+ and npm. Dependencies install on first use; keep the generated lockfile. Both exports run independently of dragonfruit. React exports now include a Node backend and development proxy for form submissions. Run `npm start` after building to serve both the site and its API; static-only hosting requires a separate backend and `/api` proxy. Template contact details and products are examples. Markdown article pages, product catalogs, carts, Stripe hosted checkout, and booking schedules are included; configure integrations before launch.
 
 The sun/moon control changes the editor and dashboard appearance, remembers the choice on this browser, and initially follows system preference. Your authored website colors remain as designed. The dashboard illustration is a native vector SVG. Source CSS lives in `assets/` so Vite processes it instead of importing files from the public directory.
 
@@ -259,3 +259,25 @@ See [product direction](docs/product-direction.md), [implementation status](docs
 - [Deno security and permissions](https://docs.deno.com/runtime/fundamentals/security/)
 - [Deno deployment options](https://docs.deno.com/runtime/deploy/)
 
+
+
+## Markdown blog, commerce, and social previews
+
+- **Blog:** Add a Blog page to create an index and a starter Markdown article. The index automatically shows article titles, blurbs, and links. In Settings, use **Add Markdown article** for subsequent posts; edit the article's Markdown layer in Design, and set its URL and blurb in Settings. Articles are independent pages in the existing 16-page website limit and are omitted from the top navigation. Delete and rename use the existing page controls. Existing static blog layouts can keep their design: add a Blog index layer to link the new articles.
+- **Markdown:** Supports headings, paragraphs, emphasis, strikethrough, links, images, flat ordered/unordered lists, quotes, horizontal rules, inline code, and fenced code. It is a deliberately bounded subset; raw HTML displays as text and executable link schemes are rejected.
+- **Commerce:** Add Shop, Product, Cart, Checkout, Calendar, or Schedule layers from the Add panel. In API → Commerce API, add products, choose USD/EUR/GBP, and select Preview or Stripe. Prices use whole minor units (1900 = 19.00); Product layers select a product by its ID. Carts persist within the browser tab and support quantity changes and removal. All layers use one shared catalog, including on different pages.
+- **Payments:** Export Fresh or React, then set `PUBLIC_ORIGIN` and `STRIPE_SECRET_KEY` in the exported server's `.env`. Preview never charges. Stripe Checkout uses server-authoritative catalog prices and redirects to Stripe; browser price overrides are ignored. Start with a Stripe test key. Tax/shipping rules, inventory reservations, order storage, fulfillment automation, recurring subscriptions, refunds, and payment webhooks are outside this release. Confirm payment in Stripe before fulfillment; a `checkout=success` return URL is not payment proof. See https://docs.stripe.com/api/checkout/sessions/create.
+- **Scheduling:** Add titled sessions with ISO start/end dates including timezone and an HTTPS booking URL. Calendar/Schedule show upcoming sessions in the visitor's timezone, ordered by time. The linked booking provider manages availability, reservations, conflicts, and cancellations. The website does not reserve a slot itself.
+- **SEO and embeds:** Each page's Settings has its meta description/blurb, optional embed-image URL, and indexing control. Exports automatically generate branded 1200 × 630 PNG cards for every page; custom URLs override the default. Canonical, description, Open Graph, and Twitter card metadata are present in initial server HTML in both Fresh and the React Node server, and update on React navigation. Set `PUBLIC_ORIGIN` to the final HTTPS origin. Static-only React hosting needs prerendering for route-specific crawler metadata. The builder homepage also includes a branded card and metadata, using `DRAGONFRUIT_PUBLIC_ORIGIN`.
+
+Exported commerce APIs:
+
+| Endpoint | Behavior |
+| --- | --- |
+| `GET /api/commerce/catalog` | Active products and currency |
+| `GET /api/commerce/schedule` | Sessions that have not ended |
+| `POST /api/commerce/checkout` | `{ "items": [{ "id": "product-id", "quantity": 1 }] }`; preview total or Stripe redirect URL |
+
+Checkout requires a same-origin JSON request, validates product IDs and quantities, bounds request size, and limits creation to 120 attempts per minute per server process. Multi-instance or higher-traffic deployments should supply a shared rate limiter. API keys remain in server environment variables and are excluded from public assets. Expert Commerce JSON is validated and included in draft revision history.
+
+Validation for this update: 51 unit tests (including Markdown safety, article persistence/indexing, commerce validation, checkout price tampering, and export metadata), strict domain/UI type checks, lint, React export production build, and a headless browser smoke test covering article navigation/reloads, quantity changes, checkout preview, cart persistence/removal, and image/metadata routes. Full Fresh build needs access to the configured JSR/npm dependencies.

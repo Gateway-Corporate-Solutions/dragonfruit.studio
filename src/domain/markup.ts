@@ -1,9 +1,11 @@
+import { renderMarkdown } from "./markdown.ts";
 import type { SiteDocument, SiteNode } from "./site.ts";
 export const escapeHtml = (value: string) =>
   value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
 export const LAYER_CSS = String.raw`
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:#f8f7f2}h1,h2,p{margin:0;white-space:pre-line}a{white-space:pre-line}[hidden]{display:none!important}
+.df-markdown{font-size:12pt;line-height:1.8;color:#243c30}.df-markdown p,.df-markdown ul,.df-markdown ol,.df-markdown pre,.df-markdown blockquote{margin:1em 0;white-space:normal}.df-markdown h1,.df-markdown h2,.df-markdown h3{margin:1em 0 .5em}.df-markdown img,.df-blog img,.df-commerce img{max-width:100%;border-radius:10px}.df-markdown pre{overflow:auto;padding:20px;background:#e9efdf;border-radius:8px}.df-markdown blockquote{border-left:4px solid #668943;padding-left:20px}.df-blog,[data-commerce="shop"] [data-commerce-content]{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:24px}.df-blog article,.df-commerce article{background:#fff;border:1px solid #c6d2bd;border-radius:12px;padding:24px}.df-blog p,.df-commerce p{line-height:1.7;margin:14px 0}.df-commerce{font-size:11pt}.df-commerce article{margin:12px 0}.df-commerce button{margin:6px}.df-commerce input{max-width:90px}.df-commerce h2{grid-column:1/-1}
 .df-widget{--df-accent:#294c38;--df-panel:#fff;--df-ink:#243c30;color:var(--df-ink)}
 .df-widget button,.df-widget input,.df-widget textarea{font:inherit}.df-widget button,.df-widget input,.df-widget textarea{border:1px solid #78916c;border-radius:6px;padding:10px 14px}.df-widget button{background:var(--df-accent);color:white;cursor:pointer}.df-widget button:disabled{opacity:.65;cursor:wait}.df-widget :focus-visible{outline:3px solid #668943;outline-offset:3px}
 .df-form{display:grid;gap:18px}.df-form label{display:grid;gap:7px;font-size:11pt}.df-form input:not([type=checkbox]),.df-form textarea{width:100%;color:#243c30;background:#fff}.df-form .df-check{display:flex;align-items:center}.df-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}.df-form [data-form-status]{font-size:11pt;line-height:1.6}
@@ -21,6 +23,33 @@ export function pageMarkup(site: SiteDocument, pageId = "home"): string {
       );
     const attrs = ' id="' + n.id + '" data-node="' + n.id + '" style="' +
       style + '"';
+    if (n.tag === "markdown") {
+      return "<article" + attrs + ' class="df-markdown">' +
+        renderMarkdown(o.markdown || "") + "</article>";
+    }
+    if (n.tag === "blog") {
+      return "<section" + attrs + ' class="df-blog">' + (o.items?.length
+        ? o.items.map((i) =>
+          "<article>" +
+          (i.image ? '<img src="' + esc(i.image) + '" alt=""/>' : "") +
+          '<h2><a href="' + esc(i.href) + '">' + esc(i.title) + "</a></h2><p>" +
+          esc(i.body) + '</p><a href="' + esc(i.href) +
+          '">Read article →</a></article>'
+        ).join("")
+        : "<p>No articles yet. Add your first article in Page settings.</p>") +
+        "</section>";
+    }
+    if (
+      ["shop", "product", "cart", "checkout", "calendar", "schedule"].includes(
+        n.tag,
+      )
+    ) {
+      return "<section" + attrs +
+        ' class="df-widget df-commerce" data-commerce="' + n.tag +
+        '" data-product="' + esc(o.productId || "") + '"><h2>' +
+        esc(n.text || n.tag) +
+        '</h2><div data-commerce-content></div><p role="status" aria-live="polite" data-commerce-status></p></section>';
+    }
     if (n.tag === "img") {
       return o.src
         ? "<img" + attrs + ' src="' + esc(o.src) + '" alt="' +

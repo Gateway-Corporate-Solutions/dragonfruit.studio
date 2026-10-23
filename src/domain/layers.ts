@@ -19,6 +19,8 @@ export interface LayerItem {
   image: string;
 }
 export interface LayerOptions {
+  markdown?: string;
+  productId?: string;
   src?: string;
   alt?: string;
   newTab?: boolean;
@@ -63,13 +65,37 @@ export function parseLayer(
 ): LayerOptions | undefined {
   if (
     value === undefined &&
-    !["img", "form", "carousel", "accordion", "nav", "navmenu"].includes(tag)
+    ![
+      "img",
+      "form",
+      "carousel",
+      "accordion",
+      "nav",
+      "navmenu",
+      "markdown",
+      "blog",
+      "shop",
+      "product",
+      "cart",
+      "checkout",
+      "calendar",
+      "schedule",
+    ].includes(tag)
   ) return;
   const o = (value ?? {}) as Record<string, unknown>;
   if (!o || typeof o !== "object" || Array.isArray(o)) {
     return fail("Layer options must be an object");
   }
   const result: LayerOptions = {};
+  if (tag === "markdown") {
+    result.markdown = string(
+      o.markdown,
+      "# Your article\n\nStart writing in **Markdown**.",
+      100000,
+    );
+  }
+  if (tag === "product") result.productId = string(o.productId, "", 71);
+
   if (tag === "a") result.newTab = o.newTab === true;
   if (tag === "img") {
     result.src = string(o.src, "", MAX_IMAGE_DATA_URL_LENGTH);
@@ -116,9 +142,12 @@ export function parseLayer(
       };
     });
   }
-  if (["carousel", "accordion", "nav", "navmenu"].includes(tag)) {
+  if (["carousel", "accordion", "nav", "navmenu", "blog"].includes(tag)) {
     const items = o.items ?? defaultItems(tag);
-    if (!Array.isArray(items) || !items.length || items.length > 12) {
+    if (
+      !Array.isArray(items) || (tag !== "blog" && !items.length) ||
+      items.length > (tag === "blog" ? 16 : 12)
+    ) {
       fail("Use 1–12 slides, panels, or menu links");
     }
     result.items = (items as unknown[]).map((v) => {

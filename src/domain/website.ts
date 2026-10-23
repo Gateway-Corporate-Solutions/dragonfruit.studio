@@ -1,3 +1,5 @@
+import { type CommerceConfig, parseCommerce } from "./commerce.ts";
+import { parseSeo, type Seo } from "./seo.ts";
 import { type ApiConnection, parseConnections } from "./forms.ts";
 import { ValidationError } from "./manifest.ts";
 import {
@@ -13,12 +15,15 @@ export interface SitePage extends SiteDocument {
   id: string;
   name: string;
   path: string;
+  article?: boolean;
+  seo?: Seo;
 }
 export interface WebsiteDocument {
   schemaVersion: 2;
   title: string;
   pages: SitePage[];
   apis?: ApiConnection[];
+  commerce?: CommerceConfig;
 }
 export const PAGE_TEMPLATES = [
   {
@@ -124,10 +129,38 @@ export function parseWebsite(value: unknown): WebsiteDocument {
     }
     ids.add(p.id);
     paths.add(p.path);
-    return { ...parseSite(p), id: p.id, name: p.name.trim(), path: p.path };
+    return {
+      ...parseSite(p),
+      id: p.id,
+      name: p.name.trim(),
+      path: p.path,
+      ...(p.article === true ? { article: true } : {}),
+      ...(p.seo !== undefined ? { seo: parseSeo(p.seo) } : {}),
+    };
   });
   if (!paths.has("/")) return fail("Keep one Home page at /");
   const apis = parseConnections(input.apis);
+  const commerce = parseCommerce(input.commerce);
+  const articles = pages.filter((p) => p.article);
+  for (const page of pages) {
+    const sync = (nodes: SiteNode[]): void => {
+      for (const n of nodes) {
+        if (n.tag === "blog") {
+          n.layer = {
+            ...n.layer,
+            items: articles.map((p) => ({
+              title: p.name,
+              body: p.seo?.description || "Read the full article.",
+              href: p.path,
+              image: p.seo?.image || "",
+            })),
+          };
+        }
+        sync(n.children);
+      }
+    };
+    sync(page.nodes);
+  }
   for (const page of pages) {
     const visit = (nodes: SiteNode[]) => {
       for (const n of nodes) {
@@ -145,6 +178,7 @@ export function parseWebsite(value: unknown): WebsiteDocument {
     title: input.title.trim(),
     pages,
     ...(apis.length ? { apis } : {}),
+    ...(commerce ? { commerce } : {}),
   };
 }
 export function starterWebsite(name: string): WebsiteDocument {
@@ -395,7 +429,7 @@ export function syncNavigation(website: WebsiteDocument): WebsiteDocument {
             "flex-wrap": "wrap",
             "justify-content": "center",
           },
-        children: website.pages.map((target) => {
+        children: website.pages.filter((p) => !p.article).map((target) => {
           const previous = existing?.children.find((n) =>
             n.id === "nav-" + target.id
           );
@@ -453,6 +487,19 @@ export function addPage(
       ),
     ],
   };
+  if (template === "blog") {
+    const page = next.pages[next.pages.length - 1];
+    page.nodes = page.nodes.filter((n) => n.id !== "page-content");
+    page.nodes.push({
+      id: "blog-articles",
+      tag: "blog",
+      text: "Articles",
+      styles: { padding: "48px 6%" },
+      children: [],
+      layer: { items: [] },
+    });
+    return addBlogArticle(next, "Making space for better ideas", page.path);
+  }
   return parseWebsite(syncNavigation(next));
 }
 export function updatePageDetails(
@@ -533,4 +580,63 @@ export function websiteSourceFiles(
     name: "routes/" + routeFilename(page.path),
     content: freshSource(page, page.id),
   }));
+}
+
+/** Articles are real pages, sharing the editor, history, persistence and export pipeline. */
+export function addBlogArticle(
+  website: WebsiteDocument,
+  title = "New article",
+  base = "/blog",
+): WebsiteDocument {
+  if (website.pages.length >= 16) {
+    return fail("A website supports up to 16 pages");
+  }
+  const slug = uniquePagePath(website, title).slice(1);
+  let path = base + "/" + slug, n = 2;
+  while (website.pages.some((p) => p.path === path)) {
+    path = base + "/" + slug + "-" + n++;
+  }
+  const page = templatePage("blank", website.title, title, path);
+  page.article = true;
+  page.seo = {
+    description:
+      "A fresh perspective on thoughtful work, better ideas, and what comes next.",
+    image: "",
+    noindex: false,
+  };
+  page.nodes.push({
+    id: "article-content",
+    tag: "markdown",
+    text: "",
+    styles: { padding: "48px 6%", "max-width": "850px", margin: "0 auto" },
+    children: [],
+    layer: {
+      markdown: "# " + title +
+        "\n\nEvery good idea needs room to grow. This journal is a place to share what we are learning.\n\n## Start with a question\n\nWhat could we make simpler, clearer, or more useful?\n\n- Listen closely.\n- Try something small.\n- Share what you learn.\n\n> Thoughtful work starts with curiosity.\n\n[Back to the journal](" +
+        base + ")",
+    },
+  });
+  return parseWebsite(
+    syncNavigation({ ...website, pages: [...website.pages, page] }),
+  );
+}
+
+/** Refresh derived index cards without validating intermediate editor text or mutating history. */
+export function refreshBlogIndex(website: WebsiteDocument): WebsiteDocument {
+  const items = website.pages.filter((p) => p.article).map((p) => ({
+    title: p.name,
+    body: p.seo?.description || "Read the full article.",
+    href: p.path,
+    image: p.seo?.image || "",
+  }));
+  const visit = (nodes: SiteNode[]): SiteNode[] =>
+    nodes.map((n) => ({
+      ...n,
+      ...(n.tag === "blog" ? { layer: { ...n.layer, items } } : {}),
+      children: visit(n.children),
+    }));
+  return {
+    ...website,
+    pages: website.pages.map((p) => ({ ...p, nodes: visit(p.nodes) })),
+  };
 }

@@ -1,3 +1,5 @@
+import type { Seo } from "@/src/domain/seo.ts";
+import CommerceEditor from "@/components/CommerceEditor.tsx";
 import { newConnection } from "@/src/domain/forms.ts";
 import ApiEditor from "@/components/ApiEditor.tsx";
 import LayerInspector from "@/components/LayerInspector.tsx";
@@ -5,10 +7,12 @@ import { parseLayer } from "@/src/domain/layers.ts";
 import ThemeToggle from "@/islands/ThemeToggle.tsx";
 import PageDialog from "@/components/PageDialog.tsx";
 import {
+  addBlogArticle,
   addPage,
   deletePage,
   type PageTemplate,
   parseWebsite,
+  refreshBlogIndex,
   routeFilename,
   starterWebsite,
   updatePageDetails,
@@ -39,6 +43,14 @@ import {
 } from "@/src/domain/site.ts";
 
 const friendly: Record<ElementTag, string> = {
+  markdown: "Markdown article",
+  blog: "Blog index",
+  shop: "Shop",
+  product: "Product",
+  cart: "Cart",
+  checkout: "Checkout",
+  calendar: "Calendar",
+  schedule: "Schedule",
   section: "Section",
   div: "Group",
   h1: "Heading",
@@ -81,7 +93,8 @@ export default function SiteEditor(
     website.pages[0];
   const [showPages, setShowPages] = useState(false);
   const [layerPending, setLayerPending] = useState(false),
-    [apiPending, setApiPending] = useState(false);
+    [apiPending, setApiPending] = useState(false),
+    [commercePending, setCommercePending] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportFormat>("fresh");
   const [pageName, setPageName] = useState(site.name),
     [pagePath, setPagePath] = useState(site.path),
@@ -121,7 +134,8 @@ export default function SiteEditor(
   const cssPending = !!node && cssDraft !== styleSignature;
   const manifestPending = manifestDraft !== JSON.stringify(manifest, null, 2);
   const dirty = JSON.stringify({ document: website, manifest }) !== saved ||
-    cssPending || manifestPending || layerPending || apiPending;
+    cssPending || manifestPending || layerPending || apiPending ||
+    commercePending;
   function resizePanel(side: "left" | "right", requestedWidth: number) {
     const minWidth = side === "left" ? 160 : 220;
     const maxWidth = side === "left" ? 420 : 480;
@@ -209,12 +223,13 @@ export default function SiteEditor(
     return () => globalThis.removeEventListener("message", select);
   });
   function commitWebsite(next: WebsiteDocument) {
+    next = refreshBlogIndex(next);
     setHistory([...history.slice(0, position + 1), next].slice(-60));
     setPosition(Math.min(position + 1, 59));
     setMessage("");
     setSaveError("");
   }
-  function commit(next: SiteDocument) {
+  function commit(next: SiteDocument & { seo?: Seo }) {
     commitWebsite({
       ...website,
       pages: website.pages.map((p) => p.id === site.id ? { ...p, ...next } : p),
@@ -241,7 +256,7 @@ export default function SiteEditor(
     try {
       const next = addPage(website, template, name);
       commitWebsite(next);
-      setActivePage(next.pages[next.pages.length - 1].id);
+      setActivePage(next.pages[website.pages.length].id);
       setShowPages(false);
     } catch (error) {
       return error instanceof Error ? error.message : "Could not create page";
@@ -256,7 +271,9 @@ export default function SiteEditor(
     if (site.id === pageId) setActivePage(homeId);
   }
   function canDiscardCss() {
-    if (!cssPending && !layerPending && !apiPending) return true;
+    if (!cssPending && !layerPending && !apiPending && !commercePending) {
+      return true;
+    }
     if (
       !confirm(
         "Discard unapplied CSS, layer JavaScript / JSON, or API JSON edits?",
@@ -266,6 +283,7 @@ export default function SiteEditor(
     setCssError("");
     setLayerPending(false);
     setApiPending(false);
+    setCommercePending(false);
     return true;
   }
   function selectNode(id: string) {
@@ -329,9 +347,36 @@ export default function SiteEditor(
       children: [],
     };
     if (
-      ["img", "form", "carousel", "accordion", "nav", "navmenu"].includes(tag)
+      [
+        "img",
+        "form",
+        "carousel",
+        "accordion",
+        "nav",
+        "navmenu",
+        "markdown",
+        "blog",
+        "shop",
+        "product",
+        "cart",
+        "checkout",
+        "calendar",
+        "schedule",
+      ].includes(tag)
     ) {
       child.layer = parseLayer(tag, {});
+      if (
+        [
+          "shop",
+          "product",
+          "cart",
+          "checkout",
+          "calendar",
+          "schedule",
+          "blog",
+          "markdown",
+        ].includes(tag)
+      ) child.text = friendly[tag];
       if (formApi) child.layer!.apiId = formApi.id;
       child.text = tag === "img"
         ? ""
@@ -417,7 +462,10 @@ export default function SiteEditor(
     commit({ ...site, nodes: reorder(site.nodes) });
   }
   function downloadProject() {
-    if (cssPending || manifestPending || layerPending || apiPending) {
+    if (
+      cssPending || manifestPending || layerPending || apiPending ||
+      commercePending
+    ) {
       setSaveError(
         "Apply or discard your CSS, manifest, layer JavaScript / JSON, or API edits before exporting.",
       );
@@ -440,7 +488,10 @@ export default function SiteEditor(
     }
   }
   async function save() {
-    if (cssPending || manifestPending || layerPending || apiPending) {
+    if (
+      cssPending || manifestPending || layerPending || apiPending ||
+      commercePending
+    ) {
       setSaveError(
         "Apply or discard your CSS, manifest, layer JavaScript / JSON, or API edits before saving.",
       );
@@ -602,13 +653,20 @@ export default function SiteEditor(
       )}
       {mode === "api"
         ? (
-          <ApiEditor
-            key={site.id}
-            website={website}
-            projectId={project.id}
-            onChange={commitWebsite}
-            onPending={setApiPending}
-          />
+          <div class="editor-settings">
+            <CommerceEditor
+              website={website}
+              onChange={commitWebsite}
+              onPending={setCommercePending}
+            />
+            <ApiEditor
+              key={site.id}
+              website={website}
+              projectId={project.id}
+              onChange={commitWebsite}
+              onPending={setApiPending}
+            />
+          </div>
         )
         : mode === "settings"
         ? (
@@ -621,6 +679,84 @@ export default function SiteEditor(
             </p>
             <section class="panel">
               <h2>Page settings · {site.name}</h2>
+              <button
+                type="button"
+                class="button"
+                disabled={website.pages.length >= 16}
+                onClick={() => {
+                  const next = addBlogArticle(
+                    website,
+                    "New article",
+                    website.pages.find((p) =>
+                      allNodes(p).some((n) => n.tag === "blog")
+                    )?.path || "/blog",
+                  );
+                  commitWebsite(next);
+                  setActivePage(next.pages[next.pages.length - 1].id);
+                  setMode("design");
+                  setSelected("article-content");
+                }}
+              >
+                + Add Markdown article
+              </button>
+              <h3>Search and social previews</h3>
+              <label>
+                Article blurb / Meta description<textarea
+                  maxLength={320}
+                  value={site.seo?.description ?? ""}
+                  onInput={(e) =>
+                    commit({
+                      ...site,
+                      seo: {
+                        description: e.currentTarget.value,
+                        image: site.seo?.image ?? "",
+                        noindex: site.seo?.noindex ?? false,
+                      },
+                    })}
+                />
+              </label>
+              <label>
+                Embed image URL (optional)<input
+                  value={site.seo?.image ?? ""}
+                  placeholder="Automatic branded image when empty"
+                  onChange={(e) => {
+                    try {
+                      commit({
+                        ...site,
+                        seo: {
+                          description: site.seo?.description ?? "",
+                          image: e.currentTarget.value,
+                          noindex: site.seo?.noindex ?? false,
+                        },
+                      });
+                      setPageError("");
+                    } catch {
+                      setPageError("Use an HTTPS URL or local image path");
+                    }
+                  }}
+                />
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={site.seo?.noindex ?? false}
+                  onChange={(e) =>
+                    commit({
+                      ...site,
+                      seo: {
+                        description: site.seo?.description ?? "",
+                        image: site.seo?.image ?? "",
+                        noindex: e.currentTarget.checked,
+                      },
+                    })}
+                />{" "}
+                Hide from search engines
+              </label>
+              <p class="muted">
+                Exports include canonical URLs, Open Graph and Twitter cards,
+                with a generated 1200 × 630 PNG for every page. Set
+                PUBLIC_ORIGIN to your deployed website URL.
+              </p>
               <label>
                 Page name<input
                   value={pageName}
@@ -921,6 +1057,39 @@ export default function SiteEditor(
                           "Navmenu",
                           "A collapsible menu of links",
                         ],
+                        [
+                          "markdown",
+                          "¶",
+                          "Markdown article",
+                          "Headings, links, images, and code",
+                        ],
+                        [
+                          "blog",
+                          "≋",
+                          "Blog index",
+                          "Linked articles with blurbs",
+                        ],
+                        ["shop", "▦", "Shop", "Your product catalog"],
+                        ["product", "◇", "Product", "Feature one product"],
+                        [
+                          "cart",
+                          "▱",
+                          "Cart",
+                          "Quantities, removals, and subtotal",
+                        ],
+                        ["checkout", "↗", "Checkout", "Secure hosted payment"],
+                        [
+                          "calendar",
+                          "▦",
+                          "Calendar",
+                          "Upcoming bookable sessions",
+                        ],
+                        [
+                          "schedule",
+                          "◷",
+                          "Schedule",
+                          "Sessions and booking links",
+                        ],
                       ] as const).map(([tag, icon, title, description]) => (
                         <button
                           type="button"
@@ -1029,6 +1198,7 @@ export default function SiteEditor(
                     mode === "design",
                     website.pages.map((p) => p.path),
                     site.id,
+                    website.commerce,
                   )}
                 />
               </div>
@@ -1096,7 +1266,8 @@ export default function SiteEditor(
                       {inspector === "visual"
                         ? (
                           <>
-                            {!["section", "div", "img"].includes(node.tag) && (
+                            {!["section", "div", "img", "markdown", "blog"]
+                              .includes(node.tag) && (
                               <label>
                                 Content<textarea
                                   key="element-content"
@@ -1131,6 +1302,14 @@ export default function SiteEditor(
                               "accordion",
                               "nav",
                               "navmenu",
+                              "markdown",
+                              "blog",
+                              "shop",
+                              "product",
+                              "cart",
+                              "checkout",
+                              "calendar",
+                              "schedule",
                             ].includes(node.tag) && (
                               <LayerInspector
                                 key={site.id + "/" + node.id}

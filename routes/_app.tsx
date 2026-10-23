@@ -4,6 +4,10 @@ import { define } from "@/utils.ts";
 export default define.page(function App({ Component, state, url }) {
   const active = url.pathname;
   const publicPage = active === "/" || active.startsWith("/auth/");
+  const origin = state.config.publicOrigin || url.origin;
+  const description =
+    "Build expressive websites with dragonfruit. Design pages, publish Markdown articles, and connect your shop, checkout, and bookings.";
+  const image = new URL("/social/home.png", origin).href;
   const editor = /^\/projects\/[0-9a-f-]{36}$/i.test(active);
   return (
     <html lang="en">
@@ -12,6 +16,32 @@ export default define.page(function App({ Component, state, url }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#111513" />
         <title>dragonfruit · Website builder</title>
+        <meta name="description" content={description} />
+        <meta
+          name="robots"
+          content={active === "/" ? "index,follow" : "noindex,nofollow"}
+        />
+        <link rel="canonical" href={new URL(active, origin).href} />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="dragonfruit" />
+        <meta property="og:title" content="dragonfruit · Website builder" />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={new URL(active, origin).href} />
+        <meta property="og:image" content={image} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta
+          property="og:image:alt"
+          content="dragonfruit · Make room for your next idea"
+        />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="dragonfruit · Website builder" />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={image} />
+        <meta
+          name="twitter:image:alt"
+          content="dragonfruit · Make room for your next idea"
+        />
         <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>

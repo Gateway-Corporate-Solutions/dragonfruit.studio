@@ -1,3 +1,4 @@
+import { COMMERCE_BROWSER_SOURCE } from "./commerce-runtime.ts";
 /** These are the actual editable function bodies used in preview and exported websites. */
 export const INTERACTION_SCRIPTS: Record<string, string> = {
   carousel: String
@@ -72,10 +73,10 @@ api.on(mobile, 'change', resize); resize();`,
 export function defaultJavascript(tag: string): string {
   return INTERACTION_SCRIPTS[tag === "navmenu" ? "nav" : tag] ?? "";
 }
-export const RUNTIME_SOURCE = "const defaults = " +
+export const RUNTIME_SOURCE = COMMERCE_BROWSER_SOURCE + "\nconst defaults = " +
   JSON.stringify(INTERACTION_SCRIPTS).replaceAll("<", "\\u003c") + ";\n" +
   String.raw`
-export function mount(root, preview = false) {
+export function mount(root, preview = false, commerce = undefined) {
   const cleanups = [], animations = new Set();
   cleanups.push(() => animations.forEach(animation => animation.cancel()));
   const api = {
@@ -121,6 +122,7 @@ export function mount(root, preview = false) {
       finally { submitting = false; button.disabled = false; }
     });
   });
+  mountCommerce(root, api, preview, commerce);
   return () => cleanups.reverse().forEach(fn => {try {fn();} catch {}});
 }
 `;

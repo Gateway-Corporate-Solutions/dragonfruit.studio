@@ -54,6 +54,48 @@ export default function LayerInspector({
   return (
     <section class="layer-options">
       <fieldset disabled={pending}>
+        {node.tag === "markdown" && (
+          <label>
+            Article Markdown<textarea
+              class="code-input"
+              rows={22}
+              maxLength={100000}
+              value={o.markdown ?? ""}
+              onInput={(e) => change({ markdown: e.currentTarget.value })}
+            />
+            <small>
+              Supports headings, paragraphs, emphasis, lists, quotes, code
+              fences, images, and links. Raw HTML is displayed as text.
+            </small>
+          </label>
+        )}
+        {node.tag === "blog" && (
+          <p class="inspector-help">
+            This index automatically links to article pages and their blurbs.
+            Add articles and edit blurbs in Page settings.
+          </p>
+        )}
+        {["shop", "product", "cart", "checkout", "calendar", "schedule"]
+          .includes(node.tag) && (
+          <>
+            <p class="inspector-help">
+              Configure shared products, checkout provider, and sessions in the
+              Commerce API editor.
+            </p>
+            <button type="button" class="button" onClick={onApi}>
+              Open Commerce API editor →
+            </button>
+            {node.tag === "product" && (
+              <label>
+                Product ID<input
+                  value={o.productId ?? ""}
+                  onChange={(e) => change({ productId: e.currentTarget.value })}
+                />
+              </label>
+            )}
+          </>
+        )}
+
         {node.tag === "a" && (
           <label class="inline-check">
             <input

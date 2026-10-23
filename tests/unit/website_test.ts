@@ -41,11 +41,14 @@ Deno.test("legacy drafts upgrade losslessly to one Home page", () => {
 Deno.test("all standard templates create independent pages with synchronized navigation", () => {
   let website = starterWebsite("Studio");
   for (const t of PAGE_TEMPLATES) website = addPage(website, t.id, t.name);
-  equal(website.pages.length, 10);
+  equal(website.pages.length, 11);
   equal(website.pages[1].path, "/home");
   for (const p of website.pages) {
     const links = allNodes(p).find((n) => n.id === "page-links")!.children;
-    deepStrictEqual(links.map((n) => n.href), website.pages.map((p) => p.path));
+    deepStrictEqual(
+      links.map((n) => n.href),
+      website.pages.filter((p) => !p.article).map((p) => p.path),
+    );
   }
   const homeBefore = structuredClone(website.pages[0]);
   const about = website.pages.find((p) => p.path === "/about")!;
