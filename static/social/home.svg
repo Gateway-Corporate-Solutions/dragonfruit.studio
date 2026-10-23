@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">dragonfruit - Make room for your next idea.</title>
+  <desc id="description">An editorial botanical illustration of a pink dragonfruit with a seed-speckled ivory center, beside the dragonfruit Studio wordmark and headline on a deep green background.</desc>
+  <defs>
+    <linearGradient id="background" x2="1" y2="1">
+      <stop stop-color="#182d25"/>
+      <stop offset="1" stop-color="#0c1915"/>
+    </linearGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" fill="none" stroke="#d7e6c7" stroke-opacity=".035"/>
+    </pattern>
+  </defs>
+
+  <path fill="url(#background)" d="M0 0h1200v630H0z"/>
+  <path fill="url(#grid)" d="M0 0h1200v630H0z"/>
+  <path d="M0 0h8v630H0z" fill="#b4ce88"/>
+  <path d="M56 119h1088M56 553h1088" stroke="#b4ce88" stroke-opacity=".24"/>
+
+  <g font-family="Fira Sans, sans-serif" fill="#f7f5e9">
+    <image href="../favicon.svg" x="57" y="48" width="43" height="43"/>
+    <text x="114" y="80" font-size="32" font-weight="600">dragonfruit</text>
+    <text x="294" y="78" font-size="12" font-weight="500" fill="#bac9b5">STUDIO</text>
+
+    <text x="58" y="178" font-size="12" font-weight="500" fill="#bdd197">YOUR NEXT CHAPTER STARTS HERE</text>
+    <text x="53" y="262" font-size="72" font-weight="500">Make room</text>
+    <text x="53" y="342" font-size="72" font-weight="500">for your</text>
+    <text x="54" y="427" font-family="Noto Serif, serif" font-size="74" font-style="italic" fill="#f39bb5">next idea.</text>
+    <text x="58" y="487" font-size="19" fill="#bac9b5">A website that feels like you.</text>
+
+    <text x="58" y="595" font-size="12" font-weight="500" fill="#d0dac9">STORIES</text>
+    <circle cx="137" cy="590" r="2" fill="#e381a0"/>
+    <text x="158" y="595" font-size="12" font-weight="500" fill="#d0dac9">IDEAS</text>
+    <circle cx="221" cy="590" r="2" fill="#e381a0"/>
+    <text x="242" y="595" font-size="12" font-weight="500" fill="#d0dac9">COMMERCE</text>
+    <text x="1144" y="595" text-anchor="end" font-size="12" fill="#bac9b5">A FRESH START. MADE YOURS.</text>
+  </g>
+
+  <g fill="none" stroke="#b8d28f">
+    <ellipse cx="900" cy="339" rx="239" ry="199" transform="rotate(-26 900 339)" stroke-opacity=".2"/>
+    <path d="M699 206c82-101 236-126 346-60M732 510c104 58 228 24 303-47" stroke-opacity=".35"/>
+    <path d="M653 368h18m-9-9v18M1120 192h14m-7-7v14" stroke-opacity=".65"/>
+  </g>
+  <ellipse cx="905" cy="532" rx="146" ry="22" fill="#06100c" opacity=".45"/>
+  <image href="../dragonfruit.svg" x="680" y="63" width="420" height="535" transform="rotate(14 890 330)"/>
+</svg>
