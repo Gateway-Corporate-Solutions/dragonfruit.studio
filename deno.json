@@ -1,0 +1,74 @@
+{
+  "nodeModulesDir": "auto",
+  "compilerOptions": {
+    "jsx": "precompile",
+    "jsxImportSource": "preact",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "deno.ns"
+    ],
+    "types": [
+      "vite/client"
+    ],
+    "jsxPrecompileSkipElements": [
+      "a",
+      "img",
+      "source",
+      "body",
+      "html",
+      "head",
+      "title",
+      "meta",
+      "script",
+      "link",
+      "style",
+      "base",
+      "noscript",
+      "template"
+    ]
+  },
+  "imports": {
+    "@/": "./",
+    "fresh": "jsr:@fresh/core@2.3.3",
+    "@fresh/plugin-vite": "jsr:@fresh/plugin-vite@1.1.2",
+    "preact": "npm:preact@10.29.1",
+    "vite": "npm:vite@7.1.4",
+    "postgres": "npm:postgres@3.4.7",
+    "preact/hooks": "npm:preact@10.29.1/hooks",
+    "preact/jsx-runtime": "npm:preact@10.29.1/jsx-runtime",
+    "preact/jsx-dev-runtime": "npm:preact@10.29.1/jsx-dev-runtime"
+  },
+  "tasks": {
+    "dev": "deno run -A --env-file=.env npm:vite --host 127.0.0.1",
+    "demo": "DRAGONFRUIT_DEV_MODE=true DRAGONFRUIT_STORAGE=memory deno run -A npm:vite --host 127.0.0.1",
+    "build": "deno run -A npm:vite build",
+    "start": "deno serve --env-file=.env --allow-env --allow-net --allow-read --host 127.0.0.1 _fresh/server.js",
+    "worker": "deno run --env-file=.env --allow-env --allow-net src/worker/main.ts",
+    "migrate": "deno run --env-file=.env --allow-env --allow-net --allow-read=migrations scripts/migrate.ts",
+    "check": "deno check main.ts vite.config.ts src/worker/main.ts scripts/migrate.ts scripts/smoke.ts routes/**/*.tsx islands/*.tsx tests/unit/*.ts tests/integration/*.ts",
+    "test": "deno test --allow-env tests/unit/",
+    "test:integration": "deno test --env-file=.env --allow-env --allow-net --allow-read=migrations tests/integration/",
+    "fmt": "deno fmt",
+    "lint": "deno lint",
+    "verify": "deno fmt --check && deno lint && deno task check && deno task test && deno task build",
+    "smoke": "deno run --allow-run --allow-net --allow-read --allow-env scripts/smoke.ts"
+  },
+  "fmt": {
+    "exclude": [
+      "docs/",
+      "README.md",
+      "static/dragonfruit.svg"
+    ]
+  },
+  "lint": {
+    "exclude": [
+      "_fresh/",
+      "node_modules/"
+    ]
+  },
+  "exclude": [
+    "_fresh/",
+    "node_modules/"
+  ]
+}

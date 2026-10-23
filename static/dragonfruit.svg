@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1152 1712" role="img"
+  aria-labelledby="fruit-title fruit-desc">
+  <title id="fruit-title">Dragonfruit</title>
+  <desc
+    id="fruit-desc">A hand-drawn cut dragonfruit with vivid pink skin, green scales, cream flesh and glossy black seeds. Recreated entirely as scalable vector paths.</desc>
+  <defs>
+    <linearGradient id="pink" x1=".2" x2=".9" y1=".1" y2="1"
+      gradientUnits="objectBoundingBox">
+      <stop stop-color="#ec006b" />
+      <stop offset=".5" stop-color="#ff1278" />
+      <stop offset="1" stop-color="#c60050" />
+    </linearGradient>
+    <linearGradient id="green" x1="0" x2="1" y2="1">
+      <stop stop-color="#82b832" />
+      <stop offset=".55" stop-color="#438d26" />
+      <stop offset="1" stop-color="#206820" />
+    </linearGradient>
+    <radialGradient id="flesh" cx=".35" cy=".35" r=".85">
+      <stop stop-color="#fffdf3" />
+      <stop offset="1" stop-color="#f8f3e7" />
+    </radialGradient>
+    <linearGradient id="seed" x2=".7" y2="1">
+      <stop stop-color="#55585a" />
+      <stop offset=".6" stop-color="#303334" />
+      <stop offset="1" stop-color="#14191a" />
+    </linearGradient>
+    <g id="pip">
+      <path
+        d="M0-21C-12-19-17-6-12 6-8 15 0 22 0 22S12 14 14 1C17-12 10-22 0-21Z"
+        fill="url(#seed)" stroke="#101412" stroke-width="6"
+        stroke-linejoin="round" />
+      <path d="M-3-13C-8-11-9-4-6 0" fill="none" stroke="#737778"
+        stroke-width="4" stroke-linecap="round" opacity=".58" />
+    </g>
+  </defs>
+  <g stroke="#101811" stroke-width="11" stroke-linejoin="round"
+    stroke-linecap="round">
+    <path
+      d="M265 122C303 115 350 183 386 221 422 257 442 262 478 302 534 367 607 371 697 412 736 369 716 320 705 281 681 190 778 295 808 344 854 418 842 491 878 557 924 622 950 664 974 719 1015 706 1022 630 1040 623 1066 615 1085 699 1074 769 1051 848 1052 952 1049 1035 1045 1097 1025 1138 1006 1171 1041 1158 1075 1140 1077 1160 1075 1206 998 1262 958 1312 907 1386 856 1443 786 1467 744 1483 699 1487 659 1481 597 1490 552 1480 494 1462 432 1460 364 1452 331 1424 289 1397 340 1378 376 1374 305 1331 270 1263 221 1199 160 1145 116 1108 90 1045 59 976 79 957 119 993 141 1013 160 1030 180 1042 149 979 140 914 140 848 130 769 107 730 98 662 85 591 90 529 109 511 131 495 140 578 162 602 173 615 185 624 194 627 218 580 244 533 250 480 244 418 267 364 257 309 242 242 228 155 252 127Z"
+      fill="url(#pink)" />
+    <path
+      d="M265 122C303 115 350 183 386 221 405 241 423 258 437 268 427 299 446 337 459 355 392 353 362 280 327 304 302 320 314 364 285 402 269 428 258 447 250 460 246 406 267 365 257 309 242 242 228 155 252 127Z"
+      fill="url(#green)" stroke-width="8" />
+    <path
+      d="M265 137C237 183 265 270 276 309 287 255 296 232 332 243 371 253 406 285 433 276"
+      fill="#9bca3c" opacity=".6" stroke="none" />
+    <path
+      d="M697 412C736 369 716 320 705 281 681 190 778 295 808 344 854 418 842 491 870 539 832 514 804 451 784 410 752 350 732 385 697 412Z"
+      fill="url(#green)" stroke-width="8" />
+    <path
+      d="M711 258C769 291 810 351 834 423 843 453 845 475 851 494 826 430 810 392 779 350 749 312 729 291 711 279Z"
+      fill="#98c13a" stroke="none" opacity=".6" />
+    <path
+      d="M974 719C1015 706 1022 630 1040 623 1066 615 1085 699 1074 769 1061 812 1055 859 1054 905 1039 833 1042 784 1026 749 1016 728 999 723 974 719Z"
+      fill="url(#green)" stroke-width="8" />
+    <path
+      d="M194 627C173 615 159 603 147 576 131 538 121 493 109 511 81 551 82 607 98 662 109 730 130 769 140 848 147 798 145 726 157 743 175 767 185 813 198 838 177 775 166 712 194 627Z"
+      fill="url(#green)" stroke-width="8" />
+    <path
+      d="M112 521C96 591 105 664 128 714 124 647 137 626 156 619 134 590 125 548 112 521Z"
+      fill="#97c13a" stroke="none" opacity=".65" />
+    <path
+      d="M180 1042C160 1030 141 1013 119 993 79 957 59 976 90 1045 116 1108 160 1145 221 1199 206 1169 191 1138 195 1129 203 1113 250 1137 278 1153L347 1194C298 1154 285 1124 247 1090 221 1069 200 1054 180 1042Z"
+      fill="url(#green)" stroke-width="8" />
+    <path
+      d="M91 988C122 1040 136 1075 182 1095 211 1106 241 1106 269 1140 214 1120 198 1117 195 1129 191 1138 206 1169 221 1199 160 1145 116 1108 90 1045 80 1018 80 998 91 988Z"
+      fill="#8bb938" stroke="none" />
+    <path
+      d="M1006 1171C1041 1158 1075 1140 1077 1160 1075 1206 998 1262 958 1312 941 1338 923 1362 902 1383 959 1301 986 1256 1006 1171Z"
+      fill="url(#green)" stroke-width="8" />
+    <path
+      d="M376 1374C340 1378 289 1397 331 1424 364 1452 432 1460 494 1462 528 1445 553 1440 583 1439 499 1425 463 1376 403 1376Z"
+      fill="url(#green)" stroke-width="8" />
+    <path
+      d="M324 1405C386 1378 438 1393 481 1418L538 1442C463 1416 375 1422 324 1405Z"
+      fill="#9bc63c" stroke="none" opacity=".8" />
+  </g>
+  <path
+    d="M438 275C456 330 472 382 527 400 661 422 784 490 869 585 957 687 1004 820 1018 938 1038 1116 1000 1210 891 1293 843 1334 819 1378 783 1399 721 1450 635 1404 582 1394 665 1447 731 1452 794 1424 875 1379 923 1307 966 1249 1040 1147 1043 1004 1036 921 1025 762 956 629 870 535 793 454 695 405 609 379 516 354 487 308 438 275Z"
+    fill="#bd0052" opacity=".55" />
+  <path
+    d="M311 357C391 402 315 507 279 580 242 662 230 755 248 864 270 1005 353 1144 456 1225 540 1292 624 1338 727 1328 630 1369 546 1357 462 1306 366 1249 287 1154 247 1047 193 908 201 803 183 751 157 674 188 631 215 579 245 520 289 452 311 357Z"
+    fill="#ff3a8d" opacity=".5" />
+  <path
+    d="M357 1182C416 1263 466 1310 543 1343 503 1337 469 1324 448 1306 464 1357 510 1375 566 1385 476 1390 410 1359 357 1321 328 1299 300 1270 282 1240 333 1278 392 1314 413 1300 439 1282 385 1217 357 1182Z"
+    fill="#b70050" opacity=".7" />
+  <path
+    d="M351 453C386 405 444 398 493 398 660 396 819 503 904 641 979 764 1008 933 960 1066 921 1178 825 1273 709 1292 592 1313 490 1252 408 1178 310 1090 246 958 235 835 224 705 277 565 351 453Z"
+    fill="url(#flesh)" stroke="#9f1640" stroke-width="9" />
+  <g>
+    <use href="#pip" transform="translate(447 486) rotate(-22)" />
+    <use href="#pip" transform="translate(560 486) rotate(8)" />
+    <use href="#pip" transform="translate(650 516) rotate(24)" />
+    <use href="#pip" transform="translate(378 569) rotate(-34)" />
+    <use href="#pip" transform="translate(502 574) rotate(-20)" />
+    <use href="#pip" transform="translate(585 603) rotate(9)" />
+    <use href="#pip" transform="translate(731 578) rotate(29)" />
+    <use href="#pip" transform="translate(327 667) rotate(-54)" />
+    <use href="#pip" transform="translate(450 653) rotate(-25)" />
+    <use href="#pip" transform="translate(657 652) rotate(23)" />
+    <use href="#pip" transform="translate(796 650) rotate(37)" />
+    <use href="#pip" transform="translate(547 702) rotate(-18)" />
+    <use href="#pip" transform="translate(716 718) rotate(42)" />
+    <use href="#pip" transform="translate(843 732) rotate(38)" />
+    <use href="#pip" transform="translate(430 742) rotate(-53)" />
+    <use href="#pip" transform="translate(317 773) rotate(-68)" />
+    <use href="#pip" transform="translate(618 749) rotate(7)" />
+    <use href="#pip" transform="translate(541 809) rotate(-48)" />
+    <use href="#pip" transform="translate(670 812) rotate(24)" />
+    <use href="#pip" transform="translate(769 807) rotate(48)" />
+    <use href="#pip" transform="translate(878 820) rotate(58)" />
+    <use href="#pip" transform="translate(458 863) rotate(-83)" />
+    <use href="#pip" transform="translate(333 885) rotate(75)" />
+    <use href="#pip" transform="translate(584 889) rotate(41)" />
+    <use href="#pip" transform="translate(685 889) rotate(-78)" />
+    <use href="#pip" transform="translate(792 898) rotate(-80)" />
+    <use href="#pip" transform="translate(907 918) rotate(82)" />
+    <use href="#pip" transform="translate(425 935) rotate(49)" />
+    <use href="#pip" transform="translate(501 951) rotate(51)" />
+    <use href="#pip" transform="translate(379 994) rotate(57)" />
+    <use href="#pip" transform="translate(619 980) rotate(2)" />
+    <use href="#pip" transform="translate(700 980) rotate(-29)" />
+    <use href="#pip" transform="translate(805 993) rotate(-47)" />
+    <use href="#pip" transform="translate(901 1017) rotate(-62)" />
+    <use href="#pip" transform="translate(538 1041) rotate(27)" />
+    <use href="#pip" transform="translate(439 1087) rotate(37)" />
+    <use href="#pip" transform="translate(618 1092) rotate(4)" />
+    <use href="#pip" transform="translate(699 1105) rotate(-17)" />
+    <use href="#pip" transform="translate(772 1071) rotate(-38)" />
+    <use href="#pip" transform="translate(866 1102) rotate(-43)" />
+    <use href="#pip" transform="translate(525 1160) rotate(18)" />
+    <use href="#pip" transform="translate(801 1173) rotate(-29)" />
+    <use href="#pip" transform="translate(615 1205) rotate(6)" />
+    <use href="#pip" transform="translate(716 1210) rotate(-17)" />
+  </g>
+</svg>

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "framework": "fresh2",
+  "root": ".",
+  "tasks": {
+    "check": "deno task check",
+    "build": "deno task build",
+    "start": "deno task start"
+  },
+  "http": {
+    "port": 8000,
+    "readinessPath": "/healthz"
+  },
+  "limits": {
+    "buildTimeoutSeconds": 600,
+    "memoryMiB": 512,
+    "cpu": 1
+  }
+}
