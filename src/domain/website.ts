@@ -407,7 +407,7 @@ export function syncNavigation(website: WebsiteDocument): WebsiteDocument {
             styles: previous?.styles ??
               {
                 color: "#45623d",
-                "font-size": "13px",
+                "font-size": "11pt",
                 "text-decoration": "none",
               },
             children: [],

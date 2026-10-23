@@ -65,6 +65,33 @@ Deno.test("CSS round trip preserves custom properties, functions, quoted semicol
     ]
   ) throws(() => parseStyles(bad), ValidationError);
 });
+Deno.test("font sizes below 11pt are clamped in legacy, relative, and functional styles", () => {
+  equal(parseStyles("font-size: 14px;")["font-size"], "11pt");
+  equal(parseStyles("font-size: 10pt;")["font-size"], "11pt");
+  equal(
+    parseStyles("font-size: 0.75rem;")["font-size"],
+    "max(11pt, 0.75rem)",
+  );
+  equal(
+    parseStyles("font-size: clamp(8px, 2vw, 20px);")["font-size"],
+    "max(11pt, clamp(8px, 2vw, 20px))",
+  );
+  equal(
+    parseStyles("font-size: clamp(40px, 7vw, 76px);")["font-size"],
+    "clamp(40px, 7vw, 76px)",
+  );
+  equal(
+    parseStyles("font-size: max(11pt, 0.75rem);")["font-size"],
+    "max(11pt, 0.75rem)",
+  );
+  equal(formatStyles({ "font-size": "12px" }), "font-size: 11pt;");
+  const legacy = starterSite("Legacy");
+  legacy.nodes[0].children[1].styles["font-size"] = "8px";
+  equal(
+    parseSite(legacy).nodes[0].children[1].styles["font-size"],
+    "11pt",
+  );
+});
 Deno.test("structured content rejects script nodes, executable links, and duplicate ids", () => {
   const original = starterSite("Safe");
   for (

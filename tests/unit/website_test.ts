@@ -26,7 +26,16 @@ Deno.test("legacy drafts upgrade losslessly to one Home page", () => {
   const upgraded = parseWebsite(legacy);
   equal(upgraded.schemaVersion, 2);
   equal(upgraded.pages[0].path, "/");
-  deepStrictEqual(upgraded.pages[0].nodes, legacy.nodes);
+  equal(
+    allNodes(upgraded.pages[0]).find((node) => node.id === "nav-link")?.styles[
+      "font-size"
+    ],
+    "11pt",
+  );
+  equal(
+    allNodes(upgraded.pages[0]).find((node) => node.id === "hero-title")?.text,
+    "Keep my work",
+  );
   deepStrictEqual(parseWebsite(upgraded), upgraded);
 });
 Deno.test("all standard templates create independent pages with synchronized navigation", () => {

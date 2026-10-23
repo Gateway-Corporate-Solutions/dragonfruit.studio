@@ -197,6 +197,14 @@ export default function SiteEditor(
       return error instanceof Error ? error.message : "Could not create page";
     }
   }
+  function removePage(pageId: string) {
+    const target = website.pages.find((page) => page.id === pageId);
+    if (!target || target.path === "/" || !canDiscardCss()) return;
+    if (!confirm(`Delete the ${target.name} page and its content?`)) return;
+    const homeId = website.pages.find((page) => page.path === "/")!.id;
+    commitWebsite(deletePage(website, pageId));
+    if (site.id === pageId) setActivePage(homeId);
+  }
   function canDiscardCss() {
     if (!cssPending && !layerPending && !apiPending) return true;
     if (
@@ -609,17 +617,7 @@ export default function SiteEditor(
                   <button
                     type="button"
                     class="button danger"
-                    onClick={() => {
-                      if (
-                        canDiscardCss() &&
-                        confirm("Delete this page and its content?")
-                      ) {
-                        commitWebsite(deletePage(website, site.id));
-                        setActivePage(
-                          website.pages.find((p) => p.path === "/")!.id,
-                        );
-                      }
-                    }}
+                    onClick={() => removePage(site.id)}
                   >
                     Delete page
                   </button>
@@ -782,19 +780,31 @@ export default function SiteEditor(
                 </div>
                 <div class="page-list" aria-label="Website pages">
                   {website.pages.map((p) => (
-                    <button
-                      type="button"
-                      key={p.id}
-                      aria-current={site.id === p.id ? "page" : undefined}
-                      class={site.id === p.id ? "active" : ""}
-                      onClick={() => switchPage(p.id)}
-                    >
-                      <span>{p.path === "/" ? "⌂" : "▤"}</span>
-                      <span>
-                        {p.name}
-                        <small>{p.path}</small>
-                      </span>
-                    </button>
+                    <div class="page-row" key={p.id}>
+                      <button
+                        type="button"
+                        aria-current={site.id === p.id ? "page" : undefined}
+                        class={site.id === p.id ? "active" : ""}
+                        onClick={() => switchPage(p.id)}
+                      >
+                        <span>{p.path === "/" ? "⌂" : "▤"}</span>
+                        <span>
+                          {p.name}
+                          <small>{p.path}</small>
+                        </span>
+                      </button>
+                      {p.path !== "/" && (
+                        <button
+                          type="button"
+                          class="page-remove"
+                          title={`Remove ${p.name} page`}
+                          aria-label={`Remove ${p.name} page`}
+                          onClick={() => removePage(p.id)}
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
                   ))}
                 </div>
                 <div class="editor-panel-title layers-title">

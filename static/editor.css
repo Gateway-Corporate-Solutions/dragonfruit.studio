@@ -14,10 +14,10 @@
 }
 .new-site-form .button {
   width: 100%;
-  font-size: 14px;
+  font-size: 11pt;
 }
 .new-site-footnote {
-  font-size: 11px;
+  font-size: 11pt;
   color: #8b9682;
   margin-top: 20px;
 }
@@ -99,7 +99,7 @@
   flex-shrink: 0;
 }
 .editor-home span {
-  font-size: 11px;
+  font-size: 11pt;
   color: #c04e7c;
   position: absolute;
   right: 1px;
@@ -108,14 +108,14 @@
 .editor-identity strong {
   display: block;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 11pt;
   max-width: 230px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .editor-identity div > span {
-  font-size: 10px;
+  font-size: 11pt;
   color: #86917f;
 }
 .editor-modes {
@@ -131,7 +131,7 @@
   background: transparent;
   color: #7b8872;
   padding: 8px 15px;
-  font-size: 11px;
+  font-size: 11pt;
   white-space: nowrap;
 }
 .editor-modes button.active {
@@ -144,7 +144,7 @@
   gap: 8px;
 }
 .editor-actions .button {
-  font-size: 11px;
+  font-size: 11pt;
   padding: 9px 15px;
 }
 .editor-body {
@@ -169,11 +169,11 @@
   gap: 8px;
 }
 .editor-panel-title strong {
-  font-size: 12px;
+  font-size: 11pt;
   font-weight: 600;
 }
 .editor-panel-title code {
-  font-size: 11px;
+  font-size: 11pt;
   color: #829077;
 }
 .segmented {
@@ -190,7 +190,7 @@
   border-radius: 4px;
   background: transparent;
   padding: 7px 8px;
-  font-size: 11px;
+  font-size: 11pt;
   color: #829174;
 }
 .segmented button.active {
@@ -206,7 +206,7 @@
   align-items: center;
   gap: 8px;
   text-align: left;
-  font-size: 11px;
+  font-size: 11pt;
   padding: 10px 8px;
   width: 100%;
   color: #7a8773;
@@ -215,7 +215,7 @@
   border-radius: 5px;
 }
 .layer > span:first-child {
-  font-size: 11px;
+  font-size: 11pt;
   width: 14px;
   flex-shrink: 0;
   color: #93a17d;
@@ -239,7 +239,7 @@
   margin: auto 16px 20px;
   border-top: 1px solid #e3e8da;
   padding-top: 18px;
-  font-size: 10px;
+  font-size: 11pt;
   line-height: 1.8;
   color: #8b9780;
 }
@@ -261,7 +261,7 @@
   align-items: center;
   padding: 10px 20px;
   gap: 12px;
-  font-size: 10px;
+  font-size: 11pt;
   color: #8b9780;
   border-bottom: 1px solid #e0e6d7;
   flex-shrink: 0;
@@ -282,7 +282,7 @@
   border: 0;
   background: transparent;
   padding: 5px 10px;
-  font-size: 10px;
+  font-size: 11pt;
   color: #829172;
   border-radius: 3px;
 }
@@ -336,7 +336,7 @@
 .canvas-caption {
   padding: 9px 16px;
   text-align: center;
-  font-size: 9px;
+  font-size: 11pt;
   color: #8c987f;
   background: #f2f4ed;
   flex-shrink: 0;
@@ -352,14 +352,14 @@
   padding: 0 17px 22px;
 }
 .inspector-content label {
-  font-size: 10px;
+  font-size: 11pt;
   margin-bottom: 17px;
   color: #6d7d60;
 }
 .inspector-content textarea,
 .inspector-content input:not([type=color]),
 .inspector-content select {
-  font-size: 11px;
+  font-size: 11pt;
   padding: 9px;
   border-radius: 5px;
   margin-top: 7px;
@@ -371,7 +371,7 @@
   color: #536749;
 }
 .inspector-label {
-  font-size: 9px;
+  font-size: 11pt;
   letter-spacing: 1.7px;
   color: #a1ad93;
   margin: 23px 0 13px;
@@ -412,7 +412,7 @@
   cursor: pointer;
 }
 .inspector-help {
-  font-size: 10px;
+  font-size: 11pt;
   line-height: 1.8;
   color: #8a987d;
   margin-bottom: 17px;
@@ -421,7 +421,7 @@
   padding: 0 17px;
 }
 .inspector-content .code-input {
-  font-size: 11px;
+  font-size: 11pt;
   line-height: 1.8;
   min-height: 320px;
 }
@@ -430,7 +430,7 @@
   gap: 8px;
 }
 .settings-buttons .button {
-  font-size: 10px;
+  font-size: 11pt;
   padding: 8px 10px;
 }
 .element-actions {
@@ -442,7 +442,7 @@
   padding-top: 18px;
 }
 .element-actions .button {
-  font-size: 9px;
+  font-size: 11pt;
   padding: 6px 8px;
 }
 .element-actions .danger {
@@ -450,7 +450,7 @@
 }
 .editor-footer {
   padding: 10px 21px;
-  font-size: 9px;
+  font-size: 11pt;
   border-top: 1px solid #dfe5d8;
   color: #96a088;
   background: #fbfcf8;
@@ -478,7 +478,7 @@
   align-items: center;
   background: #e6efda;
   color: #516941;
-  font-size: 11px;
+  font-size: 11pt;
   padding: 10px 22px;
   gap: 14px;
   border-bottom: 1px solid #d5e1c7;
@@ -499,7 +499,7 @@
   padding: 0 15px 20px;
 }
 .insert-elements > p {
-  font-size: 10px;
+  font-size: 11pt;
   color: #8a987c;
   line-height: 1.7;
   margin-bottom: 14px;
@@ -526,12 +526,12 @@
   color: #9aac88;
 }
 .insert-elements strong {
-  font-size: 11px;
+  font-size: 11pt;
   font-weight: 500;
   display: block;
 }
 .insert-elements small {
-  font-size: 9px;
+  font-size: 11pt;
   margin-top: 3px;
 }
 .editor-settings {
@@ -565,7 +565,7 @@
   line-height: 1.9;
 }
 .editor-source label {
-  font-size: 11px;
+  font-size: 11pt;
   color: #7b8a6d;
   display: flex;
   flex-direction: column;
@@ -574,7 +574,7 @@
 .editor-source textarea {
   height: 100%;
   min-height: 400px;
-  font-size: 11px;
+  font-size: 11pt;
   background: #fcfdf8;
 }
 .preview-mode .canvas-scroll {
@@ -621,7 +621,7 @@
     width: 155px;
   }
   .layer {
-    font-size: 10px;
+    font-size: 11pt;
   }
   .editor-inspector {
     width: 235px;
@@ -679,7 +679,7 @@
   }
   .editor-actions .button {
     padding: 8px 10px;
-    font-size: 10px;
+    font-size: 11pt;
   }
   .editor-body {
     display: flex;
@@ -766,7 +766,7 @@
     font-size: 26px;
   }
   .canvas-caption {
-    font-size: 8px;
+    font-size: 11pt;
   }
   .editor-footer {
     padding: 12px 17px;
@@ -775,18 +775,18 @@
     padding: 30px 24px;
   }
   .editor-message {
-    font-size: 10px;
+    font-size: 11pt;
     padding: 10px 16px;
   }
 }
 .inspector-content .style-field {
-  font-size: 10px;
+  font-size: 11pt;
   color: #6d7d60;
 }
 .style-field select {
   margin: 0;
   padding: 7px;
-  font-size: 10px;
+  font-size: 11pt;
 }
 .length-control {
   display: flex;
@@ -803,7 +803,7 @@
 .inspector-content .length-control select {
   margin: 0;
   width: 45px;
-  font-size: 9px;
+  font-size: 11pt;
   padding: 5px 2px;
   flex-shrink: 0;
 }
@@ -814,7 +814,7 @@
   margin: 20px 0;
 }
 .spacing-controls legend {
-  font-size: 10px;
+  font-size: 11pt;
   padding: 0 8px 0 0;
   color: #6c7c60;
 }
@@ -826,7 +826,7 @@
 .inspector-content .spacing-controls label {
   margin: 0;
   text-transform: capitalize;
-  font-size: 9px;
+  font-size: 11pt;
   color: #8b987c;
 }
 .spacing-controls .length-control {
@@ -856,7 +856,7 @@
 .developer-nav summary {
   cursor: pointer;
   padding: 9px 13px;
-  font-size: 11px;
+  font-size: 11pt;
   color: #819586;
 }
 .developer-nav a {

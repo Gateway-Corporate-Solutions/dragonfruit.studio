@@ -31,7 +31,7 @@
 }
 .studio-label {
   align-self: center;
-  font-size: 8px;
+  font-size: 11pt;
   font-weight: 600;
   letter-spacing: 2px;
   color: var(--muted);
@@ -46,7 +46,7 @@
   align-items: center;
 }
 .public-nav nav a {
-  font-size: 12px;
+  font-size: 11pt;
   color: var(--muted);
 }
 .public-nav nav a:hover {
@@ -62,12 +62,12 @@
   border: 0;
   color: var(--text);
   font: inherit;
-  font-size: 12px;
+  font-size: 11pt;
   font-weight: 600;
   cursor: pointer;
 }
 .public-home .button {
-  font-size: 12px;
+  font-size: 11pt;
   padding: 13px 20px;
   cursor: pointer;
 }
@@ -83,7 +83,7 @@
 }
 .public-eyebrow {
   color: var(--muted);
-  font-size: 10px;
+  font-size: 11pt;
   letter-spacing: 2.4px;
   font-weight: 650;
   line-height: 1.8;
@@ -130,13 +130,13 @@
 }
 .public-text-link {
   color: var(--text);
-  font-size: 12px;
+  font-size: 11pt;
   font-weight: 600;
   display: flex;
   gap: 15px;
 }
 .public-footnote {
-  font-size: 10px;
+  font-size: 11pt;
   color: var(--muted);
   margin-top: 27px;
 }
@@ -168,7 +168,7 @@
 .art-label {
   position: absolute;
   z-index: 1;
-  font-size: 10px;
+  font-size: 11pt;
   color: var(--text);
   background: var(--surface);
   border: 1px solid var(--line);
@@ -185,7 +185,7 @@
   left: -12px;
   bottom: 25px;
   transform: rotate(-7deg);
-  font-size: 8px;
+  font-size: 11pt;
   letter-spacing: 1.8px;
   display: flex;
   align-items: center;
@@ -203,7 +203,7 @@
   padding: 28px 6%;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-  font-size: 9px;
+  font-size: 11pt;
   letter-spacing: 2px;
   color: var(--muted);
   background: var(--inset);
@@ -221,7 +221,7 @@
   margin: 18px 0;
 }
 .public-section-heading > p:last-child {
-  font-size: 14px;
+  font-size: 11pt;
   line-height: 1.9;
   color: var(--muted);
   max-width: 370px;
@@ -258,14 +258,14 @@
   margin-bottom: 15px;
 }
 .public-feature-grid article > p {
-  font-size: 12px;
+  font-size: 11pt;
   line-height: 1.9;
   color: var(--muted);
   flex: 1;
 }
 .feature-detail {
   display: block;
-  font-size: 8px;
+  font-size: 11pt;
   letter-spacing: 1.3px;
   margin-top: 27px;
   padding-top: 22px;
@@ -285,7 +285,7 @@
   gap: 75px;
 }
 .public-workflow > div > p:not(.public-eyebrow) {
-  font-size: 13px;
+  font-size: 11pt;
   line-height: 1.9;
   color: var(--muted);
   max-width: 300px;
@@ -315,7 +315,7 @@
   margin-bottom: 9px;
 }
 .public-workflow li p {
-  font-size: 12px;
+  font-size: 11pt;
   line-height: 1.8;
   color: var(--muted);
 }
@@ -335,7 +335,7 @@
 }
 .public-demo {
   display: block;
-  font-size: 11px;
+  font-size: 11pt;
   color: var(--muted);
   margin-top: 18px;
 }
@@ -349,7 +349,7 @@
   justify-content: space-between;
   gap: 25px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 11pt;
 }
 .public-footer .public-brand {
   font-size: 19px;
@@ -395,7 +395,7 @@
   margin: 12px 0 15px;
 }
 .auth-description {
-  font-size: 12px;
+  font-size: 11pt;
   line-height: 1.9;
   color: var(--muted);
   margin-bottom: 22px;
@@ -411,7 +411,7 @@
 }
 .auth-tabs button {
   flex: 1;
-  font-size: 12px;
+  font-size: 11pt;
   border: 0;
   border-radius: 5px;
   background: transparent;
@@ -436,7 +436,7 @@
   background: var(--surface);
   color: var(--text);
   font: inherit;
-  font-size: 12px;
+  font-size: 11pt;
   font-weight: 600;
   cursor: pointer;
 }
@@ -445,7 +445,7 @@
   height: 20px;
 }
 .auth-provider-note {
-  font-size: 11px;
+  font-size: 11pt;
   line-height: 1.6;
   color: var(--muted);
   margin-top: 8px;
@@ -456,7 +456,7 @@
   align-items: center;
   margin: 24px 0;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 11pt;
 }
 .auth-divider span {
   height: 1px;
@@ -465,7 +465,7 @@
 }
 .auth-dialog label {
   display: block;
-  font-size: 12px;
+  font-size: 11pt;
   font-weight: 600;
   color: var(--text);
   margin-bottom: 15px;
@@ -486,14 +486,14 @@
   justify-content: center;
 }
 .auth-small {
-  font-size: 10px;
+  font-size: 11pt;
   line-height: 1.8;
   text-align: center;
   color: var(--muted);
   margin-top: 17px;
 }
 .auth-error {
-  font-size: 12px;
+  font-size: 11pt;
   line-height: 1.8;
   margin-top: 17px;
 }
@@ -534,7 +534,7 @@
   margin: 15px 0;
 }
 .verify-card p:not(.public-eyebrow) {
-  font-size: 13px;
+  font-size: 11pt;
   line-height: 1.9;
   color: var(--muted);
   margin: 18px 0;
@@ -546,7 +546,7 @@
   display: block;
   margin-top: 24px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11pt;
 }
 .verify-card .button {
   width: 100%;
@@ -560,7 +560,7 @@
 }
 .workspace-account a,
 .workspace-account button {
-  font-size: 11px;
+  font-size: 11pt;
   color: var(--muted);
   background: transparent;
   border: 0;
@@ -639,7 +639,7 @@
     letter-spacing: -3px;
   }
   .public-intro {
-    font-size: 13px;
+    font-size: 11pt;
   }
   .public-hero-actions {
     gap: 18px;
@@ -656,7 +656,7 @@
     height: 265px;
   }
   .art-label {
-    font-size: 8px;
+    font-size: 11pt;
     padding: 10px 12px;
   }
   .art-label-bottom {
@@ -715,7 +715,7 @@
   }
   .public-intro {
     max-width: 350px;
-    font-size: 14px;
+    font-size: 11pt;
   }
   .public-hero-art {
     height: 350px;
@@ -735,13 +735,13 @@
     bottom: 15px;
   }
   .public-hero .public-eyebrow {
-    font-size: 8px;
+    font-size: 11pt;
     letter-spacing: 1.7px;
   }
   .public-proof {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    font-size: 8px;
+    font-size: 11pt;
     gap: 20px;
     text-align: center;
     line-height: 1.8;

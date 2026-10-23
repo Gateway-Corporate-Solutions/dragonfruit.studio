@@ -45,9 +45,40 @@ const tags = new Set([
   "nav",
   "navmenu",
 ]);
+const MIN_FONT_SIZE_PT = 11;
+export function minimumFontSize(value: string): string {
+  const trimmed = value.trim();
+  if (/^max\(\s*11pt\s*,/i.test(trimmed)) return trimmed;
+  const absolute = trimmed.match(/^([+]?(?:\d+\.?\d*|\.\d+))(px|pt)$/i);
+  if (absolute) {
+    const size = Number(absolute[1]) *
+      (absolute[2].toLowerCase() === "px" ? 0.75 : 1);
+    return size < MIN_FONT_SIZE_PT ? "11pt" : trimmed;
+  }
+  const clamp = trimmed.match(/^clamp\(\s*([^,]+),/i);
+  const clampMinimum = clamp?.[1].trim().match(
+    /^([+]?(?:\d+\.?\d*|\.\d+))(px|pt)$/i,
+  );
+  if (clampMinimum) {
+    const size = Number(clampMinimum[1]) *
+      (clampMinimum[2].toLowerCase() === "px" ? 0.75 : 1);
+    if (size >= MIN_FONT_SIZE_PT) return trimmed;
+  }
+  if (/^(?:xx-small|x-small|small|smaller)$/i.test(trimmed)) return "11pt";
+  if (
+    /^(?:inherit|initial|revert|revert-layer|unset|medium|large|x-large|xx-large|xxx-large)$/i
+      .test(trimmed)
+  ) {
+    return trimmed;
+  }
+  return `max(11pt, ${trimmed})`;
+}
 export function formatStyles(styles: Record<string, string>): string {
-  return Object.entries(styles).map(([key, value]) => key + ": " + value + ";")
-    .join("\n");
+  return Object.entries(styles).map(([key, value]) =>
+    key === "font-size"
+      ? key + ": " + minimumFontSize(value) + ";"
+      : key + ": " + value + ";"
+  ).join("\n");
 }
 /** Parse declarations, retaining properties the visual inspector does not yet expose. */
 export function parseStyles(css: string): Record<string, string> {
@@ -109,7 +140,9 @@ export function parseStyles(css: string): Record<string, string> {
       throw new ValidationError(["Each declaration must be property: value;"]);
     }
     const key = match[1].startsWith("--") ? match[1] : match[1].toLowerCase();
-    styles[key] = match[2].trim();
+    styles[key] = key === "font-size"
+      ? minimumFontSize(match[2])
+      : match[2].trim();
   }
   if (Object.keys(styles).length > 60) {
     throw new ValidationError(["At most 60 declarations per element"]);
@@ -212,7 +245,7 @@ export function starterSite(name: string): SiteDocument {
         }),
         make("nav-link", "a", "Get in touch ↗", {
           color: "#243c30",
-          "font-size": "14px",
+          "font-size": "11pt",
           "text-decoration": "none",
         }),
       ]),
@@ -222,7 +255,7 @@ export function starterSite(name: string): SiteDocument {
         "text-align": "center",
       }, [
         make("eyebrow", "p", "A LITTLE IDEA. A BIG POSSIBILITY.", {
-          "font-size": "12px",
+          "font-size": "11pt",
           "letter-spacing": "3px",
           color: "#607248",
           "margin-bottom": "24px",
@@ -270,7 +303,7 @@ export function starterSite(name: string): SiteDocument {
           "footer-text",
           "p",
           "Your next chapter starts with a conversation.",
-          { color: "#7a8273", "font-size": "14px" },
+          { color: "#7a8273", "font-size": "11pt" },
         ),
       ]),
     ],

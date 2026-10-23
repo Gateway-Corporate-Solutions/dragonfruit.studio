@@ -4,7 +4,7 @@
   background: #f6f7f3;
   font-synthesis: none;
   line-height: 1.5;
-  font-size: 14px;
+  font-size: 11pt;
   --muted: #738076;
   --line: #e2e7de;
   --green: #214c38;
@@ -62,7 +62,7 @@ h3 {
 small {
   display: block;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11pt;
 }
 .sidebar {
   background: #14251e;
@@ -97,13 +97,13 @@ small {
 }
 .brand-mark span {
   color: #cb4f7c;
-  font-size: 12px;
+  font-size: 11pt;
   position: absolute;
   right: 3px;
   top: -9px;
 }
 .nav-label {
-  font-size: 10px;
+  font-size: 11pt;
   letter-spacing: 1.7px;
   color: #7f9487;
   margin: 48px 12px 12px;
@@ -132,7 +132,7 @@ nav a.selected {
 }
 .sidebar-bottom {
   margin-top: auto;
-  font-size: 12px;
+  font-size: 11pt;
   padding: 16px 8px;
   border-top: 1px solid #304237;
 }
@@ -162,7 +162,7 @@ nav a.selected {
   align-items: center;
   padding: 0 44px;
   color: #879087;
-  font-size: 12px;
+  font-size: 11pt;
   background: #fbfcf8;
 }
 .topbar strong {
@@ -192,7 +192,7 @@ main {
   margin-top: 9px;
 }
 .eyebrow {
-  font-size: 10px;
+  font-size: 11pt;
   letter-spacing: 1.9px;
   color: var(--muted);
   font-weight: 600;
@@ -208,7 +208,7 @@ main {
   border-radius: 7px;
   background: #fff;
   font-weight: 550;
-  font-size: 12px;
+  font-size: 11pt;
   white-space: nowrap;
   line-height: 1.5;
 }
@@ -251,7 +251,7 @@ main {
   font-weight: 550;
 }
 .hero p {
-  font-size: 12px;
+  font-size: 11pt;
   color: #617050;
   line-height: 1.8;
 }
@@ -259,7 +259,7 @@ main {
   display: inline-flex;
   gap: 26px;
   margin-top: 22px;
-  font-size: 12px;
+  font-size: 11pt;
   font-weight: 600;
   color: #304c27;
 }
@@ -277,7 +277,7 @@ main {
   border: 1px solid #dde4d8;
   border-radius: 5px;
   padding: 3px 8px;
-  font-size: 10px;
+  font-size: 11pt;
   color: #62725e;
   background: #f6f8f1;
   font-weight: 500;
@@ -287,7 +287,7 @@ main {
   border-color: #cfd8ba;
   background: #e4eacf;
   color: #607044;
-  font-size: 8px;
+  font-size: 11pt;
   letter-spacing: 1.2px;
 }
 .metrics {
@@ -307,7 +307,7 @@ main {
   border: 0;
 }
 .metrics span {
-  font-size: 11px;
+  font-size: 11pt;
   color: var(--muted);
 }
 .metrics strong {
@@ -333,7 +333,7 @@ main {
   font-size: 16px;
 }
 .count {
-  font-size: 10px;
+  font-size: 11pt;
   padding: 2px 6px;
   border-radius: 4px;
   background: #e8edde;
@@ -342,7 +342,7 @@ main {
 }
 .muted {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11pt;
 }
 .empty {
   border: 1px dashed #d7decf;
@@ -369,7 +369,7 @@ main {
 }
 .empty p {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11pt;
   margin: 8px 0 19px;
 }
 .empty.compact {
@@ -381,7 +381,7 @@ main {
   margin-top: 25px;
   padding: 16px 0;
   color: #7e8a77;
-  font-size: 11px;
+  font-size: 11pt;
 }
 .foundation-note > span {
   color: #a6b58f;
@@ -392,7 +392,7 @@ main {
   font-weight: 550;
 }
 .notice {
-  font-size: 11px;
+  font-size: 11pt;
   background: #fff6d9;
   color: #776229;
   padding: 10px 44px;
@@ -426,14 +426,14 @@ main {
   margin-bottom: 18px;
 }
 .project-icon span {
-  font-size: 11px;
+  font-size: 11pt;
   margin-left: 3px;
 }
 .project-card h3 {
   font-size: 15px;
 }
 .project-card p {
-  font-size: 11px;
+  font-size: 11pt;
   color: var(--muted);
   margin: 6px 0 20px;
   overflow-wrap: anywhere;
@@ -445,7 +445,7 @@ main {
   gap: 6px;
 }
 .project-card .muted {
-  font-size: 10px;
+  font-size: 11pt;
 }
 .panel {
   background: #fdfefa;
@@ -472,7 +472,7 @@ main {
 pre,
 .code-input {
   font-family: ui-monospace,SFMono-Regular,Consolas,monospace;
-  font-size: 12px;
+  font-size: 11pt;
   line-height: 1.7;
 }
 pre {
@@ -484,7 +484,7 @@ dl {
   display: grid;
   grid-template-columns: 1fr 1.2fr;
   gap: 14px;
-  font-size: 12px;
+  font-size: 11pt;
   margin-top: 24px;
 }
 dt {
@@ -497,7 +497,7 @@ dd {
 .back {
   display: inline-block;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11pt;
   margin-bottom: 23px;
 }
 .form-panel {
@@ -510,7 +510,7 @@ dd {
 }
 label {
   display: block;
-  font-size: 12px;
+  font-size: 11pt;
   font-weight: 550;
   margin-bottom: 22px;
 }
@@ -551,7 +551,7 @@ label small {
 .form-error {
   color: #b04258;
   margin: 12px 0;
-  font-size: 12px;
+  font-size: 11pt;
 }
 .action {
   display: inline-flex;
@@ -564,10 +564,10 @@ table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 12px;
+  font-size: 11pt;
 }
 th {
-  font-size: 10px;
+  font-size: 11pt;
   color: #83907c;
   font-weight: 500;
   text-transform: uppercase;
@@ -583,14 +583,14 @@ tr:last-child td {
   border-bottom: 0;
 }
 td small {
-  font-size: 10px;
+  font-size: 11pt;
   margin-top: 6px;
 }
 .result {
   min-width: 200px;
   max-width: 470px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 11pt;
 }
 .succeeded {
   color: #3e7246;
@@ -612,13 +612,13 @@ td small {
   gap: 8px;
   align-items: center;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 11pt;
   font-weight: 400;
 }
 footer {
   padding: 25px 44px;
   color: #87917f;
-  font-size: 10px;
+  font-size: 11pt;
   display: flex;
   justify-content: space-between;
 }
@@ -699,7 +699,7 @@ footer {
   }
   nav a {
     padding: 7px 10px;
-    font-size: 11px;
+    font-size: 11pt;
   }
   nav a span {
     display: none;
@@ -725,7 +725,7 @@ footer {
     padding: 10px 12px;
   }
   .page-heading p {
-    font-size: 12px;
+    font-size: 11pt;
     overflow-wrap: anywhere;
   }
   .hero {
@@ -756,10 +756,10 @@ footer {
     padding: 0 13px;
   }
   .metrics span {
-    font-size: 9px;
+    font-size: 11pt;
   }
   .metrics .text-metric {
-    font-size: 12px;
+    font-size: 11pt;
   }
   .metrics strong {
     font-size: 22px;
@@ -782,7 +782,7 @@ footer {
     padding: 10px 20px;
   }
   .section-heading .muted {
-    font-size: 10px;
+    font-size: 11pt;
   }
   footer {
     padding: 22px 20px;
