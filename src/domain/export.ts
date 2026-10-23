@@ -1,7 +1,12 @@
+import {
+  compilePage,
+  pageSymbol,
+  prepareWebsiteExport,
+  readableCss,
+} from "./codegen.ts";
 import { COMMERCE_SERVER_SOURCE } from "./commerce-runtime.ts";
-import { metadataHtml } from "./seo.ts";
 import { socialPath, socialPng } from "./social.ts";
-import { LAYER_CSS, pageMarkup } from "./markup.ts";
+import { LAYER_CSS } from "./markup.ts";
 import { RUNTIME_SOURCE } from "./interactions.ts";
 import { FORM_SERVER_SOURCE } from "./form-runtime.ts";
 /** Small standards-compliant stored ZIP writer for exporting source without a runtime dependency. */
@@ -89,38 +94,97 @@ const escapeHtml = (value: string) =>
     '"',
     "&quot;",
   );
-export function reactAppSource(): string {
+export function reactAppSource(website?: WebsiteDocument): string {
+  const pages = website?.pages ?? [];
   return `import { useEffect, useRef, useState } from "react";
 import { site } from "./site";
 import { mount } from "./runtime.js";
+import { updateMetadata } from "./metadata";
+${
+    pages.map((p) =>
+      "import " + pageSymbol(p.id) + ' from "./pages/' + p.id + '";'
+    ).join("\n")
+  }
 import "./site.css";
+
+const pageComponents = {
+${
+    pages.map((p) =>
+      "  " + JSON.stringify(p.id) + ": " + pageSymbol(p.id) + ","
+    ).join("\n")
+  }
+};
+
+/** File-backed pages with client navigation and the shared interaction runtime. */
 export default function App() {
- const [path,setPath]=useState(window.location.pathname);
- const root=useRef<HTMLElement>(null);
- const page=site.pages.find(p=>p.path===path);
- useEffect(()=>{const pop=()=>setPath(window.location.pathname);window.addEventListener("popstate",pop);return()=>window.removeEventListener("popstate",pop)},[]);
- useEffect(()=>{document.title=page?.title??"Page not found";if(page){const parsed=new DOMParser().parseFromString(page.head.replaceAll('https://dragonfruit.invalid',window.location.origin),'text/html');document.head.querySelectorAll('meta[name="description"],meta[name="robots"],meta[property^="og:"],meta[name^="twitter:"],link[rel="canonical"]').forEach(n=>n.remove());parsed.head.querySelectorAll('meta,link').forEach(n=>document.head.append(n));}if(root.current)return mount(root.current);},[page]);
- if(!page)return <main><h1>Page not found</h1><a href="/">Return home</a></main>;
- return <main ref={root} className={"df-page-"+page.id} onClickCapture={event=>{
-  if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
-  const anchor=(event.target as HTMLElement).closest("a"),href=anchor?.getAttribute("href");
-  if(anchor?.target==="_blank"||anchor?.hasAttribute("download"))return;
-  if(href&&site.pages.some(p=>p.path===href)){event.preventDefault();history.pushState({},"",href);setPath(href);window.scrollTo(0,0)}
- }} dangerouslySetInnerHTML={{__html:page.html}}/>;
+  const [path, setPath] = useState(window.location.pathname);
+  const root = useRef<HTMLDivElement>(null);
+  const page = site.pages.find(page => page.path === path);
+  const Page = page ? pageComponents[page.id as keyof typeof pageComponents] : undefined;
+
+  useEffect(() => {
+    const navigateBack = () => setPath(window.location.pathname);
+    window.addEventListener("popstate", navigateBack);
+    return () => window.removeEventListener("popstate", navigateBack);
+  }, []);
+
+  useEffect(() => {
+    document.title = page?.title ?? "Page not found";
+    if (page) updateMetadata(page, window.location.origin, site.title);
+    if (root.current) return mount(root.current);
+  }, [page]);
+
+  if (!page || !Page) {
+    return <main><h1>Page not found</h1><a href="/">Return home</a></main>;
+  }
+
+  return (
+    <div
+      ref={root}
+      onClickCapture={event => {
+        if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+        const anchor = (event.target as Element).closest("a");
+        const href = anchor?.getAttribute("href");
+        if (anchor?.target === "_blank" || anchor?.hasAttribute("download")) return;
+        if (href && site.pages.some(page => page.path === href)) {
+          event.preventDefault();
+          history.pushState({}, "", href);
+          setPath(href);
+          window.scrollTo(0, 0);
+        }
+      }}
+    >
+      <Page key={page.id} />
+    </div>
+  );
 }
 `;
 }
+
+/** Styles leave the JSX readable and remain scoped to the page that owns each node. */
+export function websiteStyles(website: WebsiteDocument): string {
+  return readableCss(LAYER_CSS) + "\n" +
+    website.pages.map((page) =>
+      allNodes(page).map((node) =>
+        ".df-page-" + page.id + ' [data-node="' + node.id + '"] {\n' +
+        formatStyles(node.styles) + "\n}"
+      ).join("\n")
+    ).join("\n\n") + "\n";
+}
+
 export function projectSourceFiles(
   input: WebsiteDocument,
   format: ExportFormat,
   deploymentFiles: ProjectFile[] = [],
 ): ProjectFile[] {
-  const website = parseWebsite(input);
+  const { website, assets } = prepareWebsiteExport(parseWebsite(input));
   if (format !== "fresh" && format !== "react") {
     throw new Error("Choose Fresh or React");
   }
   const integrationReadme =
     `\n## Forms and interactions\n\nInteractive layers include editable JavaScript in the runtime module and embedded layer options. Animation presets respect reduced-motion preferences. The preview editor never delivers submissions.\n\nForm APIs are included in this export. Copy .env.example to .env and fill in only the server environment variables for your chosen integrations. Never put credentials in public browser files. Configure PUBLIC_ORIGIN to the exact browser origin in production (including HTTPS when behind a reverse proxy). Resend needs a verified sender. Mailchimp uses pending status for double opt-in and requires the configured consent checkbox. Webhooks send JSON to the HTTPS URL in the configured server environment variable.\n\nSubmissions are validated, size bounded, honeypot checked, and limited per form per minute in this process. Multi-instance deployments need a shared limiter and any additional abuse controls required by your traffic. Submissions are delivered to the provider, not stored locally. API errors are sanitized; inspect provider logs for delivery diagnostics. Preview connections intentionally deliver nothing.\n\nReferences: https://resend.com/docs/api-reference/emails/send-email and https://mailchimp.com/developer/marketing/api/lists/members/create-member\n`;
+  const sourceReadme =
+    "\n## Readable source\n\nThe export compiler normalizes the visual page model into semantic markup, an element/text intermediate tree, and ordinary TSX components. Every top-level section has a named component; interactive options are editable constants in its page module. Fresh pages live under routes/ and React pages under src/pages/, registered in src/App.tsx. Styles are page-scoped in assets/styles.css (Fresh) or src/site.css (React). Uploaded images live in static/media/ (Fresh) or public/media/ (React). The shared runtime keeps form endpoints, widget options, custom JavaScript and commerce hooks intact. Edit the generated components and styles directly; exported edits do not sync back into the visual editor.\n";
   const environment = new Set<string>(["PUBLIC_ORIGIN", "STRIPE_SECRET_KEY"]);
   for (const api of website.apis ?? []) {
     if (api.provider === "resend") {
@@ -147,7 +211,14 @@ export function projectSourceFiles(
     content: "",
     bytes: socialPng(page.title, website.title),
   }));
-  common.push(...socialFiles);
+  common.push(
+    ...socialFiles,
+    ...assets.map((asset) => ({
+      name: (format === "fresh" ? "static" : "public") + asset.path,
+      content: "",
+      bytes: asset.bytes,
+    })),
+  );
   const deploy = deploymentFiles.map((file) => ({
     ...file,
     name: "deploy/" + file.name,
@@ -235,30 +306,22 @@ export function projectSourceFiles(
       },
       {
         name: "assets/styles.css",
-        content: LAYER_CSS,
+        content: websiteStyles(website),
       },
       {
         name: "routes/_app.tsx",
-        content:
-          'import { define } from "../utils.ts";\nimport { website } from "../server/site.ts";\nimport { metadataHtml } from "../server/seo.js";\nexport default define.page(({Component,url})=>{const page=website.pages.find(p=>p.path===url.pathname);const origin=Deno.env.get("PUBLIC_ORIGIN")||url.origin;const head=\'<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>\'+(page?metadataHtml(page,origin,website.title):\'<meta name="robots" content="noindex"/>\')+\'<script type="module" src="/runtime.js"></script>\';return <html lang="en"><head dangerouslySetInnerHTML={{__html:head}}/><body><Component/></body></html>});\n',
+        content: FRESH_LAYOUT_SOURCE,
       },
+      { name: "components/PageMetadata.tsx", content: FRESH_METADATA_SOURCE },
       { name: "server/seo.js", content: SEO_SOURCE },
       {
         name: "README.md",
         content: "# " + website.title +
           "\n\nA complete Fresh 2 website exported from dragonfruit. Each page is a server-rendered file route, with navigation between all pages.\n\n## Requirements\n\nDeno 2.9.5 (the tested runtime).\n\n## Development\n\n```sh\ncp .env.example .env\ndeno install\ndeno task dev\n```\n\nOpen the URL printed by Vite.\n\n## Production\n\n```sh\ndeno task check\ndeno task build\ndeno task start\n```\n\nThe production server listens on port 8000. Serve it behind your HTTPS reverse proxy. No dragonfruit server or database is needed. The first install creates a deno.lock; retain it for repeatable installs.\n\nTemplates provide editable presentation content. Contact details, pricing, and blog entries are examples; Markdown articles and commerce layers are included. Configure Stripe and booking URLs before launch.\n" +
-          integrationReadme,
+          integrationReadme + sourceReadme,
       },
     ];
   }
-  const css = LAYER_CSS + "\n" +
-    "*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:#f8f7f2}h1,h2,p{margin:0;white-space:pre-line}a{white-space:pre-line}.not-found{padding:48px}\n" +
-    website.pages.map((page) =>
-      allNodes(page).map((n) =>
-        ".df-page-" + page.id + ' [data-node="' + n.id + '"] {\n' +
-        formatStyles(n.styles) + "\n}"
-      ).join("\n")
-    ).join("\n");
   return [
     ...common,
     ...deploy,
@@ -319,11 +382,15 @@ export function projectSourceFiles(
       content:
         'import { createRoot } from "react-dom/client";\nimport App from "./App";\ncreateRoot(document.getElementById("root")!).render(<App/>);\n',
     },
-    { name: "src/App.tsx", content: reactAppSource() },
+    { name: "src/App.tsx", content: reactAppSource(website) },
+    ...website.pages.map((page) => ({
+      name: "src/pages/" + page.id + ".tsx",
+      content: compilePage(page, page.id).source,
+    })),
     {
       name: "src/site.ts",
       content:
-        "export const site: {title:string;pages:{id:string;name:string;path:string;title:string;html:string;head:string}[]} = " +
+        "export const site: {title:string;pages:{id:string;name:string;path:string;title:string;article?:boolean;seo?:{description:string;image:string;noindex:boolean}}[]} = " +
         pretty({
           title: website.title,
           pages: website.pages.map((p) => ({
@@ -331,13 +398,14 @@ export function projectSourceFiles(
             name: p.name,
             path: p.path,
             title: p.title,
-            html: pageMarkup(p, p.id),
-            head: metadataHtml(p, "https://dragonfruit.invalid", website.title),
+            article: p.article,
+            seo: p.seo,
           })),
         }) + ";\n",
     },
-    { name: "src/site.css", content: css + "\n" },
+    { name: "src/site.css", content: websiteStyles(website) },
     { name: "src/runtime.js", content: RUNTIME_SOURCE },
+    { name: "src/metadata.ts", content: REACT_METADATA_SOURCE },
     { name: "server/forms.mjs", content: FORM_SERVER_SOURCE },
     { name: "server/commerce.mjs", content: COMMERCE_SERVER_SOURCE },
     { name: "server/seo.mjs", content: SEO_SOURCE },
@@ -348,7 +416,7 @@ export function projectSourceFiles(
       name: "README.md",
       content: "# " + website.title +
         "\n\nA complete React + Vite website exported from dragonfruit, including all page designs and browser navigation.\n\n## Requirements\n\nNode.js 22.12+ and npm.\n\n## Development\n\n```sh\ncp .env.example .env\nnpm install\nnpm run dev\n```\n\n## Production build\n\n```sh\nnpm run build\nnpm run preview\n```\n\nRun `npm start` after building. The included Node server serves dist, supports deep page URLs, and handles form submissions. PORT defaults to 8787; use PUBLIC_ORIGIN for the browser-facing URL behind an HTTPS proxy. `npm run dev` starts the API server and Vite together. Static-only hosting can serve dist with an index.html fallback, but forms then need the included backend deployed separately and /api proxied to it. Keep the generated package-lock.json. No dragonfruit server or database is needed.\n\nTemplates provide editable presentation content; contact details, prices, and article summaries are examples. Markdown articles and commerce layers are included. Configure Stripe and booking URLs before launch.\n" +
-        integrationReadme,
+        integrationReadme + sourceReadme,
     },
   ];
 }
@@ -394,5 +462,112 @@ export function metadataHtml(page,origin,siteName){
  const description=page.seo?.description||'Discover '+page.title+'. Stories, products, and ideas from '+siteName+'.';
  const meta=(key,value,property=false)=>'<meta '+(property?'property':'name')+'="'+key+'" content="'+esc(value)+'"/>';
  return '<title>'+esc(page.title)+'</title><link rel="canonical" href="'+esc(url)+'"/>'+meta('description',description)+meta('robots',page.seo?.noindex?'noindex,nofollow':'index,follow')+[['og:type',page.article?'article':'website'],['og:site_name',siteName],['og:title',page.title],['og:description',description],['og:url',url],['og:image',image],['og:image:width','1200'],['og:image:height','630'],['og:image:alt',page.title]].map(([k,v])=>meta(k,v,true)).join('')+meta('twitter:card','summary_large_image')+meta('twitter:title',page.title)+meta('twitter:description',description)+meta('twitter:image',image)+meta('twitter:image:alt',page.title);
+}
+`;
+
+const FRESH_LAYOUT_SOURCE = `import { define } from "../utils.ts";
+import { website } from "../server/site.ts";
+import PageMetadata from "../components/PageMetadata.tsx";
+
+export default define.page(({ Component, url }) => {
+  const page = website.pages.find(page => page.path === url.pathname);
+  const origin = Deno.env.get("PUBLIC_ORIGIN") || url.origin;
+
+  return (
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        {page ? <PageMetadata page={page} origin={origin} siteName={website.title} /> : <meta name="robots" content="noindex" />}
+        <script type="module" src="/runtime.js" />
+      </head>
+      <body><Component /></body>
+    </html>
+  );
+});
+`;
+
+const FRESH_METADATA_SOURCE = `interface PageInfo {
+  title: string;
+  path: string;
+  article?: boolean;
+  seo?: {description: string; image: string; noindex: boolean};
+}
+
+export default function PageMetadata({ page, origin, siteName }: {page: PageInfo; origin: string; siteName: string}) {
+  const url = new URL(page.path, origin).href;
+  const imagePath = page.seo?.image || "/social/" + (page.path === "/" ? "_root" : page.path.slice(1).replaceAll("/", "__")) + ".png";
+  const image = new URL(imagePath, origin).href;
+  const description = page.seo?.description || "Discover " + page.title + ". Stories, products, and ideas from " + siteName + ".";
+
+  return (
+    <>
+      <title>{page.title}</title>
+      <link rel="canonical" href={url} />
+      <meta name="description" content={description} />
+      <meta name="robots" content={page.seo?.noindex ? "noindex,nofollow" : "index,follow"} />
+      <meta property="og:type" content={page.article ? "article" : "website"} />
+      <meta property="og:site_name" content={siteName} />
+      <meta property="og:title" content={page.title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:url" content={url} />
+      <meta property="og:image" content={image} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content={page.title} />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={page.title} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={image} />
+      <meta name="twitter:image:alt" content={page.title} />
+    </>
+  );
+}
+`;
+
+const REACT_METADATA_SOURCE = `interface PageInfo {
+  title: string;
+  path: string;
+  article?: boolean;
+  seo?: {description: string; image: string; noindex: boolean};
+}
+
+/** Keep client navigation metadata in sync with the initial server-rendered head. */
+export function updateMetadata(page: PageInfo, origin: string, siteName: string) {
+  const url = new URL(page.path, origin).href;
+  const imagePath = page.seo?.image || "/social/" + (page.path === "/" ? "_root" : page.path.slice(1).replaceAll("/", "__")) + ".png";
+  const image = new URL(imagePath, origin).href;
+  const description = page.seo?.description || "Discover " + page.title + ". Stories, products, and ideas from " + siteName + ".";
+  const values: Record<string, string> = {
+    description,
+    robots: page.seo?.noindex ? "noindex,nofollow" : "index,follow",
+    "og:type": page.article ? "article" : "website",
+    "og:site_name": siteName,
+    "og:title": page.title,
+    "og:description": description,
+    "og:url": url,
+    "og:image": image,
+    "og:image:width": "1200",
+    "og:image:height": "630",
+    "og:image:alt": page.title,
+    "twitter:card": "summary_large_image",
+    "twitter:title": page.title,
+    "twitter:description": description,
+    "twitter:image": image,
+    "twitter:image:alt": page.title,
+  };
+  document.head.querySelectorAll(
+    'meta[name="description"], meta[name="robots"], meta[property^="og:"], meta[name^="twitter:"], link[rel="canonical"]',
+  ).forEach(element => element.remove());
+  const canonical = document.createElement("link");
+  canonical.rel = "canonical";
+  canonical.href = url;
+  document.head.append(canonical);
+  for (const [name, content] of Object.entries(values)) {
+    const meta = document.createElement("meta");
+    meta.setAttribute(name.startsWith("og:") ? "property" : "name", name);
+    meta.content = content;
+    document.head.append(meta);
+  }
 }
 `;

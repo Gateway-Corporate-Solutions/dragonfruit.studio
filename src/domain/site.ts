@@ -1,3 +1,4 @@
+import { compilePage } from "./codegen.ts";
 import { COMMERCE_BROWSER_SOURCE } from "./commerce-runtime.ts";
 import { type LayerOptions, parseLayer, safeLink } from "./layers.ts";
 import { escapeHtml, LAYER_CSS, pageMarkup } from "./markup.ts";
@@ -385,11 +386,5 @@ export function previewHtml(
     navigation + runtime + "</script></body></html>";
 }
 export function freshSource(site: SiteDocument, pageId = "home"): string {
-  const html = JSON.stringify(pageMarkup(site, pageId)).replaceAll(
-    "<",
-    "\\u003c",
-  );
-  return "// Generated page markup. Edit this string or continue designing in dragonfruit.\nconst markup = " +
-    html +
-    ";\nexport default function Page() { return <main dangerouslySetInnerHTML={{__html:markup}}/>; }\n";
+  return compilePage(site, pageId).source;
 }

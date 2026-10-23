@@ -1,3 +1,4 @@
+import { prepareWebsiteExport } from "@/src/domain/codegen.ts";
 import PageTree from "@/components/PageTree.tsx";
 import type { Seo } from "@/src/domain/seo.ts";
 import CommerceEditor from "@/components/CommerceEditor.tsx";
@@ -22,7 +23,6 @@ import {
 import {
   type ExportFormat,
   projectSourceFiles,
-  reactAppSource,
   sourceZip,
 } from "@/src/domain/export.ts";
 import { DEPLOY_FILES } from "@/src/domain/deploy-assets.ts";
@@ -111,6 +111,9 @@ export default function SiteEditor(
     [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [inspector, setInspector] = useState<"visual" | "css">("visual");
   const [leftTab, setLeftTab] = useState<"layers" | "add">("layers");
+  const sourcePage = mode === "code"
+    ? prepareWebsiteExport(website).website.pages.find((p) => p.id === site.id)!
+    : site;
   const [cssDraft, setCssDraft] = useState(formatStyles(node?.styles ?? {})),
     [cssError, setCssError] = useState("");
   const [manifestDraft, setManifestDraft] = useState(
@@ -939,16 +942,14 @@ export default function SiteEditor(
               <p class="muted">
                 {website.pages.length} pages · {exportFormat === "fresh"
                   ? "routes/" + routeFilename(site.path)
-                  : "src/App.tsx"}
+                  : "src/pages/" + site.id + ".tsx"}
               </p>
             </div>
             <label>
-              Generated source · read only<textarea
+              Generated page component · read only<textarea
                 class="code-input"
                 readOnly
-                value={exportFormat === "fresh"
-                  ? freshSource(site, site.id)
-                  : reactAppSource()}
+                value={freshSource(sourcePage, site.id)}
                 spellcheck={false}
                 rows={35}
               />

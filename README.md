@@ -280,7 +280,7 @@ Exported commerce APIs:
 
 Checkout requires a same-origin JSON request, validates product IDs and quantities, bounds request size, and limits creation to 120 attempts per minute per server process. Multi-instance or higher-traffic deployments should supply a shared rate limiter. API keys remain in server environment variables and are excluded from public assets. Expert Commerce JSON is validated and included in draft revision history.
 
-Validation for this update: 58 unit tests (including Markdown safety, article persistence/indexing, commerce validation, checkout price tampering, and export metadata), strict domain/UI type checks, lint, React export production build, and a headless browser smoke test covering article navigation/reloads, quantity changes, checkout preview, cart persistence/removal, and image/metadata routes. Full Fresh build needs access to the configured JSR/npm dependencies.
+Validation for this update: 62 unit tests (including Markdown safety, article persistence/indexing, commerce validation, checkout price tampering, and export metadata), strict domain/UI type checks, lint, React export production build, and a headless browser smoke test covering article navigation/reloads, quantity changes, checkout preview, cart persistence/removal, and image/metadata routes. Full Fresh build needs access to the configured JSR/npm dependencies.
 
 Schedule auto-fill additionally has tests for weekly generation, preserved exceptions and overlap handling, repeat-fill deduplication, DST/timezone conversion, invalid patterns, and the session cap.
 
@@ -290,3 +290,12 @@ Schedule auto-fill additionally has tests for weekly generation, preserved excep
 In the editor's Pages panel, choose **+ Add group**, enter a name, and create it. Select a page and use its **Group** selector to move it into a group or back to Ungrouped. Click the caret/name to expand or collapse the group; keyboard Enter/Space also works. Expanded groups include **Manage group** for renaming or removing the group. Removing a group keeps all its pages and moves them to Ungrouped. New template pages created while viewing a grouped page join that group. Groups and memberships save with the draft and participate in Undo/Redo. Groups organize the editor; page URLs and published navigation remain as designed.
 
 Page-group validation, round-trip/export preservation, and safe removal have unit coverage. Browser checks cover creation, assignment, caret collapse, keyboard expansion, rename, and removal while preserving the pages.
+
+
+## Readable Fresh / React export compiler
+
+Exports now pass through `src/domain/codegen.ts`: visual page model → controlled semantic markup → element/text intermediate tree → JSX page components. The compiler preserves text/attribute escaping, translates DOM attribute names to JSX (`className`, `htmlFor`, `tabIndex`, etc.), emits named components for top-level sections, and lifts interaction options into editable constants. Page content no longer ships as serialized HTML or `dangerouslySetInnerHTML`.
+
+Fresh emits readable page modules under `routes/`, plus a JSX metadata component and page-scoped rules in `assets/styles.css`. React emits one module per page under `src/pages/`, imports them into `src/App.tsx`, and puts page rules in `src/site.css`. Shared runtime hooks and form/commerce endpoints stay intact. Uploaded images are extracted into deduplicated `static/media/` or `public/media/` files before source generation. The Code tab previews the same page component emitted by export. Source and runtime edits made after export are independent of the saved builder draft.
+
+Validation includes export-compiler and media-extraction tests, strict generated React type checks and production build, rendered markup parity for Fresh/Preact and React pages, plus browser checks for article navigation, metadata, carts, checkout preview, forms, carousel, accordion, and mobile menu behavior. Full Fresh Vite compilation still requires external JSR/npm dependency access.
