@@ -1,3 +1,4 @@
+import PageTree from "@/components/PageTree.tsx";
 import type { Seo } from "@/src/domain/seo.ts";
 import CommerceEditor from "@/components/CommerceEditor.tsx";
 import { newConnection } from "@/src/domain/forms.ts";
@@ -254,7 +255,15 @@ export default function SiteEditor(
       return "Apply or discard the current CSS draft first.";
     }
     try {
-      const next = addPage(website, template, name);
+      let next = addPage(website, template, name);
+      if (site.groupId) {
+        next = {
+          ...next,
+          pages: next.pages.map((p, i) =>
+            i >= website.pages.length ? { ...p, groupId: site.groupId } : p
+          ),
+        };
+      }
       commitWebsite(next);
       setActivePage(next.pages[website.pages.length].id);
       setShowPages(false);
@@ -966,35 +975,15 @@ export default function SiteEditor(
                     + Add page
                   </button>
                 </div>
-                <div class="page-list" aria-label="Website pages">
-                  {website.pages.map((p) => (
-                    <div class="page-row" key={p.id}>
-                      <button
-                        type="button"
-                        aria-current={site.id === p.id ? "page" : undefined}
-                        class={site.id === p.id ? "active" : ""}
-                        onClick={() => switchPage(p.id)}
-                      >
-                        <span>{p.path === "/" ? "⌂" : "▤"}</span>
-                        <span>
-                          {p.name}
-                          <small>{p.path}</small>
-                        </span>
-                      </button>
-                      {p.path !== "/" && (
-                        <button
-                          type="button"
-                          class="page-remove"
-                          title={`Remove ${p.name} page`}
-                          aria-label={`Remove ${p.name} page`}
-                          onClick={() => removePage(p.id)}
-                        >
-                          ×
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                <PageTree
+                  website={website}
+                  activePage={site.id}
+                  onSelect={switchPage}
+                  onRemove={removePage}
+                  onChange={(next) => {
+                    if (canDiscardCss()) commitWebsite(next);
+                  }}
+                />
                 <div class="editor-panel-title layers-title">
                   <strong>{site.name} elements</strong>
                   <span class="badge">{nodes.length}</span>

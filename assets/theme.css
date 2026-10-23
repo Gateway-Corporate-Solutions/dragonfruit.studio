@@ -837,3 +837,109 @@ th {
   background: var(--input);
   color: var(--text);
 }
+
+.page-group-add {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  text-align: left;
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+.page-group {
+  border-top: 1px solid var(--line);
+  margin-top: 6px;
+}
+.page-group > summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  list-style: none;
+  padding: 10px 5px;
+  font-weight: 600;
+  min-width: 0;
+}
+.page-group > summary::-webkit-details-marker {
+  display: none;
+}
+.page-group > summary > span:nth-child(2) {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.page-group > summary > small {
+  margin-left: auto;
+}
+.page-group-caret {
+  display: inline-block;
+  transform: rotate(0deg);
+  font-size: 20px;
+  line-height: 1;
+}
+.page-group[open] > summary .page-group-caret {
+  transform: rotate(90deg);
+}
+.page-group-pages {
+  padding-left: 10px;
+  border-left: 1px solid var(--line);
+  margin-left: 9px;
+}
+.page-group-select {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px 9px;
+  font-size: 11pt;
+}
+.page-group-select select {
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  background: var(--surface);
+  color: inherit;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 4px;
+}
+.page-group-form {
+  padding: 8px;
+}
+.page-group-form label,
+.page-group-manage label {
+  display: grid;
+  gap: 5px;
+  font-size: 11pt;
+}
+.page-group-form input,
+.page-group-manage input {
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  padding: 6px;
+}
+.page-group-empty,
+.page-group-manage p {
+  font-size: 11pt;
+  line-height: 1.5;
+  padding: 5px;
+}
+.page-group-manage {
+  padding: 6px;
+  font-size: 11pt;
+}
+.page-group-manage > summary {
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+.page-group-manage .button {
+  margin-top: 6px;
+}
+.page-group summary:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}

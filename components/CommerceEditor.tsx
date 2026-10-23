@@ -1,3 +1,4 @@
+import ScheduleEditor from "./ScheduleEditor.tsx";
 import { useEffect, useState } from "preact/hooks";
 import {
   type CommerceConfig,
@@ -12,13 +13,14 @@ export default function CommerceEditor(
     onChange: (site: WebsiteDocument) => void;
   },
 ) {
+  const [schedulePending, setSchedulePending] = useState(false);
   const c = website.commerce ?? defaultCommerce();
   const [draft, setDraft] = useState<string | null>(null),
     [error, setError] = useState("");
   useEffect(() => {
-    onPending(draft !== null);
+    onPending(draft !== null || schedulePending);
     return () => onPending(false);
-  }, [draft]);
+  }, [draft, schedulePending]);
   const apply = (next: CommerceConfig) => {
     try {
       onChange({ ...website, commerce: parseCommerce(next) });
@@ -176,59 +178,14 @@ export default function CommerceEditor(
         >
           + Add product
         </button>
-        <h3>Schedule</h3>
-        {c.slots.map((s, i) => (
-          <fieldset class="option-card" key={s.id}>
-            <legend>{s.title}</legend>
-            {(["title", "start", "end", "bookingUrl"] as const).map((k) => (
-              <label key={k}>
-                {k === "bookingUrl"
-                  ? "Booking URL (HTTPS)"
-                  : k === "start" || k === "end"
-                  ? k + " (ISO date with timezone)"
-                  : "Title"}
-                <input
-                  value={s[k]}
-                  onChange={(e) =>
-                    apply({
-                      ...c,
-                      slots: c.slots.map((v, j) =>
-                        j === i ? { ...v, [k]: e.currentTarget.value } : v
-                      ),
-                    })}
-                />
-              </label>
-            ))}
-            <button
-              class="button"
-              type="button"
-              onClick={() =>
-                apply({ ...c, slots: c.slots.filter((v) => v.id !== s.id) })}
-            >
-              Remove session
-            </button>
-          </fieldset>
-        ))}
-        <button
-          class="button"
-          type="button"
-          disabled={c.slots.length >= 100}
-          onClick={() => {
-            const start = new Date(Date.now() + 86400000);
-            apply({
-              ...c,
-              slots: [...c.slots, {
-                id: "session-" + crypto.randomUUID().slice(0, 8),
-                title: "Consultation",
-                start: start.toISOString(),
-                end: new Date(start.getTime() + 3600000).toISOString(),
-                bookingUrl: "https://calendly.com/",
-              }],
-            });
+        <ScheduleEditor
+          slots={c.slots}
+          onPending={setSchedulePending}
+          onChange={(slots) => {
+            const next = parseCommerce({ ...c, slots });
+            onChange({ ...website, commerce: next });
           }}
-        >
-          + Add session
-        </button>
+        />
       </fieldset>
       <details>
         <summary>Expert · Commerce JSON</summary>

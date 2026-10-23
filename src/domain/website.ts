@@ -15,13 +15,19 @@ export interface SitePage extends SiteDocument {
   id: string;
   name: string;
   path: string;
+  groupId?: string;
   article?: boolean;
   seo?: Seo;
+}
+export interface PageGroup {
+  id: string;
+  name: string;
 }
 export interface WebsiteDocument {
   schemaVersion: 2;
   title: string;
   pages: SitePage[];
+  pageGroups?: PageGroup[];
   apis?: ApiConnection[];
   commerce?: CommerceConfig;
 }
@@ -105,6 +111,20 @@ export function parseWebsite(value: unknown): WebsiteDocument {
     !Array.isArray(input.pages) || !input.pages.length ||
     input.pages.length > 16
   ) return fail("Website requires a title and 1–16 pages");
+  const groups = input.pageGroups ?? [];
+  if (!Array.isArray(groups) || groups.length > 16) {
+    return fail("Use up to 16 page groups");
+  }
+  const groupIds = new Set<string>();
+  const pageGroups: PageGroup[] = groups.map((g) => {
+    if (
+      !g || typeof g !== "object" || typeof g.id !== "string" ||
+      !/^[a-z][a-z0-9-]{0,70}$/.test(g.id) || groupIds.has(g.id) ||
+      typeof g.name !== "string" || !g.name.trim() || g.name.length > 60
+    ) return fail("Page groups need unique IDs and names of 1–60 characters");
+    groupIds.add(g.id);
+    return { id: g.id, name: g.name.trim() };
+  });
   const ids = new Set<string>(), paths = new Set<string>();
   const pages = input.pages.map((item): SitePage => {
     if (!item || typeof item !== "object") return fail("Invalid page");
@@ -127,6 +147,10 @@ export function parseWebsite(value: unknown): WebsiteDocument {
         "Page URLs must be unique lowercase paths, such as /about or /company/team; api and index are reserved",
       );
     }
+    if (
+      p.groupId !== undefined &&
+      (typeof p.groupId !== "string" || !groupIds.has(p.groupId))
+    ) return fail("A page references a missing group");
     ids.add(p.id);
     paths.add(p.path);
     return {
@@ -134,6 +158,7 @@ export function parseWebsite(value: unknown): WebsiteDocument {
       id: p.id,
       name: p.name.trim(),
       path: p.path,
+      ...(p.groupId !== undefined ? { groupId: p.groupId as string } : {}),
       ...(p.article === true ? { article: true } : {}),
       ...(p.seo !== undefined ? { seo: parseSeo(p.seo) } : {}),
     };
@@ -179,6 +204,7 @@ export function parseWebsite(value: unknown): WebsiteDocument {
     pages,
     ...(apis.length ? { apis } : {}),
     ...(commerce ? { commerce } : {}),
+    ...(pageGroups.length ? { pageGroups } : {}),
   };
 }
 export function starterWebsite(name: string): WebsiteDocument {
@@ -639,4 +665,66 @@ export function refreshBlogIndex(website: WebsiteDocument): WebsiteDocument {
     ...website,
     pages: website.pages.map((p) => ({ ...p, nodes: visit(p.nodes) })),
   };
+}
+
+export function addPageGroup(
+  website: WebsiteDocument,
+  name: string,
+): WebsiteDocument {
+  return parseWebsite({
+    ...website,
+    pageGroups: [...website.pageGroups ?? [], {
+      id: "group-" + crypto.randomUUID().slice(0, 8),
+      name,
+    }],
+  });
+}
+export function renamePageGroup(
+  website: WebsiteDocument,
+  id: string,
+  name: string,
+): WebsiteDocument {
+  if (!website.pageGroups?.some((g) => g.id === id)) {
+    return fail("Page group not found");
+  }
+  return parseWebsite({
+    ...website,
+    pageGroups: website.pageGroups.map((g) => g.id === id ? { ...g, name } : g),
+  });
+}
+export function movePageToGroup(
+  website: WebsiteDocument,
+  pageId: string,
+  groupId?: string,
+): WebsiteDocument {
+  if (!website.pages.some((p) => p.id === pageId)) {
+    return fail("Page not found");
+  }
+  return parseWebsite({
+    ...website,
+    pages: website.pages.map((p) => {
+      if (p.id !== pageId) return p;
+      const next = { ...p };
+      delete next.groupId;
+      return { ...next, ...(groupId ? { groupId } : {}) };
+    }),
+  });
+}
+export function removePageGroup(
+  website: WebsiteDocument,
+  id: string,
+): WebsiteDocument {
+  if (!website.pageGroups?.some((g) => g.id === id)) {
+    return fail("Page group not found");
+  }
+  return parseWebsite({
+    ...website,
+    pageGroups: website.pageGroups.filter((g) => g.id !== id),
+    pages: website.pages.map((p) => {
+      if (p.groupId !== id) return p;
+      const next = { ...p };
+      delete next.groupId;
+      return next;
+    }),
+  });
 }
