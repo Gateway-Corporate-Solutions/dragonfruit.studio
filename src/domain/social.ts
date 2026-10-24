@@ -1,84 +1,120 @@
-import { GLYPHS } from "./social-font.ts";
-/** Dependency-free indexed PNG cards, generated equally in server and browser exports. */
+import { SOCIAL_FONT, type SocialGlyph } from "./social-font.ts";
+
+const glyph = (char: string, size: number): SocialGlyph =>
+  SOCIAL_FONT[size][char] ?? SOCIAL_FONT[size][char.normalize("NFKD")[0]] ??
+    SOCIAL_FONT[size]["?"];
+const width = (text: string, size: number) =>
+  [...text].reduce((n, c) => n + glyph(c, size)[0], 0);
+const clean = (text: string) => text.slice(0, 1000).replace(/\s+/g, " ").trim();
+function ellipsis(text: string, size: number, max: number) {
+  const chars = [...text.trimEnd()];
+  while (chars.length && width(chars.join("") + "…", size) > max) chars.pop();
+  return chars.join("").trimEnd() + "…";
+}
+function wrap(text: string, size: number, max: number): string[] {
+  const lines: string[] = [];
+  let line = "";
+  for (const word of text.split(" ")) {
+    if (line && width(line + " " + word, size) <= max) {
+      line += " " + word;
+      continue;
+    }
+    if (line) lines.push(line);
+    line = "";
+    for (const char of word) {
+      if (line && width(line + char, size) > max) {
+        lines.push(line);
+        line = "";
+      }
+      line += char;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+/** Shared layout metrics keep all text within the 1200 × 630 safe area. */
+export function socialLayout(title: string, siteName: string) {
+  const site = clean(siteName) || "Website";
+  const heading = clean(title) || site;
+  let size = 64;
+  let lines = wrap(heading, size, 1032);
+  if (lines.length > 3) {
+    size = 52;
+    lines = wrap(heading, size, 1032);
+  }
+  if (lines.length > 3) {
+    lines = lines.slice(0, 3);
+    lines[2] = ellipsis(lines[2], size, 1032);
+  }
+  return {
+    site: width(site, 28) > 1032 ? ellipsis(site, 28, 1032) : site,
+    lines,
+    size,
+  };
+}
+
+/** Antialiased, dependency-free PNG cards, identical in server and browser exports. */
 export function socialPng(
   title: string,
   siteName: string,
 ): Uint8Array<ArrayBuffer> {
   const w = 1200, h = 630, pixels = new Uint8Array((w + 1) * h);
-  const box = (
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    color: number,
-  ) => {
-    for (let row = Math.max(0, y); row < Math.min(h, y + height); row++) {
-      pixels.fill(
-        color,
-        row * (w + 1) + 1 + Math.max(0, x),
-        row * (w + 1) + 1 + Math.min(w, x + width),
-      );
-    }
+  const box = (x: number, y: number, length: number, color: number) => {
+    if (y < 0 || y >= h) return;
+    pixels.fill(
+      color,
+      y * (w + 1) + 1 + Math.max(0, x),
+      y * (w + 1) + 1 + Math.min(w, x + length),
+    );
   };
-  box(0, 0, w, h, 0);
-  box(0, 0, 20, h, 2);
-  box(75, 70, 100, 8, 2);
-  box(960, 80, 140, 140, 2);
-  box(985, 105, 90, 90, 3);
-  box(1013, 131, 34, 34, 1);
   const text = (
     value: string,
     x: number,
-    y: number,
-    scale: number,
-    max: number,
+    baseline: number,
+    size: number,
+    muted = false,
   ) => {
-    const width = (char: string) =>
-      char === " " ? 9 : Math.max(
-        8,
-        ...(GLYPHS[char] ?? GLYPHS["?"]).map((line) =>
-          line.lastIndexOf("1") + 3
-        ),
-      );
-    let cursor = 0, row = 0;
-    for (const word of value.split(/(\s+)/)) {
-      const wordWidth = [...word].reduce((n, c) => n + width(c) * scale, 0);
-      if (
-        cursor && (cursor + wordWidth > max * 24 * scale || word.includes("\n"))
-      ) {
-        row++;
-        cursor = 0;
-      }
-      if (row > 3) break;
-      if (!cursor && !word.trim()) continue;
-      for (const c of word) {
-        if (c === "\n") continue;
-        if (cursor + width(c) * scale > max * 24 * scale) {
-          row++;
-          cursor = 0;
-        }
-        if (row > 3) break;
-        const glyph = GLYPHS[c] ?? GLYPHS["?"];
-        glyph.forEach((line, dy) => {
-          for (let dx = 0; dx < line.length; dx++) {
-            if (line[dx] === "1") {
-              box(
-                x + cursor + dx * scale,
-                y + row * 34 * scale + dy * scale,
-                scale,
-                scale,
-                1,
-              );
-            }
+    let cursor = x;
+    for (const char of value) {
+      const [advance, left, top, gw, gh, encoded] = glyph(char, size);
+      const data = atob(encoded);
+      let pixel = 0;
+      for (let i = 0; i < data.length; i += 2) {
+        const count = data.charCodeAt(i), coverage = data.charCodeAt(i + 1);
+        for (let j = 0; j < count; j++, pixel++) {
+          if (!coverage || !gw || !gh) continue;
+          const dx = Math.round(cursor) + left + pixel % gw;
+          const dy = baseline + top + Math.floor(pixel / gw);
+          if (dx >= 0 && dx < w && dy >= 0 && dy < h) {
+            pixels[dy * (w + 1) + 1 + dx] = coverage + (muted ? 128 : 0);
           }
-        });
-        cursor += width(c) * scale;
+        }
       }
+      cursor += advance;
     }
   };
-  text(siteName.slice(0, 38), 75, 115, 1, 38);
-  text(title, 75, 225, 2, 21);
-  text("STORIES / IDEAS / COMMERCE", 75, 550, 1, 42);
+  const layout = socialLayout(title, siteName);
+  text(layout.site, 84, 108, 28, true);
+  box(84, 150, 1032, 150);
+  const lineHeight = Math.round(layout.size * 1.25);
+  const firstBaseline = Math.round(
+    345 - (layout.lines.length - 1) * lineHeight / 2 + layout.size * 0.35,
+  );
+  layout.lines.forEach((line, i) =>
+    text(line, 84, firstBaseline + i * lineHeight, layout.size)
+  );
+  // A restrained neutral palette includes 128 coverage levels for each ink.
+  const palette = new Uint8Array(256 * 3);
+  const background = [248, 250, 252];
+  for (let i = 0; i < 256; i++) {
+    const ink = i < 128 ? [24, 33, 46] : [102, 112, 128];
+    const alpha = (i % 128) / 127;
+    for (let c = 0; c < 3; c++) {
+      palette[i * 3 + c] = Math.round(
+        background[c] * (1 - alpha) + ink[c] * alpha,
+      );
+    }
+  }
   // zlib stream with fixed-Huffman DEFLATE; long pixel runs use distance-one matches.
   const compressed: number[] = [0x78, 0x01];
   let bits = 0, count = 0;
@@ -225,10 +261,7 @@ export function socialPng(
   const parts = [
     new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]),
     chunk("IHDR", header),
-    chunk(
-      "PLTE",
-      new Uint8Array([17, 21, 19, 247, 245, 232, 129, 161, 91, 222, 92, 126]),
-    ),
+    chunk("PLTE", palette),
     chunk("IDAT", new Uint8Array(compressed)),
     chunk("IEND", new Uint8Array()),
   ];
