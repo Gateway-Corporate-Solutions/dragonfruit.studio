@@ -9,6 +9,7 @@ import {
 } from "@/src/domain/static-files.ts";
 import type { ExportFormat, ProjectFile } from "@/src/domain/export.ts";
 import type { WebsiteDocument } from "@/src/domain/website.ts";
+import CodeResizeHandle from "./CodeResizeHandle.tsx";
 interface Entry {
   name: string;
   path: string;
@@ -90,6 +91,10 @@ export default function CodeExplorer(
     [message, setMessage] = useState(""),
     [error, setError] = useState("");
   const active = useRef(true), working = useRef(false);
+  const panes = useRef<HTMLDivElement>(null);
+  const sidebar = useRef<HTMLElement>(null);
+  const [sidebarWidth, setSidebarWidth] = useState(260);
+  const [fileShare, setFileShare] = useState(50);
   useEffect(() => {
     active.current = true;
     return () => {
@@ -331,93 +336,141 @@ export default function CodeExplorer(
           </button>
         </div>
       </header>
-      <div class="code-panes">
-        <aside class="code-files">
-          <nav aria-label="Project files">
+      <div
+        class="code-panes"
+        ref={panes}
+        style={`--code-sidebar-width:${sidebarWidth}px`}
+      >
+        <aside
+          class="code-files"
+          id="code-files"
+          ref={sidebar}
+          style={`--code-file-share:${fileShare}fr;--code-resource-share:${
+            100 - fileShare
+          }fr`}
+        >
+          <nav id="code-file-tree" aria-label="Project files">
+            <h2>File explorer</h2>
             <ul>{list(entries)}</ul>
           </nav>
-          <fieldset class="static-controls" disabled={busy}>
-            <legend>Static resources</legend>
-            <p>{bytes(usage.bytes)} / 20 MB</p>
-            <progress
-              max={usage.limit}
-              value={usage.bytes}
-              aria-label="Static resource usage"
-            />
-            <details>
-              <summary>Storage breakdown</summary>
-              <p>
-                Uploaded: {bytes(usage.userBytes)}
-                <br />Generated images, fonts & runtime:{" "}
-                {bytes(usage.generatedBytes)}
-              </p>
-            </details>
-            <label>
-              Upload into folder<input
-                value={folder}
-                placeholder="images or leave empty"
-                onInput={(e) => setFolder(e.currentTarget.value)}
+          <CodeResizeHandle
+            orientation="horizontal"
+            label="Resize File Explorer and Static Resources panels"
+            controls="code-file-tree code-static-resources"
+            value={fileShare}
+            min={15}
+            max={85}
+            onChange={setFileShare}
+            fromPointer={(event) => {
+              const bounds = sidebar.current!.getBoundingClientRect();
+              return (event.clientY - bounds.top) / bounds.height * 100;
+            }}
+          />
+          <section
+            class="code-resources"
+            id="code-static-resources"
+            aria-label="Static resources"
+          >
+            <fieldset class="static-controls" disabled={busy}>
+              <legend>Static resources</legend>
+              <p>{bytes(usage.bytes)} / 20 MB</p>
+              <progress
+                max={usage.limit}
+                value={usage.bytes}
+                aria-label="Static resource usage"
               />
-            </label>
-            <label class="button static-upload">
-              Upload files<input
-                type="file"
-                multiple
-                onChange={(e) => upload(e.currentTarget)}
-              />
-            </label>
-            <label class="button static-upload">
-              Upload directory<input
-                type="file"
-                multiple
-                {...{ webkitdirectory: true }}
-                onChange={(e) => upload(e.currentTarget)}
-              />
-            </label>
-            <label>
-              New directory<input
-                value={name}
-                placeholder="documents"
-                onInput={(e) => setName(e.currentTarget.value)}
-              />
-            </label>
-            <button
-              type="button"
-              class="button"
-              disabled={!name.trim()}
-              onClick={() => {
-                try {
-                  const path = staticPath(
-                    (folder ? folder + "/" : "") + name.trim(),
-                  );
-                  if (
-                    apply({
-                      ...website,
-                      staticDirectories: [
-                        ...website.staticDirectories ?? [],
-                        path,
-                      ],
-                    })
-                  ) {
-                    setName("");
-                    setSelected(root + "/" + path);
-                    setFolder(path);
-                    openParents(root + "/" + path + "/");
-                    setMessage("Directory created.");
+              <details>
+                <summary>Storage breakdown</summary>
+                <p>
+                  Uploaded: {bytes(usage.userBytes)}
+                  <br />Generated images, fonts & runtime:{" "}
+                  {bytes(usage.generatedBytes)}
+                </p>
+              </details>
+              <label>
+                Upload into folder<input
+                  value={folder}
+                  placeholder="images or leave empty"
+                  onInput={(e) => setFolder(e.currentTarget.value)}
+                />
+              </label>
+              <label class="button static-upload">
+                Upload files<input
+                  type="file"
+                  multiple
+                  onChange={(e) => upload(e.currentTarget)}
+                />
+              </label>
+              <label class="button static-upload">
+                Upload directory<input
+                  type="file"
+                  multiple
+                  {...{ webkitdirectory: true }}
+                  onChange={(e) => upload(e.currentTarget)}
+                />
+              </label>
+              <label>
+                New directory<input
+                  value={name}
+                  placeholder="documents"
+                  onInput={(e) => setName(e.currentTarget.value)}
+                />
+              </label>
+              <button
+                type="button"
+                class="button"
+                disabled={!name.trim()}
+                onClick={() => {
+                  try {
+                    const path = staticPath(
+                      (folder ? folder + "/" : "") + name.trim(),
+                    );
+                    if (
+                      apply({
+                        ...website,
+                        staticDirectories: [
+                          ...website.staticDirectories ?? [],
+                          path,
+                        ],
+                      })
+                    ) {
+                      setName("");
+                      setSelected(root + "/" + path);
+                      setFolder(path);
+                      openParents(root + "/" + path + "/");
+                      setMessage("Directory created.");
+                    }
+                  } catch (e) {
+                    setError(
+                      e instanceof Error ? e.message : "Invalid directory",
+                    );
                   }
-                } catch (e) {
-                  setError(
-                    e instanceof Error ? e.message : "Invalid directory",
-                  );
-                }
-              }}
-            >
-              Create directory
-            </button>
-            <p>Files are served from /. Use /images/logo.png on any page.</p>
-          </fieldset>
+                }}
+              >
+                Create directory
+              </button>
+              <p>Files are served from /. Use /images/logo.png on any page.</p>
+            </fieldset>
+          </section>
         </aside>
-        <section class="code-reader" aria-label="Read-only file viewer">
+        <CodeResizeHandle
+          orientation="vertical"
+          label="Resize file sidebar and code viewer"
+          controls="code-files code-reader"
+          value={sidebarWidth}
+          min={190}
+          max={600}
+          onChange={setSidebarWidth}
+          fromPointer={(event) => {
+            const bounds = panes.current!.getBoundingClientRect();
+            return Math.min(event.clientX - bounds.left, bounds.width - 290);
+          }}
+        />
+        <section
+          id="code-reader"
+          class="code-reader"
+          aria-label="Read-only file viewer"
+        >
           <header>
             <strong>{selected || "Select a file"}</strong>
             <div>

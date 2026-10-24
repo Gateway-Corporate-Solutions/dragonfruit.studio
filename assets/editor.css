@@ -1075,21 +1075,69 @@
 }
 .code-panes {
   display: grid;
-  grid-template-columns: 260px minmax(0,1fr);
+  grid-template-columns: minmax(0, min(var(--code-sidebar-width, 260px),
+    calc(100% - 290px))) 10px minmax(0,1fr);
   min-height: 0;
   flex: 1;
 }
 .code-files {
-  overflow: auto;
-  border-right: 1px solid var(--control-border);
+  display: grid;
+  grid-template-rows: minmax(0, var(--code-file-share, 50fr)) 10px minmax(0,
+    var(--code-resource-share, 50fr));
+  overflow: hidden;
+  min-height: 0;
   background: var(--surface);
   min-width: 0;
 }
 .code-files nav {
-  max-height: 50%;
-  min-height: 160px;
+  min-height: 0;
   overflow: auto;
   padding: 10px;
+}
+.code-files nav h2 {
+  font-size: 11pt;
+  margin: 4px 7px 10px;
+}
+.code-resources {
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+}
+.code-resize-handle {
+  position: relative;
+  touch-action: none;
+  user-select: none;
+  background: var(--surface);
+}
+.code-resize-handle::after {
+  content: "";
+  position: absolute;
+  border-radius: 2px;
+  background: var(--control-border);
+}
+.code-resize-handle.horizontal {
+  cursor: row-resize;
+}
+.code-resize-handle.horizontal::after {
+  height: 3px;
+  width: 36px;
+  top: 3px;
+  left: calc(50% - 18px);
+}
+.code-resize-handle.vertical {
+  cursor: col-resize;
+}
+.code-resize-handle.vertical::after {
+  width: 3px;
+  height: 36px;
+  left: 3px;
+  top: calc(50% - 18px);
+}
+.code-resize-handle:hover,
+.code-resize-handle:focus-visible {
+  background: var(--selected);
+  outline: 2px solid var(--control-border);
+  outline-offset: -2px;
 }
 .code-files nav ul {
   list-style: none;
@@ -1126,7 +1174,7 @@
 }
 .static-controls {
   border: 0;
-  border-top: 1px solid var(--control-border);
+  margin: 0;
   padding: 14px;
   min-width: 0;
 }
@@ -1236,9 +1284,6 @@
     align-items: flex-start;
     flex-direction: column;
   }
-  .code-panes {
-    grid-template-columns: 220px minmax(0,1fr);
-  }
 }
 @media (max-width:700px) {
   .code-workspace {
@@ -1253,12 +1298,13 @@
     flex-direction: column;
   }
   .code-files {
-    max-height: 360px;
+    height: 420px;
+    flex: 0 0 420px;
     border-right: 0;
     border-bottom: 1px solid var(--control-border);
   }
-  .code-files nav {
-    max-height: 200px;
+  .code-panes > .code-resize-handle.vertical {
+    display: none;
   }
   .code-reader {
     min-height: 500px;
