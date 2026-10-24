@@ -1,4 +1,5 @@
 import { prepareWebsiteExport } from "@/src/domain/codegen.ts";
+import EditorPanels from "@/components/EditorPanels.tsx";
 import PageTree from "@/components/PageTree.tsx";
 import type { Seo } from "@/src/domain/seo.ts";
 import CommerceEditor from "@/components/CommerceEditor.tsx";
@@ -963,28 +964,33 @@ export default function SiteEditor(
             style={`--editor-left-width:${leftWidth}px;--editor-inspector-width:${inspectorWidth}px`}
           >
             {mode === "design" && (
-              <aside class="editor-left">
-                <div class="editor-panel-title">
-                  <strong>Pages</strong>
-                  <button
-                    type="button"
-                    class="page-add"
-                    onClick={() => {
-                      if (canDiscardCss()) setShowPages(true);
-                    }}
-                  >
-                    + Add page
-                  </button>
-                </div>
-                <PageTree
-                  website={website}
-                  activePage={site.id}
-                  onSelect={switchPage}
-                  onRemove={removePage}
-                  onChange={(next) => {
-                    if (canDiscardCss()) commitWebsite(next);
-                  }}
-                />
+              <EditorPanels
+                pages={
+                  <>
+                    <div class="editor-panel-title">
+                      <strong>Pages</strong>
+                      <button
+                        type="button"
+                        class="page-add"
+                        onClick={() => {
+                          if (canDiscardCss()) setShowPages(true);
+                        }}
+                      >
+                        + Add page
+                      </button>
+                    </div>
+                    <PageTree
+                      website={website}
+                      activePage={site.id}
+                      onSelect={switchPage}
+                      onRemove={removePage}
+                      onChange={(next) => {
+                        if (canDiscardCss()) commitWebsite(next);
+                      }}
+                    />
+                  </>
+                }
+              >
                 <div class="editor-panel-title layers-title">
                   <strong>{site.name} elements</strong>
                   <span class="badge">{nodes.length}</span>
@@ -1104,7 +1110,7 @@ export default function SiteEditor(
                     style.
                   </p>
                 </div>
-              </aside>
+              </EditorPanels>
             )}
             {mode === "design" && (
               <div

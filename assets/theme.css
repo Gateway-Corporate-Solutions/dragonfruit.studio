@@ -943,3 +943,77 @@ th {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
+
+.schedule-editor {
+  margin-top: 24px;
+  min-width: 0;
+}
+.schedule-subpanel {
+  border: 1px solid var(--control-border);
+  border-radius: 10px;
+  padding: 16px;
+  margin: 16px 0;
+  min-width: 0;
+}
+.schedule-subpanel legend {
+  font-weight: 600;
+  padding: 0 6px;
+}
+.schedule-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap: 12px;
+}
+.schedule-editor .settings-buttons {
+  flex-wrap: wrap;
+}
+.schedule-editor input,
+.schedule-editor select {
+  width: 100%;
+  min-width: 0;
+}
+.schedule-editor .inline-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.schedule-editor .inline-check input {
+  width: auto;
+}
+.schedule-events {
+  list-style: none;
+  padding: 0;
+  max-height: 360px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.schedule-events li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--control-border);
+}
+.schedule-events li > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.schedule-events small {
+  display: block;
+}
+.schedule-events .button {
+  flex-shrink: 0;
+}
+
+.schedule-editor input,
+.schedule-editor select {
+  font: inherit;
+}
+.schedule-editor select {
+  display: block;
+  margin-top: 9px;
+  padding: 10px;
+  border: 1px solid var(--control-border);
+  border-radius: 6px;
+}

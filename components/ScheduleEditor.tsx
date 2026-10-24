@@ -62,125 +62,134 @@ export default function ScheduleEditor(
     <section class="schedule-editor">
       <h3>Schedule</h3>
       <p>Choose your usual hours, then fill your calendar in one step.</p>
-      <label>
-        Session name<input
-          value={pattern.title}
-          maxLength={200}
-          onInput={(e) => edit({ title: e.currentTarget.value })}
-        />
-      </label>
-      <label>
-        Booking link<input
-          type="url"
-          value={pattern.bookingUrl}
-          placeholder="https://your-booking-service.com/your-page"
-          onInput={(e) => edit({ bookingUrl: e.currentTarget.value })}
-        />
-      </label>
-      <fieldset>
-        <legend>Available days</legend>
-        <div class="settings-buttons">
-          {DAYS.map((day, i) => (
-            <label class="inline-check" key={day}>
-              <input
-                type="checkbox"
-                checked={pattern.days.includes(i)}
-                onChange={(e) =>
-                  edit({
-                    days: e.currentTarget.checked
-                      ? [...pattern.days, i]
-                      : pattern.days.filter((d) => d !== i),
-                  })}
-              />
-              {day}
-            </label>
-          ))}
+      <fieldset class="schedule-subpanel">
+        <legend>Session</legend>
+        <label>
+          Session name<input
+            value={pattern.title}
+            maxLength={200}
+            onInput={(e) => edit({ title: e.currentTarget.value })}
+          />
+        </label>
+        <label>
+          Booking link<input
+            type="url"
+            value={pattern.bookingUrl}
+            placeholder="https://your-booking-service.com/your-page"
+            onInput={(e) => edit({ bookingUrl: e.currentTarget.value })}
+          />
+        </label>
+      </fieldset>
+      <fieldset class="schedule-subpanel">
+        <legend>Availability</legend>
+        <div class="schedule-days">
+          <div class="settings-buttons">
+            {DAYS.map((day, i) => (
+              <label class="inline-check" key={day}>
+                <input
+                  type="checkbox"
+                  checked={pattern.days.includes(i)}
+                  onChange={(e) =>
+                    edit({
+                      days: e.currentTarget.checked
+                        ? [...pattern.days, i]
+                        : pattern.days.filter((d) => d !== i),
+                    })}
+                />
+                {day}
+              </label>
+            ))}
+          </div>
+          <div class="settings-buttons">
+            <button
+              type="button"
+              class="button"
+              onClick={() => edit({ days: [1, 2, 3, 4, 5] })}
+            >
+              Weekdays
+            </button>
+            <button
+              type="button"
+              class="button"
+              onClick={() => edit({ days: [0, 6] })}
+            >
+              Weekends
+            </button>
+            <button
+              type="button"
+              class="button"
+              onClick={() => edit({ days: [0, 1, 2, 3, 4, 5, 6] })}
+            >
+              Every day
+            </button>
+          </div>
         </div>
-        <div class="settings-buttons">
-          <button
-            type="button"
-            class="button"
-            onClick={() => edit({ days: [1, 2, 3, 4, 5] })}
-          >
-            Weekdays
-          </button>
-          <button
-            type="button"
-            class="button"
-            onClick={() => edit({ days: [0, 6] })}
-          >
-            Weekends
-          </button>
-          <button
-            type="button"
-            class="button"
-            onClick={() => edit({ days: [0, 1, 2, 3, 4, 5, 6] })}
-          >
-            Every day
-          </button>
+        <div class="schedule-fields">
+          <label>
+            From<input
+              type="time"
+              value={pattern.opens}
+              onInput={(e) => edit({ opens: e.currentTarget.value })}
+            />
+          </label>
+          <label>
+            Until<input
+              type="time"
+              value={pattern.closes}
+              onInput={(e) => edit({ closes: e.currentTarget.value })}
+            />
+          </label>
+          <label>
+            Session length<select
+              aria-label="Session length"
+              value={pattern.duration}
+              onChange={(e) =>
+                edit({ duration: Number(e.currentTarget.value) })}
+            >
+              {[15, 30, 45, 60, 90, 120].map((n) => (
+                <option key={n} value={n}>{n} minutes</option>
+              ))}
+            </select>
+          </label>
         </div>
       </fieldset>
-      <div class="settings-buttons">
+      <fieldset class="schedule-subpanel">
+        <legend>Date range</legend>
+        <div class="schedule-fields">
+          <label>
+            Starting<input
+              type="date"
+              value={pattern.startDate}
+              onInput={(e) => edit({ startDate: e.currentTarget.value })}
+            />
+          </label>
+          <label>
+            Fill the next<select
+              aria-label="Fill the next"
+              value={pattern.weeks}
+              onChange={(e) => edit({ weeks: Number(e.currentTarget.value) })}
+            >
+              {[1, 2, 3, 4, 8, 12].map((n) => (
+                <option key={n} value={n}>
+                  {n} {n === 1 ? "week" : "weeks"}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
         <label>
-          From<input
-            type="time"
-            value={pattern.opens}
-            onInput={(e) => edit({ opens: e.currentTarget.value })}
-          />
-        </label>
-        <label>
-          Until<input
-            type="time"
-            value={pattern.closes}
-            onInput={(e) => edit({ closes: e.currentTarget.value })}
-          />
-        </label>
-        <label>
-          Session length<select
-            aria-label="Session length"
-            value={pattern.duration}
-            onChange={(e) => edit({ duration: Number(e.currentTarget.value) })}
+          Timezone<select
+            aria-label="Timezone"
+            value={pattern.timeZone}
+            onChange={(e) => edit({ timeZone: e.currentTarget.value })}
           >
-            {[15, 30, 45, 60, 90, 120].map((n) => (
-              <option key={n} value={n}>{n} minutes</option>
+            {zones.map((z) => (
+              <option key={z} value={z}>{z.replaceAll("_", " ")}</option>
             ))}
           </select>
         </label>
-      </div>
-      <div class="settings-buttons">
-        <label>
-          Starting<input
-            type="date"
-            value={pattern.startDate}
-            onInput={(e) => edit({ startDate: e.currentTarget.value })}
-          />
-        </label>
-        <label>
-          Fill the next<select
-            aria-label="Fill the next"
-            value={pattern.weeks}
-            onChange={(e) => edit({ weeks: Number(e.currentTarget.value) })}
-          >
-            {[1, 2, 3, 4, 8, 12].map((n) => (
-              <option key={n} value={n}>
-                {n} {n === 1 ? "week" : "weeks"}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-      <label>
-        Timezone<select
-          aria-label="Timezone"
-          value={pattern.timeZone}
-          onChange={(e) => edit({ timeZone: e.currentTarget.value })}
-        >
-          {zones.map((z) => (
-            <option key={z} value={z}>{z.replaceAll("_", " ")}</option>
-          ))}
-        </select>
-      </label>
-      <p class="inspector-help">
+      </fieldset>
+      <p class="inspector-help" aria-live="polite">
         {preview
           ? `${
             preview.length - slots.length
@@ -227,18 +236,57 @@ export default function ScheduleEditor(
         scheduled sessions. Your booking service manages reservations and
         availability.
       </p>
-      {slots.length > 0 && (
-        <ul>
-          {[...slots].sort((a, b) => Date.parse(a.start) - Date.parse(b.start))
-            .slice(0, 3).map((s) => (
-              <li key={s.id}>
-                {s.title} · {new Date(s.start).toLocaleString(undefined, {
-                  timeZone: pattern.timeZone,
-                })}
-              </li>
-            ))}
-        </ul>
-      )}
+      <section class="schedule-subpanel" aria-label="Scheduled events">
+        <h4>Scheduled events ({slots.length})</h4>
+        {slots.length === 0
+          ? <p>No events scheduled yet.</p>
+          : (
+            <ul class="schedule-events">
+              {[...slots].sort((a, b) =>
+                Date.parse(a.start) - Date.parse(b.start)
+              ).map((s) => (
+                <li key={s.id}>
+                  <div>
+                    <strong>{s.title}</strong>
+                    <small>
+                      {new Date(s.start).toLocaleString(undefined, {
+                        timeZone: pattern.timeZone,
+                      })}
+                      {" – "}
+                      {new Date(s.end).toLocaleTimeString(undefined, {
+                        timeZone: pattern.timeZone,
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </small>
+                  </div>
+                  <button
+                    type="button"
+                    class="button"
+                    aria-label={`Delete ${s.title} on ${
+                      new Date(s.start).toLocaleString()
+                    }`}
+                    onClick={() => {
+                      try {
+                        onChange(slots.filter((v) => v.id !== s.id));
+                        setError("");
+                        setMessage(`Deleted ${s.title}.`);
+                      } catch (e) {
+                        setError(
+                          e instanceof Error
+                            ? e.message
+                            : "Could not delete event",
+                        );
+                      }
+                    }}
+                  >
+                    Delete
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+      </section>
       <details class="expert-options">
         <summary>Expert · Individual sessions</summary>
         <p>

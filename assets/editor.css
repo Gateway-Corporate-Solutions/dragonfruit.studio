@@ -879,3 +879,58 @@
 .developer-nav a {
   margin-top: 5px;
 }
+
+.editor-left {
+  overflow: hidden;
+  min-height: 0;
+}
+.editor-pages-pane {
+  flex: 0 0 calc(var(--pages-share, 40%) - 5px);
+}
+.editor-elements-pane {
+  flex: 1 1 0;
+}
+.editor-pages-pane,
+.editor-elements-pane {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.navigation-resize-handle {
+  flex: 0 0 10px;
+  cursor: row-resize;
+  touch-action: none;
+  user-select: none;
+  border-block: 1px solid var(--control-border);
+  background: var(--surface);
+  position: relative;
+}
+.navigation-resize-handle::after {
+  content: "";
+  position: absolute;
+  width: 32px;
+  height: 2px;
+  background: var(--control-border);
+  top: 3px;
+  left: calc(50% - 16px);
+}
+.navigation-resize-handle:hover,
+.navigation-resize-handle:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+@media (max-width: 700px) {
+  .editor-left {
+    max-width: none;
+    height: 420px;
+    max-height: 55dvh;
+    flex: none;
+  }
+  .editor-elements-pane .layer-tree {
+    max-height: none;
+    overflow: visible;
+  }
+  .editor-elements-pane .insert-elements {
+    display: block;
+  }
+}
