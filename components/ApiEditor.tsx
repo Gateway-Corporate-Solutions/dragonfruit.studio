@@ -108,13 +108,13 @@ export default function ApiEditor(
           Open any connections to edit them together. Each connection keeps its
           own expert JSON draft.
         </p>
-      </section>
-      <section class="api-connections" aria-label="API connections">
         {apis.length === 0 && (
           <p class="muted">
             Choose an integration above to add your first connection.
           </p>
         )}
+      </section>
+      <section class="api-connections" aria-label="API connections">
         {apis.map((connection, index) => (
           <ApiConnectionEditor
             key={connection.id}
