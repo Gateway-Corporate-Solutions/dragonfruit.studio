@@ -300,3 +300,8 @@ Exports now pass through `src/domain/codegen.ts`: visual page model → controll
 Fresh emits readable page modules under `routes/`, plus a JSX metadata component and page-scoped rules in `assets/styles.css`. React emits one module per page under `src/pages/`, imports them into `src/App.tsx`, and puts page rules in `src/site.css`. Shared runtime hooks and form/commerce endpoints stay intact. Uploaded images are extracted into deduplicated `static/media/` or `public/media/` files before source generation. The Code tab previews the same page component emitted by export. Source and runtime edits made after export are independent of the saved builder draft.
 
 Validation includes export-compiler and media-extraction tests, strict generated React type checks and production build, rendered markup parity for Fresh/Preact and React pages, plus browser checks for article navigation, metadata, carts, checkout preview, forms, carousel, accordion, and mobile menu behavior. Full Fresh Vite compilation still requires external JSR/npm dependency access.
+
+
+## Account plans and Stripe billing
+
+The first website is free forever, with editing and unlimited source exports. Accounts can purchase permanent additional website slots for **$9.99 each**, or subscribe for **$24.99/month** to create unlimited websites while active. Existing websites stay editable and exportable when a subscription ends; new creation requires available free or purchased capacity. See [docs/billing.md](docs/billing.md) for environment variables, migration 004, the required Stripe Prices and signed webhook, Customer Portal setup, and testing. These builder-account payments are separate from commerce checkout in exported user websites.

@@ -8,6 +8,10 @@ export interface Config {
   githubClientId?: string;
   githubClientSecret?: string;
   postmarkToken?: string;
+  stripeSecretKey?: string;
+  stripeWebhookSecret?: string;
+  stripeSlotPriceId?: string;
+  stripeUnlimitedPriceId?: string;
 }
 export function readConfig(
   env: Record<string, string | undefined> = Deno.env.toObject(),
@@ -63,5 +67,10 @@ export function readConfig(
     githubClientId: env.GITHUB_CLIENT_ID || undefined,
     githubClientSecret: env.GITHUB_CLIENT_SECRET || undefined,
     postmarkToken: env.POSTMARK_SERVER_TOKEN || undefined,
+    stripeSecretKey: env.DRAGONFRUIT_STRIPE_SECRET_KEY || undefined,
+    stripeWebhookSecret: env.DRAGONFRUIT_STRIPE_WEBHOOK_SECRET || undefined,
+    stripeSlotPriceId: env.DRAGONFRUIT_STRIPE_SLOT_PRICE_ID || undefined,
+    stripeUnlimitedPriceId: env.DRAGONFRUIT_STRIPE_UNLIMITED_PRICE_ID ||
+      undefined,
   };
 }

@@ -3,7 +3,8 @@ import { themeBootstrap } from "@/src/http/theme.ts";
 import { define } from "@/utils.ts";
 export default define.page(function App({ Component, state, url }) {
   const active = url.pathname;
-  const publicPage = active === "/" || active.startsWith("/auth/");
+  const publicPage = active === "/" || active === "/pricing" ||
+    active.startsWith("/auth/");
   const origin = state.config.publicOrigin || url.origin;
   const description =
     "Build expressive websites with dragonfruit. Design pages, publish Markdown articles, and connect your shop, checkout, and bookings.";
@@ -82,6 +83,14 @@ export default define.page(function App({ Component, state, url }) {
                     </a>
                   )}
                 </details>
+                {state.user && (
+                  <a
+                    href="/billing"
+                    class={active === "/billing" ? "selected" : ""}
+                  >
+                    Plans & billing
+                  </a>
+                )}
               </nav>
               <div class="sidebar-bottom">
                 <span class="status-dot" />

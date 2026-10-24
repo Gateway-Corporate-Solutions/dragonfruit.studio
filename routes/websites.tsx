@@ -1,6 +1,10 @@
+import { getServices } from "@/src/services.ts";
 import { define } from "@/utils.ts";
 export default define.page(async function Projects(ctx) {
   const projects = await ctx.state.store.listProjects();
+  const capacity = ctx.state.user
+    ? await getServices().billing.summary(ctx.state.user.id)
+    : undefined;
   return (
     <>
       <div class="page-heading">
@@ -11,6 +15,13 @@ export default define.page(async function Projects(ctx) {
         </div>
         <a class="button primary" href="/projects/new">+ New website</a>
       </div>
+      {capacity && (
+        <p class="notice">
+          {capacity.used} / {capacity.limit ?? "Unlimited"}{" "}
+          website slots in use · <a href="/billing">Plans & billing</a>{" "}
+          · Editing and exports always included.
+        </p>
+      )}
       <section class="hero">
         <div>
           <span class="badge light">YOUR IDEAS, BROUGHT TO LIFE</span>

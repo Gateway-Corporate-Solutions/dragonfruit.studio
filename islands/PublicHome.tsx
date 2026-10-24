@@ -63,6 +63,7 @@ export default function PublicHome(
           </span>dragonfruit<span class="studio-label">STUDIO</span>
         </a>
         <nav aria-label="Website navigation">
+          <a href="/pricing">Pricing</a>
           <a href="#possibilities">What you can make</a>
           <a href="#your-way">Your way of working</a>
         </nav>
@@ -266,7 +267,7 @@ export default function PublicHome(
           dragonfruit<span class="studio-label">STUDIO</span>
         </a>
         <span>Made with Deno + Fresh. Made for your next idea.</span>
-        <a href="#your-way">Simple by default. Open by design.</a>
+        <a href="/pricing">Plans & pricing · Start free</a>
       </footer>
       <dialog
         ref={dialog}

@@ -9,6 +9,12 @@ export class ScopedStore implements Store {
   constructor(private base: Store, private ownerId: string) {
     this.durable = base.durable;
   }
+  get billing() {
+    return this.base.billing;
+  }
+  countProjects() {
+    return this.base.countProjects(this.ownerId);
+  }
   ping() {
     return this.base.ping();
   }

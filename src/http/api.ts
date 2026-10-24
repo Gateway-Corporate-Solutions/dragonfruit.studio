@@ -1,3 +1,4 @@
+import { WebsiteLimitError } from "../billing/model.ts";
 import { FORM_SERVER_SOURCE } from "../domain/form-runtime.ts";
 import { parseWebsite } from "../domain/website.ts";
 import {
@@ -152,6 +153,13 @@ export async function handleApi(req: Request, store: Store): Promise<Response> {
     }
     return error("Route not found", 404);
   } catch (e) {
+    if (e instanceof WebsiteLimitError) {
+      return Response.json({
+        error: e.message,
+        code: "WEBSITE_LIMIT",
+        billingUrl: "/billing",
+      }, { status: 402 });
+    }
     if (e instanceof ValidationError) {
       return Response.json({ error: "Validation failed", issues: e.issues }, {
         status: 400,

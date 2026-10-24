@@ -1,3 +1,4 @@
+import type { BillingRepository } from "../billing/repository.ts";
 import type { Manifest } from "../domain/manifest.ts";
 import type { SiteDocument } from "../domain/site.ts";
 import type { WebsiteDocument } from "../domain/website.ts";
@@ -5,6 +6,8 @@ import type { ProjectInput } from "../domain/manifest.ts";
 import type { Job, Lease, Project } from "../domain/models.ts";
 export interface Store {
   readonly durable: boolean;
+  readonly billing: BillingRepository;
+  countProjects(ownerId: string): Promise<number>;
   ping(): Promise<void>;
   listProjects(ownerId?: string): Promise<Project[]>;
   getProject(id: string): Promise<Project | undefined>;

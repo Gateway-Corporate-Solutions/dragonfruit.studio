@@ -1017,3 +1017,52 @@ th {
   border: 1px solid var(--control-border);
   border-radius: 6px;
 }
+
+.billing-plans {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(min(100%,280px),1fr));
+  gap: 20px;
+  margin: 24px 0;
+}
+.billing-plans .panel {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.billing-plans .panel h2 {
+  margin: 8px 0;
+}
+.billing-plans .panel .button {
+  margin-top: auto;
+  white-space: normal;
+  text-align: center;
+}
+.billing-price {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.billing-price small {
+  font-size: 11pt;
+  font-weight: 400;
+}
+.billing-plans li {
+  font-size: 11pt;
+  line-height: 1.8;
+}
+.billing-summary .settings-buttons {
+  flex-wrap: wrap;
+}
+.billing-summary .button {
+  white-space: normal;
+}
+.billing-policy {
+  font-size: 11pt;
+  line-height: 1.8;
+}
+.home-pricing-link {
+  padding: 24px;
+  text-align: center;
+  font-size: 11pt;
+}

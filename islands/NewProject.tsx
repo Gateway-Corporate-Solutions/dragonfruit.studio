@@ -2,6 +2,7 @@ import { useState } from "preact/hooks";
 export default function NewProject() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+  const [upgrade, setUpgrade] = useState(false);
   return (
     <form
       class="panel new-site-form"
@@ -18,6 +19,7 @@ export default function NewProject() {
           });
           const result = await response.json();
           if (!response.ok) {
+            if (result.code === "WEBSITE_LIMIT") setUpgrade(true);
             throw new Error(
               result.issues?.join(" · ") ?? result.error,
             );
@@ -51,6 +53,9 @@ export default function NewProject() {
         />
       </label>
       {error && <p class="form-error" role="alert">{error}</p>}
+      {upgrade && (
+        <a class="button" href="/billing">View website slots and plans →</a>
+      )}
       <button type="submit" class="button primary" disabled={pending}>
         {pending ? "Creating your website…" : "Start building →"}
       </button>

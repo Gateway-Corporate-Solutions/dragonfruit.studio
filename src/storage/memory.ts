@@ -1,4 +1,6 @@
 // deno-lint-ignore-file require-await -- Implements the async Store contract without I/O.
+import { MemoryBillingRepository } from "../billing/repository.ts";
+import { summarize, WebsiteLimitError } from "../billing/model.ts";
 import type { SiteDocument } from "../domain/site.ts";
 import {
   parseWebsite,
@@ -19,6 +21,11 @@ import type { Store } from "./store.ts";
 /** Explicitly ephemeral adapter for demos and conformance tests; never production. */
 export class MemoryStore implements Store {
   readonly durable = false;
+  readonly billing = new MemoryBillingRepository();
+  async countProjects(ownerId: string) {
+    return [...this.projects.values()].filter((p) => p.ownerId === ownerId)
+      .length;
+  }
   private projects = new Map<string, Project>();
   private jobs = new Map<string, Job>();
   constructor(private now = () => Date.now()) {}
@@ -28,13 +35,25 @@ export class MemoryStore implements Store {
     return structuredClone(
       [...this.projects.values()].filter((p) =>
         !ownerId || p.ownerId === ownerId
-      ).reverse().slice(0, 100),
+      ).reverse(),
     );
   }
   async getProject(id: string) {
     return structuredClone(this.projects.get(id));
   }
   async createProject(input: ProjectInput, ownerId?: string) {
+    if (ownerId) {
+      return this.billing.mutate(ownerId, async (state) => {
+        if (
+          !summarize(state, await this.countProjects(ownerId), this.now())
+            .canCreate
+        ) throw new WebsiteLimitError();
+        return this.insertProject(input, ownerId);
+      });
+    }
+    return this.insertProject(input);
+  }
+  private insertProject(input: ProjectInput, ownerId?: string) {
     if ([...this.projects.values()].some((p) => p.slug === input.slug)) {
       throw new ConflictError("Project slug already exists");
     }

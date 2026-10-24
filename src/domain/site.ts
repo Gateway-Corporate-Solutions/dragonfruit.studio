@@ -348,18 +348,18 @@ export function allNodes(site: SiteDocument): SiteNode[] {
     nodes.flatMap((n) => [n, ...flatten(n.children)]);
   return flatten(site.nodes);
 }
-export function changeNode(
-  site: SiteDocument,
+export function changeNode<T extends SiteDocument>(
+  site: T,
   id: string,
   transform: (node: SiteNode) => SiteNode,
-): SiteDocument {
+): T {
   const visit = (nodes: SiteNode[]): SiteNode[] =>
     nodes.map((n) =>
       n.id === id ? transform(n) : { ...n, children: visit(n.children) }
     );
   return { ...site, nodes: visit(site.nodes) };
 }
-export function removeNode(site: SiteDocument, id: string): SiteDocument {
+export function removeNode<T extends SiteDocument>(site: T, id: string): T {
   const visit = (nodes: SiteNode[]): SiteNode[] =>
     nodes.filter((n) => n.id !== id).map((n) => ({
       ...n,

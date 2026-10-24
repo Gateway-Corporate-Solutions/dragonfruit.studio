@@ -30,7 +30,7 @@ app.use(async (ctx) => {
   return response;
 });
 app.use(async (ctx) => {
-  const { config, store, auth } = getServices();
+  const { config, store, auth, billing } = getServices();
   if (
     config.devMode &&
     !["localhost", "127.0.0.1", "[::1]"].includes(ctx.url.hostname)
@@ -53,11 +53,16 @@ app.use(async (ctx) => {
       headers: { Location: "/websites" },
     });
   }
+  // Stripe authenticates this endpoint with its signed raw body, independently of sessions and CSRF.
+  if (ctx.url.pathname === "/api/billing/webhook") {
+    return billing.webhook(ctx.req);
+  }
   const user = await auth.user(ctx.req);
   ctx.state.user = user;
   const authResponse = await auth.handle(ctx.req);
   if (authResponse) return authResponse;
   const publicPath = ctx.url.pathname === "/" ||
+    ctx.url.pathname === "/pricing" ||
     ctx.url.pathname === "/auth/email/verify" ||
     ctx.url.pathname.startsWith("/assets/") ||
     ctx.url.pathname.startsWith("/_fresh/") ||
@@ -91,6 +96,10 @@ app.use(async (ctx) => {
   }
   let response: Response;
   try {
+    if (
+      ctx.url.pathname === "/api/billing" ||
+      ctx.url.pathname.startsWith("/api/billing/")
+    ) return billing.handle(ctx.req, ctx.state.user);
     response = ctx.url.pathname.startsWith("/api/")
       ? await handleApi(ctx.req, ctx.state.store)
       : await ctx.next();

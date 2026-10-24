@@ -1,3 +1,5 @@
+import { PostgresBillingRepository } from "../billing/repository.ts";
+import { summarize, WebsiteLimitError } from "../billing/model.ts";
 import type { SiteDocument } from "../domain/site.ts";
 import {
   parseWebsite,
@@ -52,8 +54,15 @@ function job(row: Row): Job {
 export class PostgresStore implements Store {
   readonly durable = true;
   readonly sql;
+  readonly billing;
+  async countProjects(ownerId: string) {
+    const [r] = await this
+      .sql`SELECT count(*) AS count FROM projects WHERE owner_id=${ownerId}`;
+    return Number(r.count);
+  }
   constructor(url: string) {
     this.sql = postgres(url, { max: 5, connect_timeout: 5, idle_timeout: 10 });
+    this.billing = new PostgresBillingRepository(this.sql);
   }
   async ping() {
     await this.sql`SELECT 1 FROM projects LIMIT 1`;
@@ -64,7 +73,7 @@ export class PostgresStore implements Store {
   async listProjects(ownerId?: string) {
     if (ownerId) {
       return (await this
-        .sql`SELECT * FROM projects WHERE owner_id=${ownerId} ORDER BY created_at DESC LIMIT 100`)
+        .sql`SELECT * FROM projects WHERE owner_id=${ownerId} ORDER BY created_at DESC`)
         .map(project);
     }
     return (await this
@@ -79,6 +88,16 @@ export class PostgresStore implements Store {
   async createProject(input: ProjectInput, ownerId?: string) {
     try {
       return await this.sql.begin(async (tx) => {
+        if (ownerId) {
+          await tx`INSERT INTO billing_accounts(owner_id,state) VALUES(${ownerId},'{}') ON CONFLICT(owner_id) DO NOTHING`;
+          const [account] =
+            await tx`SELECT state FROM billing_accounts WHERE owner_id=${ownerId} FOR UPDATE`;
+          const [count] =
+            await tx`SELECT count(*) AS count FROM projects WHERE owner_id=${ownerId}`;
+          if (!summarize(account.state, Number(count.count)).canCreate) {
+            throw new WebsiteLimitError();
+          }
+        }
         const [r] =
           await tx`INSERT INTO projects (id,name,slug,repository_url,manifest,document,owner_id)
           VALUES (${crypto.randomUUID()},${input.name},${input.slug},${input.repositoryUrl},${
