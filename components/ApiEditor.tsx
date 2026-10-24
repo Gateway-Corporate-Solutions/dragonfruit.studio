@@ -102,12 +102,14 @@ export default function ApiEditor(
           ))}
         </div>
       </section>
-      <section class="api-connections" aria-label="API connections">
+      <section class="panel">
         <h2>2. Configure delivery</h2>
         <p class="muted">
           Open any connections to edit them together. Each connection keeps its
           own expert JSON draft.
         </p>
+      </section>
+      <section class="api-connections" aria-label="API connections">
         {apis.length === 0 && (
           <p class="muted">
             Choose an integration above to add your first connection.
