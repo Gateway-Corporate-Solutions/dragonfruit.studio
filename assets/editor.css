@@ -886,6 +886,19 @@
 }
 .editor-pages-pane {
   flex: 0 0 calc(var(--pages-share, 40%) - 5px);
+  display: flex;
+  flex-direction: column;
+}
+.editor-pages-pane > .editor-panel-title {
+  flex-shrink: 0;
+}
+/* The page list must fill the splitter pane, including on mobile. */
+.editor-pages-pane .page-list {
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: none;
+  overflow: auto;
+  border-bottom: 0;
 }
 .editor-elements-pane {
   flex: 1 1 0;
