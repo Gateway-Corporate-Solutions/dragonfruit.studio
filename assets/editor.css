@@ -1347,3 +1347,44 @@
 .code-resize-handle.vertical:focus-visible::after {
   background: var(--focus);
 }
+
+.api-connection > summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  list-style: none;
+  padding: 4px 0;
+  font-size: 11pt;
+}
+.api-connection > summary::-webkit-details-marker {
+  display: none;
+}
+.api-connection > summary::before {
+  content: "›";
+  font-size: 20px;
+  flex: 0 0 12px;
+  text-align: center;
+}
+.api-connection[open] > summary::before {
+  transform: rotate(90deg);
+}
+.api-connection > summary strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.api-connection > summary span {
+  margin-left: auto;
+  color: var(--muted);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.api-connection-content {
+  margin-top: 20px;
+}
+.api-connection-content input,
+.api-connection-content select,
+.api-connection-content textarea {
+  min-width: 0;
+  max-width: 100%;
+}

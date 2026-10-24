@@ -1,17 +1,17 @@
-import { useEffect, useState } from "preact/hooks";
+import { useCallback, useEffect, useRef, useState } from "preact/hooks";
 import { allNodes } from "@/src/domain/site.ts";
 import type { WebsiteDocument } from "@/src/domain/website.ts";
 import {
   type ApiConnection,
   type Integration,
   newConnection,
-  parseConnections,
 } from "@/src/domain/forms.ts";
+import ApiConnectionEditor from "./ApiConnectionEditor.tsx";
 export default function ApiEditor(
   { website, projectId, onChange, onPending }: {
     website: WebsiteDocument;
     projectId: string;
-    onChange: (site: WebsiteDocument) => void;
+    onChange: (site: WebsiteDocument) => boolean | void;
     onPending: (pending: boolean) => void;
   },
 ) {
@@ -23,19 +23,27 @@ export default function ApiEditor(
         key: page.id + "/" + node.id,
       }))
     );
-  const [selected, setSelected] = useState(apis[0]?.id ?? ""),
-    [json, setJson] = useState<string | null>(null),
-    [error, setError] = useState(""),
-    [testForm, setTestForm] = useState(forms[0]?.key ?? ""),
+  const [added, setAdded] = useState("");
+  const [pending, setPending] = useState<Set<string>>(new Set());
+  const pendingRef = useRef(pending);
+  const reportPending = useCallback((id: string, dirty: boolean) => {
+    if (pendingRef.current.has(id) === dirty) return;
+    const next = new Set(pendingRef.current);
+    if (dirty) next.add(id);
+    else next.delete(id);
+    pendingRef.current = next;
+    setPending(next);
+    onPending(next.size > 0);
+  }, [onPending]);
+  const hasPending = pending.size > 0;
+  const [testForm, setTestForm] = useState(forms[0]?.key ?? ""),
     [sample, setSample] = useState(""),
     [result, setResult] = useState(""),
     [testing, setTesting] = useState(false);
-  const connection = apis.find((a) => a.id === selected) ?? apis[0];
   const form = forms.find((f) => f.key === testForm) ?? forms[0];
   useEffect(() => {
-    onPending(json !== null);
     return () => onPending(false);
-  }, [json !== null]);
+  }, [onPending]);
   useEffect(() => {
     if (form) {
       setSample(
@@ -61,16 +69,9 @@ export default function ApiEditor(
   }, [form?.key, JSON.stringify(form?.node.layer?.fields)]);
   const commit = (next: ApiConnection[]) =>
     onChange({ ...website, apis: next });
-  const update = (patch: Partial<ApiConnection>) => {
-    if (connection) {
-      commit(apis.map((a) => a.id === connection.id ? { ...a, ...patch } : a));
-    }
-  };
   const add = (provider: Integration) => {
     const c = newConnection(provider);
-    commit([...apis, c]);
-    setSelected(c.id);
-    setError("");
+    if (commit([...apis, c]) !== false) setAdded(c.id);
   };
   return (
     <div class="api-editor editor-settings">
@@ -92,7 +93,7 @@ export default function ApiEditor(
             <button
               type="button"
               class="integration-card"
-              disabled={json !== null || apis.length >= 24}
+              disabled={apis.length >= 24}
               onClick={() => add(provider)}
             >
               <strong>+ {name}</strong>
@@ -101,230 +102,30 @@ export default function ApiEditor(
           ))}
         </div>
       </section>
-      {connection && (
-        <section class="panel">
-          <h2>2. Configure delivery</h2>
-          <fieldset disabled={json !== null}>
-            <label>
-              API connection<select
-                aria-label="API connection"
-                value={connection.id}
-                onChange={(e) => {
-                  setSelected(e.currentTarget.value);
-                  setError("");
-                }}
-              >
-                {apis.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.name} · {a.provider}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Connection name<input
-                value={connection.name}
-                maxLength={200}
-                onInput={(e) => update({ name: e.currentTarget.value })}
-              />
-            </label>
-            <label>
-              Integration<select
-                aria-label="Integration"
-                value={connection.provider}
-                onChange={(e) => {
-                  const defaults = newConnection(
-                    e.currentTarget.value as Integration,
-                  );
-                  update({
-                    ...defaults,
-                    id: connection.id,
-                    name: connection.name,
-                  });
-                }}
-              >
-                {["preview", "resend", "mailchimp", "webhook"].map((p) => (
-                  <option key={p} value={p}>{p}</option>
-                ))}
-              </select>
-            </label>
-            {connection.provider === "preview"
-              ? (
-                <p class="muted">
-                  This connection validates form data and delivers nothing.
-                  Switch integrations when you are ready to connect your
-                  website.
-                </p>
-              )
-              : (
-                <>
-                  <p class="muted">
-                    Credentials stay on your server. The exported project
-                    includes .env.example with these variable names. Add the
-                    values there before running it.
-                  </p>
-                  {([
-                    ["credentialEnv", "API key environment variable"],
-                    ...(connection.provider === "resend"
-                      ? [["fromEnv", "Sender email environment variable"], [
-                        "toEnv",
-                        "Recipient email environment variable",
-                      ]]
-                      : connection.provider === "mailchimp"
-                      ? [["audienceEnv", "Audience ID environment variable"]]
-                      : [["urlEnv", "Webhook URL environment variable"]]),
-                  ] as [keyof ApiConnection, string][]).map(([key, label]) => (
-                    <label>
-                      {label}
-                      <input
-                        aria-label={label}
-                        value={String(connection[key])}
-                        maxLength={80}
-                        onInput={(e) =>
-                          update({ [key]: e.currentTarget.value })}
-                      />
-                    </label>
-                  ))}
-                  {connection.provider === "resend" && (
-                    <label>
-                      Email subject<input
-                        value={connection.subject}
-                        maxLength={200}
-                        onInput={(e) =>
-                          update({ subject: e.currentTarget.value })}
-                      />
-                    </label>
-                  )}
-                  {["resend", "mailchimp"].includes(connection.provider) && (
-                    <label>
-                      Email field name<input
-                        value={connection.emailField}
-                        maxLength={40}
-                        onInput={(e) =>
-                          update({ emailField: e.currentTarget.value })}
-                      />
-                    </label>
-                  )}
-                  {connection.provider === "mailchimp" && (
-                    <>
-                      <label>
-                        Consent checkbox field name<input
-                          value={connection.consentField}
-                          maxLength={40}
-                          onInput={(e) =>
-                            update({ consentField: e.currentTarget.value })}
-                        />
-                      </label>
-                      <p class="muted">
-                        Subscribers receive a confirmation email (double
-                        opt-in). Connecting a Form layer to Mailchimp adds a
-                        consent checkbox. Add optional merge tags such as FNAME
-                        in expert JSON.
-                      </p>
-                      <label>
-                        First name field (optional)<input
-                          value={connection.mergeFields.FNAME ?? ""}
-                          placeholder="name"
-                          onInput={(e) => {
-                            const map = { ...connection.mergeFields };
-                            if (e.currentTarget.value) {
-                              map.FNAME = e.currentTarget.value;
-                            } else delete map.FNAME;
-                            update({ mergeFields: map });
-                          }}
-                        />
-                      </label>
-                    </>
-                  )}
-                  {connection.provider === "webhook" && (
-                    <p class="muted">
-                      Set the webhook URL to an HTTPS endpoint. The optional
-                      token is sent as a Bearer credential. Payload: form, page,
-                      and fields.
-                    </p>
-                  )}
-                </>
-              )}
-            <button
-              type="button"
-              class="button danger"
-              onClick={() => {
-                if (forms.some((f) => f.node.layer?.apiId === connection.id)) {
-                  setError(
-                    "Disconnect forms from this API before removing it.",
-                  );
-                  return;
-                }
-                commit(apis.filter((a) => a.id !== connection.id));
-                setError("");
-              }}
-            >
-              Remove API connection
-            </button>
-          </fieldset>
-          <details class="expert-options">
-            <summary>Expert · API JSON</summary>
-            <p class="muted">
-              Edit the same configuration used by the guided controls, including
-              provider field mappings and the per-form submission limit.
-            </p>
-            <label>
-              API configuration<textarea
-                class="code-input"
-                spellcheck={false}
-                rows={20}
-                value={json ?? JSON.stringify(connection, null, 2)}
-                onInput={(e) =>
-                  setJson(
-                    e.currentTarget.value ===
-                        JSON.stringify(connection, null, 2)
-                      ? null
-                      : e.currentTarget.value,
-                  )}
-              />
-            </label>
-            <div class="settings-buttons">
-              <button
-                type="button"
-                class="button primary"
-                onClick={() => {
-                  try {
-                    const parsed = parseConnections([
-                      JSON.parse(json ?? JSON.stringify(connection)),
-                    ])[0];
-                    if (parsed.id !== connection.id) {
-                      throw new Error(
-                        "Keep the connection ID; forms use it to link delivery.",
-                      );
-                    }
-                    commit(
-                      apis.map((a) => a.id === connection.id ? parsed : a),
-                    );
-                    setJson(null);
-                    setError("");
-                  } catch (e) {
-                    setError(
-                      e instanceof Error ? e.message : "Invalid API JSON",
-                    );
-                  }
-                }}
-              >
-                Apply API JSON
-              </button>
-              <button
-                type="button"
-                class="button"
-                onClick={() => {
-                  setJson(null);
-                  setError("");
-                }}
-              >
-                Discard API JSON
-              </button>
-            </div>
-          </details>
-        </section>
-      )}
+      <section class="api-connections" aria-label="API connections">
+        <h2>2. Configure delivery</h2>
+        <p class="muted">
+          Open any connections to edit them together. Each connection keeps its
+          own expert JSON draft.
+        </p>
+        {apis.length === 0 && (
+          <p class="muted">
+            Choose an integration above to add your first connection.
+          </p>
+        )}
+        {apis.map((connection, index) => (
+          <ApiConnectionEditor
+            key={connection.id}
+            connection={connection}
+            initiallyOpen={connection.id === added || index === 0}
+            connected={forms.some((f) => f.node.layer?.apiId === connection.id)}
+            onChange={(next) =>
+              commit(apis.map((a) => a.id === connection.id ? next : a))}
+            onRemove={() => commit(apis.filter((a) => a.id !== connection.id))}
+            onPending={reportPending}
+          />
+        ))}
+      </section>
       <section class="panel">
         <h2>3. Connect your forms</h2>
         {!forms.length
@@ -338,7 +139,6 @@ export default function ApiEditor(
             <label>
               {page.name} · {node.text || node.id}
               <select
-                disabled={json !== null}
                 aria-label={"API for " + page.name + " " + node.id}
                 value={node.layer?.apiId ?? ""}
                 onChange={(e) => {
@@ -417,7 +217,7 @@ export default function ApiEditor(
           <button
             type="button"
             class="button primary"
-            disabled={testing || json !== null}
+            disabled={testing || hasPending}
             onClick={async () => {
               try {
                 setTesting(true);
@@ -457,7 +257,6 @@ export default function ApiEditor(
           {result && <p class="result" role="status">{result}</p>}
         </section>
       )}
-      {error && <p class="form-error" role="alert">{error}</p>}
     </div>
   );
 }

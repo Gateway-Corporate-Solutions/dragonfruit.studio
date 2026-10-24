@@ -759,6 +759,7 @@ export default function SiteEditor(
       </header>
       {(saveError || message) && (
         <div
+          key="editor-message"
           class={"editor-message " + (saveError ? "error" : "")}
           role={saveError ? "alert" : "status"}
         >
@@ -777,7 +778,7 @@ export default function SiteEditor(
       )}
       {mode === "api"
         ? (
-          <div class="editor-settings">
+          <div key="api-workspace" class="editor-settings">
             <CommerceEditor
               website={website}
               onChange={commitWebsite}
