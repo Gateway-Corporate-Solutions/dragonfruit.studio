@@ -1076,7 +1076,7 @@
 .code-panes {
   display: grid;
   grid-template-columns: minmax(0, min(var(--code-sidebar-width, 260px),
-    calc(100% - 290px))) 10px minmax(0,1fr);
+    calc(100% - 290px))) 1px minmax(0,1fr);
   min-height: 0;
   flex: 1;
 }
@@ -1126,12 +1126,20 @@
 }
 .code-resize-handle.vertical {
   cursor: col-resize;
+  z-index: 1;
+}
+.code-resize-handle.vertical::before {
+  content: "";
+  position: absolute;
+  inset: 0 -5px;
 }
 .code-resize-handle.vertical::after {
-  width: 3px;
-  height: 36px;
-  left: 3px;
-  top: calc(50% - 18px);
+  width: 1px;
+  height: 100%;
+  left: 0;
+  top: 0;
+  border-radius: 0;
+  pointer-events: none;
 }
 .code-resize-handle:hover,
 .code-resize-handle:focus-visible {
@@ -1328,4 +1336,14 @@
   min-width: 0;
   margin-top: 5px;
   font: 11pt ui-monospace,monospace;
+}
+
+.code-resize-handle.vertical:hover,
+.code-resize-handle.vertical:focus-visible {
+  background: var(--surface);
+  outline: none;
+}
+.code-resize-handle.vertical:hover::after,
+.code-resize-handle.vertical:focus-visible::after {
+  background: var(--focus);
 }
