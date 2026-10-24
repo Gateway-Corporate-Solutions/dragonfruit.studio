@@ -241,6 +241,9 @@ export function prepareWebsiteExport(
   const website = structuredClone(input),
     assets: { path: string; bytes: Uint8Array }[] = [],
     known = new Map<string, string>();
+  // Placed layouts are already expanded into page nodes. Authoring definitions
+  // and linkage metadata are unnecessary in standalone exported applications.
+  delete website.sharedLayouts;
   const image = (value: string): string => {
     const match = value.match(
       /^data:image\/(png|jpeg|gif|webp);base64,([a-zA-Z0-9+/=]+)$/,
@@ -267,6 +270,8 @@ export function prepareWebsiteExport(
   };
   const visit = (nodes: import("./site.ts").SiteNode[]) => {
     for (const n of nodes) {
+      delete n.sharedLayoutId;
+      delete n.sharedNodeId;
       if (n.layer?.src) n.layer.src = image(n.layer.src);
       for (const item of n.layer?.items ?? []) {
         if (item.image) item.image = image(item.image);

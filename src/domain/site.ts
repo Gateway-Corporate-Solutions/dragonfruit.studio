@@ -27,6 +27,8 @@ export type ElementTag =
   | "nav"
   | "navmenu";
 export interface SiteNode {
+  sharedLayoutId?: string;
+  sharedNodeId?: string;
   id: string;
   tag: ElementTag;
   text: string;
@@ -212,8 +214,22 @@ export function parseSite(value: unknown): SiteDocument {
         !safeLink(href)
       ) return bad("Links must use a local path, anchor, HTTPS, or mailto");
     }
+    for (const key of ["sharedLayoutId", "sharedNodeId"] as const) {
+      if (
+        n[key] !== undefined &&
+        (typeof n[key] !== "string" ||
+          !/^[a-zA-Z][a-zA-Z0-9_-]{0,70}$/.test(n[key] as string))
+      ) bad("Invalid shared layout reference");
+    }
+    if (n.sharedLayoutId && !["section", "div"].includes(n.tag as string)) {
+      bad("Only Groups and Sections can reference shared layouts");
+    }
     return {
       id: n.id,
+      ...(n.sharedLayoutId
+        ? { sharedLayoutId: n.sharedLayoutId as string }
+        : {}),
+      ...(n.sharedNodeId ? { sharedNodeId: n.sharedNodeId as string } : {}),
       tag: n.tag as ElementTag,
       text: n.text,
       ...(parseLayer(n.tag, n.layer)

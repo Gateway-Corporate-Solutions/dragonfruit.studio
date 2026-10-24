@@ -1,3 +1,16 @@
+import {
+  SharedLayoutControls,
+  SharedLayoutsMenu,
+} from "@/components/SharedLayouts.tsx";
+import {
+  detachSharedLayout,
+  insertSharedLayout,
+  removeSharedLayout,
+  renameSharedLayout,
+  saveSharedLayout,
+  sharedOwner,
+  synchronizeSharedLayouts,
+} from "@/src/domain/shared-layouts.ts";
 import { prepareWebsiteExport } from "@/src/domain/codegen.ts";
 import EditorPanels from "@/components/EditorPanels.tsx";
 import PageTree from "@/components/PageTree.tsx";
@@ -108,10 +121,23 @@ export default function SiteEditor(
   );
   const [selected, setSelected] = useState<string | null>("hero-title");
   const nodes = allNodes(site), node = nodes.find((n) => n.id === selected);
+  const sharedRoot = node ? sharedOwner(site.nodes, node.id) : undefined;
+  const sharedLayout = website.sharedLayouts?.find((l) =>
+    l.id === sharedRoot?.sharedLayoutId
+  );
+  const sharedCounts: Record<string, number> = {};
+  for (const page of website.pages) {
+    for (const n of allNodes(page)) {
+      if (n.sharedLayoutId) {
+        sharedCounts[n.sharedLayoutId] = (sharedCounts[n.sharedLayoutId] ?? 0) +
+          1;
+      }
+    }
+  }
   const [mode, setMode] = useState<Mode>("design"),
     [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [inspector, setInspector] = useState<"visual" | "css">("visual");
-  const [leftTab, setLeftTab] = useState<"layers" | "add">("layers");
+  const [leftTab, setLeftTab] = useState<"layers" | "add" | "shared">("layers");
   const sourcePage = mode === "code"
     ? prepareWebsiteExport(website).website.pages.find((p) => p.id === site.id)!
     : site;
@@ -182,6 +208,12 @@ export default function SiteEditor(
     panelResize.current = null;
   }
   useEffect(() => {
+    const pane = editorBody.current?.querySelector<HTMLElement>(
+      "#editor-elements",
+    );
+    if (pane) pane.scrollTop = 0;
+  }, [leftTab]);
+  useEffect(() => {
     setCssDraft(styleSignature);
     setCssError("");
   }, [selected, styleSignature, site.id]);
@@ -228,17 +260,63 @@ export default function SiteEditor(
     return () => globalThis.removeEventListener("message", select);
   });
   function commitWebsite(next: WebsiteDocument) {
-    next = refreshBlogIndex(next);
+    try {
+      next = refreshBlogIndex(
+        parseWebsite(synchronizeSharedLayouts(next, website, site.id)),
+      );
+    } catch (error) {
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "Could not update shared layouts",
+      );
+      return false;
+    }
     setHistory([...history.slice(0, position + 1), next].slice(-60));
     setPosition(Math.min(position + 1, 59));
     setMessage("");
     setSaveError("");
+    return true;
   }
   function commit(next: SiteDocument & { seo?: Seo }) {
-    commitWebsite({
+    return commitWebsite({
       ...website,
       pages: website.pages.map((p) => p.id === site.id ? { ...p, ...next } : p),
     });
+  }
+  function sharedAction(action: () => WebsiteDocument) {
+    if (!canDiscardCss()) return false;
+    try {
+      return commitWebsite(action());
+    } catch (error) {
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "Could not update shared layout",
+      );
+      return false;
+    }
+  }
+  function addShared(id: string, linked: boolean) {
+    if (!canDiscardCss()) return;
+    try {
+      const result = insertSharedLayout(website, site.id, id, linked);
+      if (!commitWebsite(result.website)) return;
+      setSelected(result.nodeId);
+      const added = result.website.pages.find((p) => p.id === site.id)!;
+      setCssDraft(
+        formatStyles(
+          allNodes(added).find((n) => n.id === result.nodeId)?.styles ?? {},
+        ),
+      );
+      setLeftTab("layers");
+    } catch (error) {
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "Could not insert shared layout",
+      );
+    }
   }
   function switchPage(id: string) {
     if (!canDiscardCss()) return;
@@ -330,7 +408,7 @@ export default function SiteEditor(
     const child: SiteNode = {
       id,
       tag,
-      text: tag === "section"
+      text: tag === "section" || tag === "div"
         ? ""
         : tag === "h2"
         ? "A new chapter."
@@ -340,6 +418,8 @@ export default function SiteEditor(
       ...(tag === "a" ? { href: "#" } : {}),
       styles: tag === "section"
         ? { padding: "48px 8%", background: "#ffffff" }
+        : tag === "div"
+        ? { padding: "16px", "min-height": "64px", width: "100%" }
         : tag === "h2"
         ? { "font-size": "32px", color: "#243c30", "margin-bottom": "20px" }
         : tag === "a"
@@ -457,16 +537,18 @@ export default function SiteEditor(
       )
       : { ...site, nodes: [...site.nodes, child] };
     if (formApi) {
-      commitWebsite({
-        ...website,
-        apis: website.apis?.some((a) => a.id === formApi.id)
-          ? website.apis
-          : [...website.apis ?? [], formApi],
-        pages: website.pages.map((p) =>
-          p.id === site.id ? { ...p, ...next } : p
-        ),
-      });
-    } else commit(next);
+      if (
+        !commitWebsite({
+          ...website,
+          apis: website.apis?.some((a) => a.id === formApi.id)
+            ? website.apis
+            : [...website.apis ?? [], formApi],
+          pages: website.pages.map((p) =>
+            p.id === site.id ? { ...p, ...next } : p
+          ),
+        })
+      ) return;
+    } else if (!commit(next)) return;
     setSelected(id);
     setCssDraft(formatStyles(child.styles));
     setLeftTab("layers");
@@ -565,6 +647,9 @@ export default function SiteEditor(
           </span>
           <span>
             {n.text ? n.text.split("\n")[0].slice(0, 25) : friendly[n.tag]}
+            {n.sharedLayoutId && (
+              <small class="shared-layer-badge">· Shared</small>
+            )}
           </span>
         </button>
         {layers(n.children, depth + 1)}
@@ -1020,8 +1105,30 @@ export default function SiteEditor(
                   >
                     + Add
                   </button>
+                  <button
+                    type="button"
+                    class={"shared-layouts-tab " +
+                      (leftTab === "shared" ? "active" : "")}
+                    onClick={() => setLeftTab("shared")}
+                  >
+                    Shared Layouts ({website.sharedLayouts?.length ?? 0})
+                  </button>
                 </div>
-                {leftTab === "layers"
+                {leftTab === "shared"
+                  ? (
+                    <SharedLayoutsMenu
+                      layouts={website.sharedLayouts ?? []}
+                      counts={sharedCounts}
+                      onInsert={addShared}
+                      onRename={(id, name) =>
+                        sharedAction(() =>
+                          renameSharedLayout(website, id, name)
+                        )}
+                      onRemove={(id) =>
+                        sharedAction(() => removeSharedLayout(website, id))}
+                    />
+                  )
+                  : leftTab === "layers"
                   ? <div class="layer-tree">{layers(site.nodes)}</div>
                   : (
                     <div class="insert-elements">
@@ -1033,6 +1140,7 @@ export default function SiteEditor(
                           "Section",
                           "A new space for your content",
                         ],
+                        ["div", "▣", "Group", "Keep related elements together"],
                         ["h2", "H", "Heading", "Make your point"],
                         ["p", "T", "Text", "Tell your story"],
                         ["a", "↗", "Button", "Give visitors a next step"],
@@ -1269,6 +1377,30 @@ export default function SiteEditor(
                 {node
                   ? (
                     <div class="inspector-content">
+                      <SharedLayoutControls
+                        key={site.id + "/" + node.id + "/" +
+                          (sharedLayout?.id ?? "local")}
+                        node={node}
+                        layout={sharedLayout}
+                        uses={sharedLayout
+                          ? sharedCounts[sharedLayout.id] ?? 0
+                          : 0}
+                        onSave={(name) =>
+                          sharedAction(() =>
+                            saveSharedLayout(website, site.id, node.id, name)
+                          )}
+                        onDetach={() => {
+                          if (sharedRoot) {
+                            sharedAction(() =>
+                              detachSharedLayout(
+                                website,
+                                site.id,
+                                sharedRoot.id,
+                              )
+                            );
+                          }
+                        }}
+                      />
                       {inspector === "visual"
                         ? (
                           <>

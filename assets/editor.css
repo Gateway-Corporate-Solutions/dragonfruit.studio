@@ -947,3 +947,59 @@
     display: block;
   }
 }
+
+.editor-elements-pane > .segmented {
+  flex-wrap: wrap;
+}
+.editor-elements-pane .shared-layouts-tab {
+  flex-basis: 100%;
+}
+.shared-layout-menu {
+  padding: 0 14px 18px;
+}
+.shared-layout-menu h3,
+.shared-layout-controls h3 {
+  font-size: 11pt;
+  margin: 12px 0;
+}
+.shared-layout-menu p,
+.shared-layout-controls p,
+.shared-layout-card p {
+  font-size: 11pt;
+  line-height: 1.6;
+}
+.shared-layout-card,
+.shared-layout-controls {
+  padding: 12px;
+  margin: 16px 0;
+  border: 1px solid var(--control-border);
+  background: var(--surface);
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+.shared-layout-card > strong,
+.shared-layout-card > small {
+  display: block;
+  font-size: 11pt;
+  margin-bottom: 8px;
+}
+.shared-layout-card .button,
+.shared-layout-controls .button {
+  width: 100%;
+  white-space: normal;
+  margin: 8px 0;
+}
+.shared-layout-menu input,
+.shared-layout-controls input {
+  width: 100%;
+  min-width: 0;
+}
+.shared-layout-card summary {
+  padding: 8px 0;
+  font-size: 11pt;
+  cursor: pointer;
+}
+.shared-layer-badge {
+  font-size: 11pt;
+  color: var(--muted);
+}

@@ -1,3 +1,9 @@
+import {
+  parseSharedLayouts,
+  type SharedLayout,
+  synchronizeSharedLayouts,
+  validateSharedInstances,
+} from "./shared-layouts.ts";
 import { type CommerceConfig, parseCommerce } from "./commerce.ts";
 import { parseSeo, type Seo } from "./seo.ts";
 import { type ApiConnection, parseConnections } from "./forms.ts";
@@ -28,6 +34,7 @@ export interface WebsiteDocument {
   title: string;
   pages: SitePage[];
   pageGroups?: PageGroup[];
+  sharedLayouts?: SharedLayout[];
   apis?: ApiConnection[];
   commerce?: CommerceConfig;
 }
@@ -125,6 +132,7 @@ export function parseWebsite(value: unknown): WebsiteDocument {
     groupIds.add(g.id);
     return { id: g.id, name: g.name.trim() };
   });
+  const sharedLayouts = parseSharedLayouts(input.sharedLayouts);
   const ids = new Set<string>(), paths = new Set<string>();
   const pages = input.pages.map((item): SitePage => {
     if (!item || typeof item !== "object") return fail("Invalid page");
@@ -164,6 +172,7 @@ export function parseWebsite(value: unknown): WebsiteDocument {
     };
   });
   if (!paths.has("/")) return fail("Keep one Home page at /");
+  for (const page of pages) validateSharedInstances(page.nodes, sharedLayouts);
   const apis = parseConnections(input.apis);
   const commerce = parseCommerce(input.commerce);
   const articles = pages.filter((p) => p.article);
@@ -186,7 +195,9 @@ export function parseWebsite(value: unknown): WebsiteDocument {
     };
     sync(page.nodes);
   }
-  for (const page of pages) {
+  for (
+    const page of [...pages, ...sharedLayouts.map((l) => ({ nodes: [l.node] }))]
+  ) {
     const visit = (nodes: SiteNode[]) => {
       for (const n of nodes) {
         if (
@@ -205,6 +216,7 @@ export function parseWebsite(value: unknown): WebsiteDocument {
     ...(apis.length ? { apis } : {}),
     ...(commerce ? { commerce } : {}),
     ...(pageGroups.length ? { pageGroups } : {}),
+    ...(sharedLayouts.length ? { sharedLayouts } : {}),
   };
 }
 export function starterWebsite(name: string): WebsiteDocument {
@@ -438,57 +450,68 @@ export function uniquePagePath(website: WebsiteDocument, name: string): string {
   return path;
 }
 export function syncNavigation(website: WebsiteDocument): WebsiteDocument {
-  return {
-    ...website,
-    pages: website.pages.map((page) => {
-      const nav = page.nodes.find((n) => n.id === "navigation");
-      if (!nav) return page; // A deliberately removed header stays removed.
-      const existing = nav.children.find((n) => n.id === "page-links");
-      const links: SiteNode = {
-        id: "page-links",
-        tag: "div",
-        text: "",
-        styles: existing?.styles ??
-          {
-            display: "flex",
-            gap: "18px",
-            "flex-wrap": "wrap",
-            "justify-content": "center",
-          },
-        children: website.pages.filter((p) => !p.article).map((target) => {
-          const previous = existing?.children.find((n) =>
-            n.id === "nav-" + target.id
-          );
-          return {
-            id: "nav-" + target.id,
-            tag: "a",
-            text: target.name,
-            href: target.path,
-            styles: previous?.styles ??
-              {
-                color: "#45623d",
-                "font-size": "11pt",
-                "text-decoration": "none",
-              },
-            children: [],
-          };
-        }),
-      };
-      return changeNode(
-        page,
-        "navigation",
-        (n) => ({
-          ...n,
-          styles: {
-            ...n.styles,
-            gap: n.styles.gap ?? "20px",
-            "flex-wrap": n.styles["flex-wrap"] ?? "wrap",
-          },
-          children: [...n.children.filter((c) => c.id !== "page-links"), links],
-        }),
-      ) as SitePage;
-    }),
+  const updateNavigation = (page: SitePage): SitePage => {
+    const nav = page.nodes.find((n) => n.id === "navigation");
+    if (!nav || nav.sharedLayoutId) return page; // A deliberately removed header stays removed.
+    const existing = nav.children.find((n) => n.id === "page-links");
+    const links: SiteNode = {
+      id: "page-links",
+      tag: "div",
+      text: "",
+      styles: existing?.styles ??
+        {
+          display: "flex",
+          gap: "18px",
+          "flex-wrap": "wrap",
+          "justify-content": "center",
+        },
+      children: website.pages.filter((p) => !p.article).map((target) => {
+        const previous = existing?.children.find((n) =>
+          n.id === "nav-" + target.id
+        );
+        return {
+          id: "nav-" + target.id,
+          tag: "a",
+          text: target.name,
+          href: target.path,
+          styles: previous?.styles ??
+            {
+              color: "#45623d",
+              "font-size": "11pt",
+              "text-decoration": "none",
+            },
+          children: [],
+        };
+      }),
+    };
+    return changeNode(
+      page,
+      "navigation",
+      (n) => ({
+        ...n,
+        styles: {
+          ...n.styles,
+          gap: n.styles.gap ?? "20px",
+          "flex-wrap": n.styles["flex-wrap"] ?? "wrap",
+        },
+        children: [...n.children.filter((c) => c.id !== "page-links"), links],
+      }),
+    ) as SitePage;
   };
+  const next = {
+    ...website,
+    pages: website.pages.map(updateNavigation),
+    ...(website.sharedLayouts
+      ? {
+        sharedLayouts: website.sharedLayouts.map((layout) => ({
+          ...layout,
+          node: updateNavigation({ ...website.pages[0], nodes: [layout.node] })
+            .nodes[0],
+        })),
+      }
+      : {}),
+  };
+  return synchronizeSharedLayouts(next);
 }
 export function addPage(
   website: WebsiteDocument,
@@ -560,7 +583,20 @@ export function updatePageDetails(
     ...(p.id === id ? { name, path } : {}),
     nodes: visit(p.nodes),
   }));
-  return parseWebsite(syncNavigation({ ...website, pages }));
+  return parseWebsite(
+    syncNavigation({
+      ...website,
+      pages,
+      ...(website.sharedLayouts
+        ? {
+          sharedLayouts: website.sharedLayouts.map((l) => ({
+            ...l,
+            node: visit([l.node])[0],
+          })),
+        }
+        : {}),
+    }),
+  );
 }
 export function deletePage(
   website: WebsiteDocument,
@@ -589,6 +625,14 @@ export function deletePage(
   return parseWebsite(
     syncNavigation({
       ...website,
+      ...(website.sharedLayouts
+        ? {
+          sharedLayouts: website.sharedLayouts.map((l) => ({
+            ...l,
+            node: visit([l.node])[0],
+          })),
+        }
+        : {}),
       pages: website.pages.filter((p) => p.id !== id).map((p) => ({
         ...p,
         nodes: visit(p.nodes),
