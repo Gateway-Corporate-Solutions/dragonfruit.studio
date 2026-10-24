@@ -41,3 +41,11 @@ export function sameOrigin(req: Request, config: Config): Response | undefined {
     }, { status: 403 });
   }
 }
+
+/** Public pages and static assets must remain reachable by anonymous embed crawlers. */
+export function isPublicPath(path: string): boolean {
+  return path === "/" || path === "/pricing" || path === "/auth/email/verify" ||
+    path.startsWith("/assets/") || path.startsWith("/_fresh/") ||
+    path.startsWith("/social/") ||
+    ["/dragonfruit.svg", "/favicon.svg", "/fonts.css"].includes(path);
+}

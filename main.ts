@@ -2,7 +2,7 @@ import { ScopedStore } from "@/src/storage/scoped.ts";
 import { App, HttpError, staticFiles } from "fresh";
 import { getServices } from "@/src/services.ts";
 import { handleApi } from "@/src/http/api.ts";
-import { authorize, sameOrigin } from "@/src/http/security.ts";
+import { authorize, isPublicPath, sameOrigin } from "@/src/http/security.ts";
 import type { State } from "@/utils.ts";
 
 export const app = new App<State>();
@@ -61,14 +61,7 @@ app.use(async (ctx) => {
   ctx.state.user = user;
   const authResponse = await auth.handle(ctx.req);
   if (authResponse) return authResponse;
-  const publicPath = ctx.url.pathname === "/" ||
-    ctx.url.pathname === "/pricing" ||
-    ctx.url.pathname === "/auth/email/verify" ||
-    ctx.url.pathname.startsWith("/assets/") ||
-    ctx.url.pathname.startsWith("/_fresh/") ||
-    ["/dragonfruit.svg", "/favicon.svg", "/fonts.css"].includes(
-      ctx.url.pathname,
-    );
+  const publicPath = isPublicPath(ctx.url.pathname);
   if (!publicPath) {
     const operator =
       (!!ctx.req.headers.get("authorization") && !authorize(ctx.req, config)) ||

@@ -29,6 +29,7 @@ export default define.page(function App({ Component, state, url }) {
         <meta property="og:description" content={description} />
         <meta property="og:url" content={new URL(active, origin).href} />
         <meta property="og:image" content={image} />
+        <meta property="og:image:type" content="image/png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta
