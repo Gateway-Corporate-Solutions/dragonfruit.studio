@@ -408,6 +408,16 @@ export default function SiteEditor(
         background: "#f1f4e9",
         "border-radius": "10px",
       };
+      if (tag === "calendar" || tag === "schedule") {
+        child.text = tag === "calendar" ? "Calendar" : "Upcoming sessions";
+        child.styles = {
+          ...child.styles,
+          width: "100%",
+          padding: "clamp(12px, 3vw, 28px)",
+          "grid-column": "1 / -1",
+          "max-width": "1100px",
+        };
+      }
       if (tag === "img") {
         child.styles = {
           width: "100%",
@@ -1078,13 +1088,13 @@ export default function SiteEditor(
                           "calendar",
                           "▦",
                           "Calendar",
-                          "Upcoming bookable sessions",
+                          "Month grid with event markers",
                         ],
                         [
                           "schedule",
                           "◷",
                           "Schedule",
-                          "Sessions and booking links",
+                          "Compact, expandable event agenda",
                         ],
                       ] as const).map(([tag, icon, title, description]) => (
                         <button

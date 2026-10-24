@@ -1,3 +1,4 @@
+import { BOOKING_CSS } from "./booking-runtime.ts";
 import { renderMarkdown } from "./markdown.ts";
 import type { SiteDocument, SiteNode } from "./site.ts";
 export const escapeHtml = (value: string) =>
@@ -13,7 +14,7 @@ export const LAYER_CSS = String.raw`
 .df-accordion-item{background:var(--df-panel);border:1px solid #adbea2;border-radius:8px;margin-bottom:10px;overflow:hidden}.df-widget [data-accordion-toggle]{width:100%;text-align:left;background:transparent;color:inherit;border:0;padding:20px;font-weight:600}.df-widget [data-accordion-toggle]::after{content:'+';float:right}.df-widget [data-accordion-toggle][aria-expanded=true]::after{content:'−'}.df-accordion-panel{padding:0 20px 22px;line-height:1.8}
 .df-navbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}.df-nav-brand{font-size:20px;font-weight:700}.df-nav-links{display:flex;align-items:center;flex-wrap:wrap;gap:18px}.df-nav-links a{color:inherit;text-decoration:none;padding:8px}.df-navmenu .df-nav-links{flex-direction:column;align-items:stretch;width:100%}.df-nav-links a:hover{text-decoration:underline}.df-image-placeholder{min-height:180px;display:grid;place-items:center;background:#e9efdf;color:#4f6246;border:1px dashed #78916c}
 @media(max-width:640px){.df-nav-links{width:100%;flex-direction:column;align-items:stretch}.df-slide{padding:22px}}
-`;
+` + BOOKING_CSS;
 export function pageMarkup(site: SiteDocument, pageId = "home"): string {
   const esc = escapeHtml;
   function render(n: SiteNode): string {
@@ -46,7 +47,8 @@ export function pageMarkup(site: SiteDocument, pageId = "home"): string {
     ) {
       return "<section" + attrs +
         ' class="df-widget df-commerce" data-commerce="' + n.tag +
-        '" data-product="' + esc(o.productId || "") + '"><h2>' +
+        '" data-product="' + esc(o.productId || "") +
+        '" data-booking-options="' + esc(JSON.stringify(o)) + '"><h2>' +
         esc(n.text || n.tag) +
         '</h2><div data-commerce-content></div><p role="status" aria-live="polite" data-commerce-status></p></section>';
     }

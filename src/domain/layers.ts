@@ -21,6 +21,10 @@ export interface LayerItem {
 export interface LayerOptions {
   markdown?: string;
   productId?: string;
+  expanded?: boolean;
+  timeZone?: string;
+  weekStartsOn?: 0 | 1;
+  detailsPosition?: "auto" | "below";
   src?: string;
   alt?: string;
   newTab?: boolean;
@@ -95,6 +99,36 @@ export function parseLayer(
     );
   }
   if (tag === "product") result.productId = string(o.productId, "", 71);
+
+  if (tag === "calendar" || tag === "schedule") {
+    result.timeZone = string(o.timeZone, "", 100);
+    if (result.timeZone) {
+      try {
+        new Intl.DateTimeFormat("en", { timeZone: result.timeZone });
+      } catch {
+        fail(
+          "Choose a valid IANA timezone or leave it empty for the visitor's timezone",
+        );
+      }
+    }
+    if (tag === "schedule") {
+      if (o.expanded !== undefined && typeof o.expanded !== "boolean") {
+        fail("Expanded must be true or false");
+      }
+      result.expanded = o.expanded === true;
+    } else {
+      if (
+        o.weekStartsOn !== undefined && o.weekStartsOn !== 0 &&
+        o.weekStartsOn !== 1
+      ) fail("Week starts on must be 0 (Sunday) or 1 (Monday)");
+      if (
+        o.detailsPosition !== undefined &&
+        !["auto", "below"].includes(o.detailsPosition as string)
+      ) fail("Choose automatic or below-calendar event details");
+      result.weekStartsOn = o.weekStartsOn === 1 ? 1 : 0;
+      result.detailsPosition = o.detailsPosition === "below" ? "below" : "auto";
+    }
+  }
 
   if (tag === "a") result.newTab = o.newTab === true;
   if (tag === "img") {

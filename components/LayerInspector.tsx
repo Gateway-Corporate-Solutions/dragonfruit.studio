@@ -96,6 +96,72 @@ export default function LayerInspector({
           </>
         )}
 
+        {["calendar", "schedule"].includes(node.tag) && (
+          <>
+            <p class="inspector-help">
+              {node.tag === "calendar"
+                ? "A month calendar with event markers. Select a day to see its sessions. Details move below the calendar on small screens."
+                : "A compact agenda. Visitors expand a session to see its details and booking link."}
+            </p>
+            {node.tag === "schedule" && (
+              <label class="inline-check">
+                <input
+                  type="checkbox"
+                  checked={o.expanded === true}
+                  onChange={(e) =>
+                    change({ expanded: e.currentTarget.checked })}
+                />Expand sessions by default
+              </label>
+            )}
+            <details class="expert-options">
+              <summary>Expert · Booking display</summary>
+              <label>
+                Display timezone<input
+                  value={o.timeZone ?? ""}
+                  placeholder="Visitor timezone (automatic)"
+                  onChange={(e) => change({ timeZone: e.currentTarget.value })}
+                />
+                <small>
+                  IANA name, such as America/Chicago. Empty uses the visitor's
+                  timezone.
+                </small>
+              </label>
+              {node.tag === "calendar" && (
+                <>
+                  <label>
+                    Week starts on<select
+                      value={o.weekStartsOn ?? 0}
+                      onChange={(e) =>
+                        change({
+                          weekStartsOn: Number(e.currentTarget.value) as 0 | 1,
+                        })}
+                    >
+                      <option value={0}>Sunday</option>
+                      <option value={1}>Monday</option>
+                    </select>
+                  </label>
+                  <label>
+                    Event details<select
+                      value={o.detailsPosition ?? "auto"}
+                      onChange={(e) =>
+                        change({
+                          detailsPosition: e.currentTarget.value as
+                            | "auto"
+                            | "below",
+                        })}
+                    >
+                      <option value="auto">
+                        Beside on wide screens, below on small screens
+                      </option>
+                      <option value="below">Always below calendar</option>
+                    </select>
+                  </label>
+                </>
+              )}
+            </details>
+          </>
+        )}
+
         {node.tag === "a" && (
           <label class="inline-check">
             <input

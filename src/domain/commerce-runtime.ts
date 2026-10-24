@@ -1,3 +1,4 @@
+import { BOOKING_BROWSER_SOURCE } from "./booking-runtime.ts";
 /** Shared exported server implementation: server prices are authoritative. */
 export const COMMERCE_SERVER_SOURCE = String.raw`
 const limits = new Map();
@@ -31,7 +32,7 @@ export async function handleCommerce(request, website, env, send = fetch) {
  }catch{return json({error:'Could not create checkout. Check your cart and try again.'},400);}
 }
 `;
-export const COMMERCE_BROWSER_SOURCE = String.raw`
+export const COMMERCE_BROWSER_SOURCE = BOOKING_BROWSER_SOURCE + String.raw`
 function mountCommerce(root, api, preview, config) {
  let catalog=config?.products?.filter(p=>p.active)||[],currency=config?.currency||'usd',slots=config?.slots||[],cart=[];
  const storageKey='dragonfruit.cart.v1';
@@ -48,8 +49,7 @@ function mountCommerce(root, api, preview, config) {
   const products=catalog.filter(p=>kind==='shop'||p.id===widget.dataset.product);if(!products.length)content.append(el('p','No products available. Configure products in the Commerce API editor.'));
   products.forEach(p=>{const card=el('article');if(p.image){const img=el('img');img.src=p.image;img.alt=p.name;img.loading='lazy';card.append(img);}card.append(el('h3',p.name),el('p',p.description),el('p',money(p.amount)),button('Add to cart',()=>{const found=cart.find(i=>i.id===p.id);if(found)found.quantity=Math.min(99,found.quantity+1);else if(cart.length<50)cart.push({id:p.id,quantity:1});save();widget.querySelector('[data-commerce-status]').textContent=p.name+' added to cart.';}));content.append(card);});
  }else if(kind==='calendar'||kind==='schedule'){
-  const upcoming=slots.filter(s=>Date.parse(s.end)>Date.now()).sort((a,b)=>Date.parse(a.start)-Date.parse(b.start));if(!upcoming.length)content.append(el('p','No upcoming sessions.'));
-  upcoming.forEach(s=>{const card=el('article');const start=el('time',new Date(s.start).toLocaleString());start.dateTime=s.start;const link=el('a','View booking availability →');link.href=s.bookingUrl;link.target='_blank';link.rel='noopener noreferrer';card.append(el('h3',s.title),start,el('p','Ends '+new Date(s.end).toLocaleString()),link);content.append(card);});
+  renderBookings(widget,slots);
  }else{
   let total=0;cart.forEach(i=>{const p=catalog.find(p=>p.id===i.id);if(!p)return;total+=p.amount*i.quantity;const row=el('article');const qty=el('input');qty.type='number';qty.min='1';qty.max='99';qty.value=i.quantity;qty.setAttribute('aria-label','Quantity for '+p.name);qty.addEventListener('change',()=>{const n=Number(qty.value);if(Number.isInteger(n)&&n>=1&&n<=99){i.quantity=n;save();}else qty.value=i.quantity;});row.append(el('h3',p.name),el('p',money(p.amount)),qty,button('Remove '+p.name,()=>{cart=cart.filter(x=>x!==i);save();}));content.append(row);});
   content.append(el('p',cart.length?'Subtotal: '+money(total):'Your cart is empty.'));const b=button('Secure checkout',()=>checkout(widget));b.disabled=!cart.length;content.append(b);
