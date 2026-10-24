@@ -1,0 +1,35 @@
+{
+  "id": "spacemono",
+  "name": "Space Mono",
+  "group": "Monospace",
+  "description": "Geometric typewriter",
+  "stack": "\"Space Mono\", monospace",
+  "licenseUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/spacemono/OFL.txt",
+  "cssSource": "https://fonts.googleapis.com/css2?family=Space+Mono%3Awght%40400%3B700&display=swap",
+  "files": [
+    {
+      "name": "spacemono-1.woff2",
+      "source": "https://fonts.gstatic.com/s/spacemono/v17/i7dPIFZifjKcF5UAWdDRYE58RWq7.woff2"
+    },
+    {
+      "name": "spacemono-2.woff2",
+      "source": "https://fonts.gstatic.com/s/spacemono/v17/i7dPIFZifjKcF5UAWdDRYE98RWq7.woff2"
+    },
+    {
+      "name": "spacemono-3.woff2",
+      "source": "https://fonts.gstatic.com/s/spacemono/v17/i7dPIFZifjKcF5UAWdDRYEF8RQ.woff2"
+    },
+    {
+      "name": "spacemono-4.woff2",
+      "source": "https://fonts.gstatic.com/s/spacemono/v17/i7dMIFZifjKcF5UAWdDRaPpZUFqaHjyV.woff2"
+    },
+    {
+      "name": "spacemono-5.woff2",
+      "source": "https://fonts.gstatic.com/s/spacemono/v17/i7dMIFZifjKcF5UAWdDRaPpZUFuaHjyV.woff2"
+    },
+    {
+      "name": "spacemono-6.woff2",
+      "source": "https://fonts.gstatic.com/s/spacemono/v17/i7dMIFZifjKcF5UAWdDRaPpZUFWaHg.woff2"
+    }
+  ]
+}

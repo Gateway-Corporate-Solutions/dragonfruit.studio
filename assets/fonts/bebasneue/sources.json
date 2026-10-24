@@ -1,0 +1,19 @@
+{
+  "id": "bebasneue",
+  "name": "Bebas Neue",
+  "group": "Display",
+  "description": "Bold all-capital headlines",
+  "stack": "\"Bebas Neue\", sans-serif",
+  "licenseUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/bebasneue/OFL.txt",
+  "cssSource": "https://fonts.googleapis.com/css2?family=Bebas+Neue%3Awght%40400&display=swap",
+  "files": [
+    {
+      "name": "bebasneue-1.woff2",
+      "source": "https://fonts.gstatic.com/s/bebasneue/v16/JTUSjIg69CK48gW7PXoo9Wdhyzbi.woff2"
+    },
+    {
+      "name": "bebasneue-2.woff2",
+      "source": "https://fonts.gstatic.com/s/bebasneue/v16/JTUSjIg69CK48gW7PXoo9Wlhyw.woff2"
+    }
+  ]
+}

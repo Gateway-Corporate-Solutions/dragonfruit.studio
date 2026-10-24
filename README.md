@@ -305,3 +305,20 @@ Validation includes export-compiler and media-extraction tests, strict generated
 ## Account plans and Stripe billing
 
 The first website is free forever, with editing and unlimited source exports. Accounts can purchase permanent additional website slots for **$9.99 each**, or subscribe for **$24.99/month** to create unlimited websites while active. Existing websites stay editable and exportable when a subscription ends; new creation requires available free or purchased capacity. See [docs/billing.md](docs/billing.md) for environment variables, migration 004, the required Stripe Prices and signed webhook, Customer Portal setup, and testing. These builder-account payments are separate from commerce checkout in exported user websites.
+
+
+## Web fonts in the visual editor
+
+Select a text element (or a Group/Section to set an inherited font), then use **Style → Font family**. The picker includes grouped choices and a live sample:
+
+- Sans serif: Inter, DM Sans, Nunito.
+- Serif: Lora, Playfair Display, Merriweather.
+- Display: Oswald, Bebas Neue.
+- Monospace: Space Mono, Fira Code.
+- Handwritten and script: Caveat, Dancing Script.
+
+All 12 families are bundled from Google Fonts' public WOFF2 distributions under SIL OFL 1.1. Original licenses, distribution URLs and font files are retained in `assets/fonts/`. No external font service is contacted while editing or viewing an exported site. The preview embeds only the selected fonts and permits data fonts in its CSP. Exports include only used families, deduplicated across pages, with local WOFF2 files in `static/fonts/` (Fresh) or `public/fonts/` (React), plus `FONT-LICENSES.md` and the full original licenses under `licenses/fonts/`. The React production server serves WOFF2 with `font/woff2`.
+
+Choose **Inherit from parent** to remove an element's explicit font family. System sans, serif and monospace stacks are also available. **Expert · Font stack** and the existing CSS tab edit the same `font-family` property; naming a bundled font anywhere in a custom stack automatically includes its files. Other custom family names keep normal browser fallback behavior. Shared layout font changes propagate like other styles. Normal-face weights and Unicode coverage follow each bundled upstream font; italic text can be synthesized by browsers when no italic face is provided.
+
+To refresh the asset catalog from upstream, run `python3 scripts/build-font-catalog.py`, then `deno fmt src/domain/font-catalog.ts src/domain/font-assets.ts`. This optional maintenance step requires internet access; building, editing, and exporting do not download fonts.

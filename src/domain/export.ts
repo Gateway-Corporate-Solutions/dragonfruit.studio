@@ -1,3 +1,4 @@
+import { fontCss, fontExportFiles } from "./fonts.ts";
 import {
   compilePage,
   pageSymbol,
@@ -163,7 +164,9 @@ export default function App() {
 
 /** Styles leave the JSX readable and remain scoped to the page that owns each node. */
 export function websiteStyles(website: WebsiteDocument): string {
-  return readableCss(LAYER_CSS) + "\n" +
+  return readableCss(
+    fontCss(website.pages.flatMap((page) => page.nodes)) + LAYER_CSS,
+  ) + "\n" +
     website.pages.map((page) =>
       allNodes(page).map((node) =>
         ".df-page-" + page.id + ' [data-node="' + node.id + '"] {\n' +
@@ -212,6 +215,7 @@ export function projectSourceFiles(
     bytes: socialPng(page.title, website.title),
   }));
   common.push(
+    ...fontExportFiles(website.pages, format),
     ...socialFiles,
     ...assets.map((asset) => ({
       name: (format === "fresh" ? "static" : "public") + asset.path,
@@ -435,7 +439,7 @@ import {handleCommerce} from './commerce.mjs';
 import {metadataHtml} from './seo.mjs';
 const website=JSON.parse(await readFile(new URL('./site.json',import.meta.url),'utf8'));
 const root=resolve('dist');
-const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.jpeg':'image/jpeg','.gif':'image/gif'};
+const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.jpeg':'image/jpeg','.gif':'image/gif','.woff2':'font/woff2'};
 const server=createServer(async(req,res)=>{
  try{
   const url=new URL(req.url,'http://'+req.headers.host);

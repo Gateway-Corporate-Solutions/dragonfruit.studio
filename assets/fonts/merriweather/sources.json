@@ -1,0 +1,31 @@
+{
+  "id": "merriweather",
+  "name": "Merriweather",
+  "group": "Serif",
+  "description": "Sturdy and readable",
+  "stack": "\"Merriweather\", serif",
+  "licenseUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/merriweather/OFL.txt",
+  "cssSource": "https://fonts.googleapis.com/css2?family=Merriweather%3Awght%40300..900&display=swap",
+  "files": [
+    {
+      "name": "merriweather-1.woff2",
+      "source": "https://fonts.gstatic.com/s/merriweather/v33/u-4e0qyriQwlOrhSvowK_l5UcA6zuSYEqOzpPe3HOZJ5eX1WtLaQwmYiSeqnJ-mFqA.woff2"
+    },
+    {
+      "name": "merriweather-2.woff2",
+      "source": "https://fonts.gstatic.com/s/merriweather/v33/u-4e0qyriQwlOrhSvowK_l5UcA6zuSYEqOzpPe3HOZJ5eX1WtLaQwmYiSequJ-mFqA.woff2"
+    },
+    {
+      "name": "merriweather-3.woff2",
+      "source": "https://fonts.gstatic.com/s/merriweather/v33/u-4e0qyriQwlOrhSvowK_l5UcA6zuSYEqOzpPe3HOZJ5eX1WtLaQwmYiSeqlJ-mFqA.woff2"
+    },
+    {
+      "name": "merriweather-4.woff2",
+      "source": "https://fonts.gstatic.com/s/merriweather/v33/u-4e0qyriQwlOrhSvowK_l5UcA6zuSYEqOzpPe3HOZJ5eX1WtLaQwmYiSeqkJ-mFqA.woff2"
+    },
+    {
+      "name": "merriweather-5.woff2",
+      "source": "https://fonts.gstatic.com/s/merriweather/v33/u-4e0qyriQwlOrhSvowK_l5UcA6zuSYEqOzpPe3HOZJ5eX1WtLaQwmYiSeqqJ-k.woff2"
+    }
+  ]
+}

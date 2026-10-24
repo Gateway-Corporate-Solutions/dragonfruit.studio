@@ -1,0 +1,39 @@
+{
+  "id": "lora",
+  "name": "Lora",
+  "group": "Serif",
+  "description": "Warm and literary",
+  "stack": "\"Lora\", serif",
+  "licenseUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/lora/OFL.txt",
+  "cssSource": "https://fonts.googleapis.com/css2?family=Lora%3Awght%40400..700&display=swap",
+  "files": [
+    {
+      "name": "lora-1.woff2",
+      "source": "https://fonts.gstatic.com/s/lora/v37/0QIvMX1D_JOuMwf7I-NP.woff2"
+    },
+    {
+      "name": "lora-2.woff2",
+      "source": "https://fonts.gstatic.com/s/lora/v37/0QIvMX1D_JOuMw77I-NP.woff2"
+    },
+    {
+      "name": "lora-3.woff2",
+      "source": "https://fonts.gstatic.com/s/lora/v37/0QIvMX1D_JOuM3b7I-NP.woff2"
+    },
+    {
+      "name": "lora-4.woff2",
+      "source": "https://fonts.gstatic.com/s/lora/v37/0QIvMX1D_JOuM2T7I-NP.woff2"
+    },
+    {
+      "name": "lora-5.woff2",
+      "source": "https://fonts.gstatic.com/s/lora/v37/0QIvMX1D_JOuMwX7I-NP.woff2"
+    },
+    {
+      "name": "lora-6.woff2",
+      "source": "https://fonts.gstatic.com/s/lora/v37/0QIvMX1D_JOuMwT7I-NP.woff2"
+    },
+    {
+      "name": "lora-7.woff2",
+      "source": "https://fonts.gstatic.com/s/lora/v37/0QIvMX1D_JOuMwr7Iw.woff2"
+    }
+  ]
+}

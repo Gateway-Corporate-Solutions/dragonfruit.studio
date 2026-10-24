@@ -1,0 +1,39 @@
+{
+  "id": "inter",
+  "name": "Inter",
+  "group": "Sans serif",
+  "description": "Modern and neutral",
+  "stack": "\"Inter\", sans-serif",
+  "licenseUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/inter/OFL.txt",
+  "cssSource": "https://fonts.googleapis.com/css2?family=Inter%3Awght%40100..900&display=swap",
+  "files": [
+    {
+      "name": "inter-1.woff2",
+      "source": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2JL7SUc.woff2"
+    },
+    {
+      "name": "inter-2.woff2",
+      "source": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa0ZL7SUc.woff2"
+    },
+    {
+      "name": "inter-3.woff2",
+      "source": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2ZL7SUc.woff2"
+    },
+    {
+      "name": "inter-4.woff2",
+      "source": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1pL7SUc.woff2"
+    },
+    {
+      "name": "inter-5.woff2",
+      "source": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2pL7SUc.woff2"
+    },
+    {
+      "name": "inter-6.woff2",
+      "source": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa25L7SUc.woff2"
+    },
+    {
+      "name": "inter-7.woff2",
+      "source": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2"
+    }
+  ]
+}

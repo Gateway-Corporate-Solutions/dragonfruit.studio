@@ -1,0 +1,31 @@
+{
+  "id": "nunito",
+  "name": "Nunito",
+  "group": "Sans serif",
+  "description": "Soft and rounded",
+  "stack": "\"Nunito\", sans-serif",
+  "licenseUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/nunito/OFL.txt",
+  "cssSource": "https://fonts.googleapis.com/css2?family=Nunito%3Awght%40200..1000&display=swap",
+  "files": [
+    {
+      "name": "nunito-1.woff2",
+      "source": "https://fonts.gstatic.com/s/nunito/v32/XRXV3I6Li01BKofIOOaBXso.woff2"
+    },
+    {
+      "name": "nunito-2.woff2",
+      "source": "https://fonts.gstatic.com/s/nunito/v32/XRXV3I6Li01BKofIMeaBXso.woff2"
+    },
+    {
+      "name": "nunito-3.woff2",
+      "source": "https://fonts.gstatic.com/s/nunito/v32/XRXV3I6Li01BKofIOuaBXso.woff2"
+    },
+    {
+      "name": "nunito-4.woff2",
+      "source": "https://fonts.gstatic.com/s/nunito/v32/XRXV3I6Li01BKofIO-aBXso.woff2"
+    },
+    {
+      "name": "nunito-5.woff2",
+      "source": "https://fonts.gstatic.com/s/nunito/v32/XRXV3I6Li01BKofINeaB.woff2"
+    }
+  ]
+}

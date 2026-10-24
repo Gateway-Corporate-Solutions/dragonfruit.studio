@@ -1,3 +1,4 @@
+import { fontCss } from "./fonts.ts";
 import { compilePage } from "./codegen.ts";
 import { COMMERCE_BROWSER_SOURCE } from "./commerce-runtime.ts";
 import { type LayerOptions, parseLayer, safeLink } from "./layers.ts";
@@ -390,8 +391,9 @@ export function previewHtml(
     : RUNTIME_SOURCE.replace("export function mount", "function mount") +
       "\nmount(document,true," +
       JSON.stringify(commerce ?? {}).replaceAll("<", "\\u003c") + ");";
-  return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src &#39;none&#39;; img-src https: data:; style-src &#39;unsafe-inline&#39;; script-src &#39;unsafe-inline&#39; &#39;unsafe-eval&#39;; form-action &#39;none&#39;; connect-src &#39;none&#39;"><title>' +
-    escapeHtml(site.title) + "</title><style>" + LAYER_CSS +
+  return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src &#39;none&#39;; img-src https: data:; style-src &#39;unsafe-inline&#39;; font-src data:; script-src &#39;unsafe-inline&#39; &#39;unsafe-eval&#39;; form-action &#39;none&#39;; connect-src &#39;none&#39;"><title>' +
+    escapeHtml(site.title) + "</title><style>" + fontCss(site.nodes, true) +
+    LAYER_CSS +
     (interactive
       ? "[data-node]:hover{outline:1px dashed #769956;cursor:pointer}" +
         (selected

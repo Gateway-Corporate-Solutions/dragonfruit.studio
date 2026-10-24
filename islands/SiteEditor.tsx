@@ -1,3 +1,4 @@
+import FontPicker from "@/components/FontPicker.tsx";
 import {
   SharedLayoutControls,
   SharedLayoutsMenu,
@@ -1464,6 +1465,13 @@ export default function SiteEditor(
                               />
                             )}
                             <p class="inspector-label">STYLE</p>
+                            {node.tag !== "img" && (
+                              <FontPicker
+                                value={node.styles["font-family"] ?? ""}
+                                weight={node.styles["font-weight"]}
+                                onChange={style}
+                              />
+                            )}
                             {styleFields.map(([key, title]) => (
                               <StyleControl
                                 key={key}

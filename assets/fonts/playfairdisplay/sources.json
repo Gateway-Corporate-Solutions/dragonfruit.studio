@@ -1,0 +1,27 @@
+{
+  "id": "playfairdisplay",
+  "name": "Playfair Display",
+  "group": "Serif",
+  "description": "Elegant editorial contrast",
+  "stack": "\"Playfair Display\", serif",
+  "licenseUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/playfairdisplay/OFL.txt",
+  "cssSource": "https://fonts.googleapis.com/css2?family=Playfair+Display%3Awght%40400..900&display=swap",
+  "files": [
+    {
+      "name": "playfairdisplay-1.woff2",
+      "source": "https://fonts.gstatic.com/s/playfairdisplay/v40/nuFiD-vYSZviVYUb_rj3ij__anPXDTjYgFE_.woff2"
+    },
+    {
+      "name": "playfairdisplay-2.woff2",
+      "source": "https://fonts.gstatic.com/s/playfairdisplay/v40/nuFiD-vYSZviVYUb_rj3ij__anPXDTPYgFE_.woff2"
+    },
+    {
+      "name": "playfairdisplay-3.woff2",
+      "source": "https://fonts.gstatic.com/s/playfairdisplay/v40/nuFiD-vYSZviVYUb_rj3ij__anPXDTLYgFE_.woff2"
+    },
+    {
+      "name": "playfairdisplay-4.woff2",
+      "source": "https://fonts.gstatic.com/s/playfairdisplay/v40/nuFiD-vYSZviVYUb_rj3ij__anPXDTzYgA.woff2"
+    }
+  ]
+}

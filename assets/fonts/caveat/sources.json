@@ -1,0 +1,27 @@
+{
+  "id": "caveat",
+  "name": "Caveat",
+  "group": "Handwritten & script",
+  "description": "Casual handwritten notes",
+  "stack": "\"Caveat\", cursive",
+  "licenseUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/caveat/OFL.txt",
+  "cssSource": "https://fonts.googleapis.com/css2?family=Caveat%3Awght%40400..700&display=swap",
+  "files": [
+    {
+      "name": "caveat-1.woff2",
+      "source": "https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7azYYmg8.woff2"
+    },
+    {
+      "name": "caveat-2.woff2",
+      "source": "https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7YjYYmg8.woff2"
+    },
+    {
+      "name": "caveat-3.woff2",
+      "source": "https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7aDYYmg8.woff2"
+    },
+    {
+      "name": "caveat-4.woff2",
+      "source": "https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7ZjYY.woff2"
+    }
+  ]
+}

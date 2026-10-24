@@ -1,0 +1,23 @@
+{
+  "id": "dancingscript",
+  "name": "Dancing Script",
+  "group": "Handwritten & script",
+  "description": "Flowing cursive",
+  "stack": "\"Dancing Script\", cursive",
+  "licenseUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/dancingscript/OFL.txt",
+  "cssSource": "https://fonts.googleapis.com/css2?family=Dancing+Script%3Awght%40400..700&display=swap",
+  "files": [
+    {
+      "name": "dancingscript-1.woff2",
+      "source": "https://fonts.gstatic.com/s/dancingscript/v29/If2RXTr6YS-zF4S-kcSWSVi_szLviuEViw.woff2"
+    },
+    {
+      "name": "dancingscript-2.woff2",
+      "source": "https://fonts.gstatic.com/s/dancingscript/v29/If2RXTr6YS-zF4S-kcSWSVi_szLuiuEViw.woff2"
+    },
+    {
+      "name": "dancingscript-3.woff2",
+      "source": "https://fonts.gstatic.com/s/dancingscript/v29/If2RXTr6YS-zF4S-kcSWSVi_szLgiuE.woff2"
+    }
+  ]
+}

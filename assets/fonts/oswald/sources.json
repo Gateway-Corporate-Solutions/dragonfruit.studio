@@ -1,0 +1,31 @@
+{
+  "id": "oswald",
+  "name": "Oswald",
+  "group": "Display",
+  "description": "Tall and condensed",
+  "stack": "\"Oswald\", sans-serif",
+  "licenseUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/oswald/OFL.txt",
+  "cssSource": "https://fonts.googleapis.com/css2?family=Oswald%3Awght%40200..700&display=swap",
+  "files": [
+    {
+      "name": "oswald-1.woff2",
+      "source": "https://fonts.gstatic.com/s/oswald/v57/TK3iWkUHHAIjg752FD8Ghe4.woff2"
+    },
+    {
+      "name": "oswald-2.woff2",
+      "source": "https://fonts.gstatic.com/s/oswald/v57/TK3iWkUHHAIjg752HT8Ghe4.woff2"
+    },
+    {
+      "name": "oswald-3.woff2",
+      "source": "https://fonts.gstatic.com/s/oswald/v57/TK3iWkUHHAIjg752Fj8Ghe4.woff2"
+    },
+    {
+      "name": "oswald-4.woff2",
+      "source": "https://fonts.gstatic.com/s/oswald/v57/TK3iWkUHHAIjg752Fz8Ghe4.woff2"
+    },
+    {
+      "name": "oswald-5.woff2",
+      "source": "https://fonts.gstatic.com/s/oswald/v57/TK3iWkUHHAIjg752GT8G.woff2"
+    }
+  ]
+}

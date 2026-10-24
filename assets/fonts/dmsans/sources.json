@@ -1,0 +1,19 @@
+{
+  "id": "dmsans",
+  "name": "DM Sans",
+  "group": "Sans serif",
+  "description": "Clean and geometric",
+  "stack": "\"DM Sans\", sans-serif",
+  "licenseUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/dmsans/OFL.txt",
+  "cssSource": "https://fonts.googleapis.com/css2?family=DM+Sans%3Awght%40100..1000&display=swap",
+  "files": [
+    {
+      "name": "dmsans-1.woff2",
+      "source": "https://fonts.gstatic.com/s/dmsans/v17/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu6-K6h9Q.woff2"
+    },
+    {
+      "name": "dmsans-2.woff2",
+      "source": "https://fonts.gstatic.com/s/dmsans/v17/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu0-K4.woff2"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "firacode",
+  "name": "Fira Code",
+  "group": "Monospace",
+  "description": "Code with programming ligatures",
+  "stack": "\"Fira Code\", monospace",
+  "licenseUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/firacode/OFL.txt",
+  "cssSource": "https://fonts.googleapis.com/css2?family=Fira+Code%3Awght%40300..700&display=swap",
+  "files": [
+    {
+      "name": "firacode-1.woff2",
+      "source": "https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh0NSDulI.woff2"
+    },
+    {
+      "name": "firacode-2.woff2",
+      "source": "https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh2dSDulI.woff2"
+    },
+    {
+      "name": "firacode-3.woff2",
+      "source": "https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh0dSDulI.woff2"
+    },
+    {
+      "name": "firacode-4.woff2",
+      "source": "https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh3tSDulI.woff2"
+    },
+    {
+      "name": "firacode-5.woff2",
+      "source": "https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bhZ_Wmh2uX.woff2"
+    },
+    {
+      "name": "firacode-6.woff2",
+      "source": "https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh09SDulI.woff2"
+    },
+    {
+      "name": "firacode-7.woff2",
+      "source": "https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh3dSD.woff2"
+    }
+  ]
+}

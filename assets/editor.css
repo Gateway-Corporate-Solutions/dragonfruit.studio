@@ -1003,3 +1003,38 @@
   font-size: 11pt;
   color: var(--muted);
 }
+
+.font-picker {
+  margin: 14px 0 20px;
+  min-width: 0;
+}
+.font-picker > label {
+  margin-bottom: 10px;
+}
+.font-picker select,
+.font-picker input {
+  width: 100%;
+  min-width: 0;
+  font-size: 11pt;
+}
+.font-picker select {
+  margin-top: 8px;
+  padding: 8px;
+}
+.font-picker-sample {
+  font-size: 20px;
+  line-height: 1.5;
+  padding: 12px;
+  border: 1px solid var(--control-border);
+  background: var(--surface);
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+}
+.font-picker summary {
+  font-size: 11pt;
+  cursor: pointer;
+  padding: 8px 0;
+}
+.font-picker details label {
+  margin: 8px 0;
+}
