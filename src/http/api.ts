@@ -13,12 +13,17 @@ const uuid =
 const MAX_REQUEST_BODY_BYTES = 15 * 1024 * 1024;
 const error = (message: string, status: number) =>
   Response.json({ error: message }, { status });
-async function body(req: Request): Promise<unknown> {
+async function body(
+  req: Request,
+  maxBytes = MAX_REQUEST_BODY_BYTES,
+): Promise<unknown> {
   if (!req.headers.get("content-type")?.startsWith("application/json")) {
     throw new ValidationError(["Use application/json"]);
   }
-  if (Number(req.headers.get("content-length")) > MAX_REQUEST_BODY_BYTES) {
-    throw new ValidationError(["Request body exceeds 15 MiB"]);
+  if (Number(req.headers.get("content-length")) > maxBytes) {
+    throw new ValidationError([
+      `Request body exceeds ${maxBytes / 1024 / 1024} MiB`,
+    ]);
   }
   if (!req.body) throw new ValidationError(["JSON body is required"]);
   const reader = req.body.getReader();
@@ -29,9 +34,11 @@ async function body(req: Request): Promise<unknown> {
       const { done, value } = await reader.read();
       if (done) break;
       length += value.length;
-      if (length > MAX_REQUEST_BODY_BYTES) {
+      if (length > maxBytes) {
         await reader.cancel();
-        throw new ValidationError(["Request body exceeds 15 MiB"]);
+        throw new ValidationError([
+          `Request body exceeds ${maxBytes / 1024 / 1024} MiB`,
+        ]);
       }
       chunks.push(value);
     }
@@ -84,7 +91,7 @@ export async function handleApi(req: Request, store: Store): Promise<Response> {
       if (!await store.getProject(match[1])) {
         return error("Project not found", 404);
       }
-      const data = await body(req) as Record<string, unknown>;
+      const data = await body(req, 48 * 1024 * 1024) as Record<string, unknown>;
       const website = parseWebsite(data.document);
       const runtime = await import(
         "data:text/javascript," + encodeURIComponent(FORM_SERVER_SOURCE)
@@ -110,7 +117,9 @@ export async function handleApi(req: Request, store: Store): Promise<Response> {
     match = path.match(new RegExp("^/api/projects/(" + uuid + ")/editor$"));
     if (match) {
       if (req.method !== "PUT") return error("Method not allowed", 405);
-      const data = await body(req) as Record<string, unknown> | null;
+      const data = await body(req, 48 * 1024 * 1024) as
+        | Record<string, unknown>
+        | null;
       if (
         !data || !Number.isSafeInteger(data.revision) ||
         Number(data.revision) < 0

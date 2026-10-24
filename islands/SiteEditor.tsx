@@ -1,3 +1,5 @@
+import CodeExplorer from "@/components/CodeExplorer.tsx";
+import { downloadStatic } from "@/src/client/static-files.ts";
 import FontPicker from "@/components/FontPicker.tsx";
 import {
   SharedLayoutControls,
@@ -12,7 +14,6 @@ import {
   sharedOwner,
   synchronizeSharedLayouts,
 } from "@/src/domain/shared-layouts.ts";
-import { prepareWebsiteExport } from "@/src/domain/codegen.ts";
 import EditorPanels from "@/components/EditorPanels.tsx";
 import PageTree from "@/components/PageTree.tsx";
 import type { Seo } from "@/src/domain/seo.ts";
@@ -42,7 +43,7 @@ import {
 } from "@/src/domain/export.ts";
 import { DEPLOY_FILES } from "@/src/domain/deploy-assets.ts";
 import { BoxSpacing, StyleControl } from "@/components/StyleControl.tsx";
-import { useEffect, useRef, useState } from "preact/hooks";
+import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import type { Project } from "@/src/domain/models.ts";
 import { type Manifest, parseManifest } from "@/src/domain/manifest.ts";
 import {
@@ -50,7 +51,6 @@ import {
   changeNode,
   type ElementTag,
   formatStyles,
-  freshSource,
   parseStyles,
   previewHtml,
   removeNode,
@@ -139,9 +139,14 @@ export default function SiteEditor(
     [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [inspector, setInspector] = useState<"visual" | "css">("visual");
   const [leftTab, setLeftTab] = useState<"layers" | "add" | "shared">("layers");
-  const sourcePage = mode === "code"
-    ? prepareWebsiteExport(website).website.pages.find((p) => p.id === site.id)!
-    : site;
+  const codeFiles = useMemo(
+    () =>
+      mode === "code"
+        ? projectSourceFiles(website, exportFormat, DEPLOY_FILES)
+        : [],
+    [mode, website, exportFormat],
+  );
+  const [staticPending, setStaticPending] = useState(false);
   const [cssDraft, setCssDraft] = useState(formatStyles(node?.styles ?? {})),
     [cssError, setCssError] = useState("");
   const [manifestDraft, setManifestDraft] = useState(
@@ -167,7 +172,7 @@ export default function SiteEditor(
   const manifestPending = manifestDraft !== JSON.stringify(manifest, null, 2);
   const dirty = JSON.stringify({ document: website, manifest }) !== saved ||
     cssPending || manifestPending || layerPending || apiPending ||
-    commercePending;
+    commercePending || staticPending;
   function resizePanel(side: "left" | "right", requestedWidth: number) {
     const minWidth = side === "left" ? 160 : 220;
     const maxWidth = side === "left" ? 420 : 480;
@@ -243,6 +248,12 @@ export default function SiteEditor(
   useEffect(() => {
     const select = (event: MessageEvent) => {
       if (event.source !== frame.current?.contentWindow) return;
+      if (mode === "preview" && event.data?.type === "dragonfruit.asset") {
+        const file = website.staticFiles?.find((f) =>
+          f.path === event.data.path
+        );
+        if (file) downloadStatic(file);
+      }
       if (
         mode === "design" && event.data?.type === "dragonfruit.select" &&
         typeof event.data.id === "string" && nodes.some((n) =>
@@ -363,6 +374,10 @@ export default function SiteEditor(
     if (site.id === pageId) setActivePage(homeId);
   }
   function canDiscardCss() {
+    if (staticPending) {
+      setSaveError("Wait for static file optimization to finish.");
+      return false;
+    }
     if (!cssPending && !layerPending && !apiPending && !commercePending) {
       return true;
     }
@@ -570,7 +585,7 @@ export default function SiteEditor(
   function downloadProject() {
     if (
       cssPending || manifestPending || layerPending || apiPending ||
-      commercePending
+      commercePending || staticPending
     ) {
       setSaveError(
         "Apply or discard your CSS, manifest, layer JavaScript / JSON, or API edits before exporting.",
@@ -596,7 +611,7 @@ export default function SiteEditor(
   async function save() {
     if (
       cssPending || manifestPending || layerPending || apiPending ||
-      commercePending
+      commercePending || staticPending
     ) {
       setSaveError(
         "Apply or discard your CSS, manifest, layer JavaScript / JSON, or API edits before saving.",
@@ -992,66 +1007,35 @@ export default function SiteEditor(
         )
         : mode === "code"
         ? (
-          <div class="editor-source">
-            <div>
-              <p class="eyebrow">YOUR WEBSITE, AS CODE</p>
-              <h1>Source is always within reach.</h1>
-              <p class="muted">
-                Download your complete website, ready to run independently.
-                Every page, its styling, and navigation are included.
-              </p>
-              <div
-                class="export-format"
-                role="group"
-                aria-label="Export format"
-              >
-                <button
-                  type="button"
-                  aria-pressed={exportFormat === "fresh"}
-                  class={exportFormat === "fresh" ? "active" : ""}
-                  onClick={() => setExportFormat("fresh")}
-                >
-                  Fresh (Deno)
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={exportFormat === "react"}
-                  class={exportFormat === "react" ? "active" : ""}
-                  onClick={() => setExportFormat("react")}
-                >
-                  React (Vite)
-                </button>
-              </div>
-              <p class="export-summary">
-                {exportFormat === "fresh"
-                  ? "A server-rendered Fresh project. Run with Deno."
-                  : "A React browser application. Run with Node.js and npm."}
-                {" "}
-                Includes a README with development and production commands.
-              </p>
-              <button
-                type="button"
-                class="button primary"
-                onClick={downloadProject}
-              >
-                Download website.zip ↓
-              </button>
-              <p class="muted">
-                {website.pages.length} pages · {exportFormat === "fresh"
-                  ? "routes/" + routeFilename(site.path)
-                  : "src/pages/" + site.id + ".tsx"}
-              </p>
-            </div>
-            <label>
-              Generated page component · read only<textarea
-                class="code-input"
-                readOnly
-                value={freshSource(sourcePage, site.id)}
-                spellcheck={false}
-                rows={35}
-              />
-            </label>
-          </div>
+          <CodeExplorer
+            key={exportFormat}
+            website={website}
+            files={codeFiles}
+            format={exportFormat}
+            preferred={exportFormat === "fresh"
+              ? "routes/" + routeFilename(site.path)
+              : "src/pages/" + site.id + ".tsx"}
+            onFormat={setExportFormat}
+            onChange={(next) => {
+              try {
+                projectSourceFiles(next, exportFormat, DEPLOY_FILES);
+              } catch (error) {
+                throw new Error(
+                  error instanceof Error
+                    ? error.message
+                    : "Invalid static resources",
+                );
+              }
+              return commitWebsite(next);
+            }}
+            onPending={setStaticPending}
+            onDownload={downloadProject}
+            onUndo={() => setPosition(Math.max(0, position - 1))}
+            onRedo={() =>
+              setPosition(Math.min(history.length - 1, position + 1))}
+            canUndo={position > 0}
+            canRedo={position < history.length - 1}
+          />
         )
         : (
           <div
@@ -1314,6 +1298,7 @@ export default function SiteEditor(
                     website.pages.map((p) => p.path),
                     site.id,
                     website.commerce,
+                    website.staticFiles,
                   )}
                 />
               </div>

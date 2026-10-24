@@ -1,4 +1,10 @@
 import {
+  assertStaticBudget,
+  parseStaticDirectories,
+  parseStaticFiles,
+  type StaticFile,
+} from "./static-files.ts";
+import {
   parseSharedLayouts,
   type SharedLayout,
   synchronizeSharedLayouts,
@@ -37,6 +43,8 @@ export interface WebsiteDocument {
   sharedLayouts?: SharedLayout[];
   apis?: ApiConnection[];
   commerce?: CommerceConfig;
+  staticFiles?: StaticFile[];
+  staticDirectories?: string[];
 }
 export const PAGE_TEMPLATES = [
   {
@@ -106,11 +114,13 @@ export function parseWebsite(value: unknown): WebsiteDocument {
   // Lossless upgrade of existing single-page drafts. No SQL rewrite is necessary.
   if (input.schemaVersion === 1) {
     const page = parseSite(input);
-    return {
+    const upgraded: WebsiteDocument = {
       schemaVersion: 2,
       title: page.title,
       pages: [{ ...page, id: "home", name: "Home", path: "/" }],
     };
+    assertStaticBudget(upgraded);
+    return upgraded;
   }
   if (
     input.schemaVersion !== 2 || typeof input.title !== "string" ||
@@ -132,6 +142,11 @@ export function parseWebsite(value: unknown): WebsiteDocument {
     groupIds.add(g.id);
     return { id: g.id, name: g.name.trim() };
   });
+  const staticFiles = parseStaticFiles(input.staticFiles);
+  const staticDirectories = parseStaticDirectories(
+    input.staticDirectories,
+    staticFiles,
+  );
   const sharedLayouts = parseSharedLayouts(input.sharedLayouts);
   const ids = new Set<string>(), paths = new Set<string>();
   const pages = input.pages.map((item): SitePage => {
@@ -209,7 +224,7 @@ export function parseWebsite(value: unknown): WebsiteDocument {
     };
     visit(page.nodes);
   }
-  return {
+  const result: WebsiteDocument = {
     schemaVersion: 2,
     title: input.title.trim(),
     pages,
@@ -217,7 +232,11 @@ export function parseWebsite(value: unknown): WebsiteDocument {
     ...(commerce ? { commerce } : {}),
     ...(pageGroups.length ? { pageGroups } : {}),
     ...(sharedLayouts.length ? { sharedLayouts } : {}),
+    ...(staticFiles.length ? { staticFiles } : {}),
+    ...(staticDirectories.length ? { staticDirectories } : {}),
   };
+  assertStaticBudget(result);
+  return result;
 }
 export function starterWebsite(name: string): WebsiteDocument {
   return {

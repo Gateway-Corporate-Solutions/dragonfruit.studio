@@ -1,3 +1,4 @@
+import { decodeFile, resourceUrl } from "./static-files.ts";
 import type { SiteDocument } from "./site.ts";
 import { pageMarkup } from "./markup.ts";
 
@@ -268,21 +269,32 @@ export function prepareWebsiteExport(
     known.set(value, path);
     return path;
   };
-  const visit = (nodes: import("./site.ts").SiteNode[]) => {
+  const visit = (nodes: import("./site.ts").SiteNode[], pagePath: string) => {
     for (const n of nodes) {
       delete n.sharedLayoutId;
       delete n.sharedNodeId;
-      if (n.layer?.src) n.layer.src = image(n.layer.src);
+      if (n.href) n.href = resourceUrl(n.href, pagePath);
+      if (n.layer?.src) n.layer.src = image(resourceUrl(n.layer.src, pagePath));
       for (const item of n.layer?.items ?? []) {
-        if (item.image) item.image = image(item.image);
+        if (item.image) item.image = image(resourceUrl(item.image, pagePath));
+        if (item.href) item.href = resourceUrl(item.href, pagePath);
       }
-      visit(n.children);
+      visit(n.children, pagePath);
     }
   };
-  for (const page of website.pages) visit(page.nodes);
-  for (const product of website.commerce?.products ?? []) {
-    if (product.image) product.image = image(product.image);
+  for (const page of website.pages) {
+    visit(page.nodes, page.path);
+    if (page.seo?.image) {
+      page.seo.image = resourceUrl(page.seo.image, page.path);
+    }
   }
+  for (const product of website.commerce?.products ?? []) {
+    if (product.image) product.image = image(resourceUrl(product.image));
+  }
+  for (const file of website.staticFiles ?? []) {
+    assets.push({ path: "/" + file.path, bytes: decodeFile(file) });
+  }
+  delete website.staticFiles;
   return { website, assets };
 }
 

@@ -1,8 +1,12 @@
+import { relativeAssetUrl, resourceUrl } from "./static-files.ts";
 /** Safe Markdown subset. Raw HTML is always text; links pass a protocol allowlist. */
 const esc = (s: string) =>
   s.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
-function inline(s: string): string {
+function inline(
+  s: string,
+  resolve: (value: string, image: boolean) => string,
+): string {
   const tokens: string[] = [];
   const token = (html: string) => {
     tokens.push(html);
@@ -13,9 +17,14 @@ function inline(s: string): string {
     (_, code) => token("<code>" + esc(code) + "</code>"),
   );
   s = s.replace(/(!?)\[([^\]\n]+)\]\(([^\s)]+)\)/g, (_, image, label, url) => {
-    const safe = /^(https:\/\/|\/(?!\/)|#|mailto:)/i.test(url) &&
+    const safe = (/^(https:\/\/|\/(?!\/)|#|mailto:)/i.test(url) ||
+      relativeAssetUrl(url)) &&
       !/[<>"'\\]/.test(url);
-    if (!safe || image && !/^(https:\/\/|\/(?!\/))/i.test(url)) return label;
+    if (
+      !safe ||
+      image && !(/^(https:\/\/|\/(?!\/))/i.test(url) || relativeAssetUrl(url))
+    ) return label;
+    url = resolve(url, !!image);
     return token(
       image
         ? '<img loading="lazy" src="' + esc(url) + '" alt="' + esc(label) +
@@ -31,13 +40,18 @@ function inline(s: string): string {
     (_, n) => tokens[Number(n)],
   );
 }
-export function renderMarkdown(source: string): string {
+export function renderMarkdown(
+  source: string,
+  resolve: (value: string, image: boolean) => string = (value) =>
+    resourceUrl(value),
+): string {
+  const text = (value: string) => inline(value, resolve);
   const lines = source.replace(/\r\n?/g, "\n").split("\n");
   const out: string[] = [];
   let paragraph: string[] = [], code: string[] | null = null, list = "";
   const flush = () => {
     if (paragraph.length) {
-      out.push("<p>" + inline(paragraph.join(" ")) + "</p>");
+      out.push("<p>" + text(paragraph.join(" ")) + "</p>");
     }
     paragraph = [];
     if (list) out.push("</" + list + ">");
@@ -64,7 +78,7 @@ export function renderMarkdown(source: string): string {
     if (heading) {
       flush();
       out.push(
-        "<h" + heading[1].length + ">" + inline(heading[2]) + "</h" +
+        "<h" + heading[1].length + ">" + text(heading[2]) + "</h" +
           heading[1].length + ">",
       );
       continue;
@@ -82,12 +96,12 @@ export function renderMarkdown(source: string): string {
         list = kind;
         out.push("<" + list + ">");
       }
-      out.push("<li>" + inline(item[2]) + "</li>");
+      out.push("<li>" + text(item[2]) + "</li>");
       continue;
     }
     if (line.startsWith("> ")) {
       flush();
-      out.push("<blockquote>" + inline(line.slice(2)) + "</blockquote>");
+      out.push("<blockquote>" + text(line.slice(2)) + "</blockquote>");
       continue;
     }
     if (list) flush();

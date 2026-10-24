@@ -1,3 +1,9 @@
+import {
+  findStaticFile,
+  resourceUrl,
+  staticDataUrl,
+  type StaticFile,
+} from "./static-files.ts";
 import { fontCss } from "./fonts.ts";
 import { compilePage } from "./codegen.ts";
 import { COMMERCE_BROWSER_SOURCE } from "./commerce-runtime.ts";
@@ -375,12 +381,42 @@ export function previewHtml(
   routes: string[] = [],
   pageId = "home",
   commerce?: unknown,
+  staticFiles: StaticFile[] = [],
 ): string {
+  const pagePath = "path" in site && typeof site.path === "string"
+    ? site.path
+    : "/";
+  const links: Record<string, string> = {};
+  const resolve = (url: string, kind?: "image" | "link") => {
+    const target = resourceUrl(url, pagePath);
+    const file = findStaticFile(target, staticFiles);
+    if (!file) return target;
+    if (kind === "link") {
+      links[target] = file.path;
+      return target;
+    }
+    return staticDataUrl(file);
+  };
+  const markup = pageMarkup(site, pageId, resolve);
+  if (
+    commerce && typeof commerce === "object" && "products" in commerce &&
+    Array.isArray(commerce.products)
+  ) {
+    commerce = {
+      ...commerce,
+      products: commerce.products.map((p) => ({
+        ...p,
+        image: resolve(p.image, "image"),
+      })),
+    };
+  }
   const navigation =
     "document.addEventListener('click',function(e){var a=e.target.closest('a');var n=e.target.closest('[data-node]');" +
     (interactive
       ? "e.preventDefault();e.stopImmediatePropagation();if(n)parent.postMessage({type:'dragonfruit.select',id:n.dataset.node},'*');"
-      : "if(a){var href=a.getAttribute('href');if(" +
+      : "if(a){var href=a.getAttribute('href');var assets=" +
+        JSON.stringify(links).replaceAll("<", "\\u003c") +
+        ";if(Object.prototype.hasOwnProperty.call(assets,href)){e.preventDefault();parent.postMessage({type:'dragonfruit.asset',path:assets[href]},'*');return;}if(" +
         JSON.stringify(routes).replaceAll("<", "\\u003c") +
         ".includes(href)){e.preventDefault();parent.postMessage({type:'dragonfruit.navigate',path:href},'*')}else if(!href||href.charAt(0)!=='#'){e.preventDefault()}}") +
     "}, true);";
@@ -400,7 +436,7 @@ export function previewHtml(
           ? "#" + selected + "{outline:2px solid #668943;outline-offset:-2px}"
           : "")
       : "") +
-    "</style></head><body>" + pageMarkup(site, pageId) + "<script>" +
+    "</style></head><body>" + markup + "<script>" +
     navigation + runtime + "</script></body></html>";
 }
 export function freshSource(site: SiteDocument, pageId = "home"): string {

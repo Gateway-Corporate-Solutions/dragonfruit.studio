@@ -1,3 +1,4 @@
+import { resourceUrl } from "./static-files.ts";
 import { BOOKING_CSS } from "./booking-runtime.ts";
 import { renderMarkdown } from "./markdown.ts";
 import type { SiteDocument, SiteNode } from "./site.ts";
@@ -15,7 +16,15 @@ export const LAYER_CSS = String.raw`
 .df-navbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}.df-nav-brand{font-size:20px;font-weight:700}.df-nav-links{display:flex;align-items:center;flex-wrap:wrap;gap:18px}.df-nav-links a{color:inherit;text-decoration:none;padding:8px}.df-navmenu .df-nav-links{flex-direction:column;align-items:stretch;width:100%}.df-nav-links a:hover{text-decoration:underline}.df-image-placeholder{min-height:180px;display:grid;place-items:center;background:#e9efdf;color:#4f6246;border:1px dashed #78916c}
 @media(max-width:640px){.df-nav-links{width:100%;flex-direction:column;align-items:stretch}.df-slide{padding:22px}}
 ` + BOOKING_CSS;
-export function pageMarkup(site: SiteDocument, pageId = "home"): string {
+export function pageMarkup(
+  site: SiteDocument,
+  pageId = "home",
+  resource: (value: string, kind?: "image" | "link") => string = (value) =>
+    resourceUrl(
+      value,
+      "path" in site && typeof site.path === "string" ? site.path : "/",
+    ),
+): string {
   const esc = escapeHtml;
   function render(n: SiteNode): string {
     const o = n.layer ?? {},
@@ -26,15 +35,21 @@ export function pageMarkup(site: SiteDocument, pageId = "home"): string {
       style + '"';
     if (n.tag === "markdown") {
       return "<article" + attrs + ' class="df-markdown">' +
-        renderMarkdown(o.markdown || "") + "</article>";
+        renderMarkdown(
+          o.markdown || "",
+          (url, image) => resource(url, image ? "image" : "link"),
+        ) + "</article>";
     }
     if (n.tag === "blog") {
       return "<section" + attrs + ' class="df-blog">' + (o.items?.length
         ? o.items.map((i) =>
           "<article>" +
-          (i.image ? '<img src="' + esc(i.image) + '" alt=""/>' : "") +
-          '<h2><a href="' + esc(i.href) + '">' + esc(i.title) + "</a></h2><p>" +
-          esc(i.body) + '</p><a href="' + esc(i.href) +
+          (i.image
+            ? '<img src="' + esc(resource(i.image, "image")) + '" alt=""/>'
+            : "") +
+          '<h2><a href="' + esc(resource(i.href, "link")) + '">' +
+          esc(i.title) + "</a></h2><p>" +
+          esc(i.body) + '</p><a href="' + esc(resource(i.href, "link")) +
           '">Read article →</a></article>'
         ).join("")
         : "<p>No articles yet. Add your first article in Page settings.</p>") +
@@ -54,7 +69,8 @@ export function pageMarkup(site: SiteDocument, pageId = "home"): string {
     }
     if (n.tag === "img") {
       return o.src
-        ? "<img" + attrs + ' src="' + esc(o.src) + '" alt="' +
+        ? "<img" + attrs + ' src="' + esc(resource(o.src, "image")) +
+          '" alt="' +
           esc(o.alt ?? "") + '" loading="lazy" decoding="async"/>'
         : "<div" + attrs +
           ' class="df-image-placeholder">Choose an image in the inspector</div>';
@@ -103,11 +119,12 @@ export function pageMarkup(site: SiteDocument, pageId = "home"): string {
             '<article class="df-slide" data-slide role="group" aria-roledescription="slide" aria-label="' +
             (index + 1) + " of " + items.length + '"' +
             (index ? " hidden" : "") + ">" + (i.image
-              ? '<img src="' + esc(i.image) + '" alt="' + esc(i.title) + '"/>'
+              ? '<img src="' + esc(resource(i.image, "image")) + '" alt="' +
+                esc(i.title) + '"/>'
               : "") +
             "<h2>" + esc(i.title) + "</h2><p>" + esc(i.body) + "</p>" +
             (i.href !== "#"
-              ? '<a href="' + esc(i.href) + '">Learn more</a>'
+              ? '<a href="' + esc(resource(i.href, "link")) + '">Learn more</a>'
               : "") +
             "</article>"
           ).join("") +
@@ -140,10 +157,12 @@ export function pageMarkup(site: SiteDocument, pageId = "home"): string {
         '</span><button type="button" data-menu-toggle aria-expanded="true" aria-controls="' +
         n.id + '-menu">Menu</button><div class="df-nav-links" data-menu id="' +
         n.id + '-menu">' + items.map((i) =>
-          '<a href="' + esc(i.href) + '">' + esc(i.title) + "</a>"
+          '<a href="' + esc(resource(i.href, "link")) + '">' + esc(i.title) +
+          "</a>"
         ).join("") + n.children.map(render).join("") + "</div></nav>";
     }
-    return "<" + n.tag + attrs + (n.href ? ' href="' + esc(n.href) + '"' : "") +
+    return "<" + n.tag + attrs +
+      (n.href ? ' href="' + esc(resource(n.href, "link")) + '"' : "") +
       (o.newTab ? ' target="_blank" rel="noopener noreferrer"' : "") + ">" +
       esc(n.text) + n.children.map(render).join("") + "</" + n.tag + ">";
   }

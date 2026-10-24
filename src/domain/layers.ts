@@ -1,3 +1,4 @@
+import { relativeAssetUrl } from "./static-files.ts";
 import { ValidationError } from "./manifest.ts";
 export type FieldType =
   | "text"
@@ -48,14 +49,15 @@ export const MAX_IMAGE_BYTES = 10_000_000;
 const MAX_IMAGE_DATA_URL_LENGTH = 14 * 1024 * 1024;
 export function safeLink(s: string): boolean {
   return s.length <= 500 && !/[\s<>"']/.test(s) &&
-    /^(#|\/(?!\/)|https:\/\/|mailto:|tel:)/i.test(s);
+    (/^(#|\/(?!\/)|https:\/\/|mailto:|tel:)/i.test(s) || relativeAssetUrl(s));
 }
 export function safeImage(s: string): boolean {
   return s === "" ||
     s.length <= MAX_IMAGE_DATA_URL_LENGTH &&
       (/^data:image\/(?:png|jpeg|gif|webp);base64,[a-zA-Z0-9+/=]+$/.test(s) ||
         s.length <= 2000 && /^https:\/\/[^\s<>"']+$/.test(s) ||
-        s.length <= 500 && /^\/(?!\/)[^\s<>"']+$/.test(s));
+        s.length <= 500 && /^\/(?!\/)[^\s<>"']+$/.test(s) ||
+        relativeAssetUrl(s));
 }
 const string = (v: unknown, d: string, max = 2000): string =>
   typeof v === "string" && v.length <= max

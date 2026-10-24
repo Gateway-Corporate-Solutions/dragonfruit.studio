@@ -1038,3 +1038,248 @@
 .font-picker details label {
   margin: 8px 0;
 }
+
+.code-workspace {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+.code-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px;
+  border-bottom: 1px solid var(--control-border);
+  flex-shrink: 0;
+}
+.code-toolbar h1 {
+  font-size: 24px;
+  margin: 5px 0;
+}
+.code-toolbar p {
+  font-size: 11pt;
+  line-height: 1.5;
+}
+.code-toolbar-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.code-toolbar-actions .button {
+  white-space: normal;
+}
+.code-panes {
+  display: grid;
+  grid-template-columns: 260px minmax(0,1fr);
+  min-height: 0;
+  flex: 1;
+}
+.code-files {
+  overflow: auto;
+  border-right: 1px solid var(--control-border);
+  background: var(--surface);
+  min-width: 0;
+}
+.code-files nav {
+  max-height: 50%;
+  min-height: 160px;
+  overflow: auto;
+  padding: 10px;
+}
+.code-files nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.code-files nav ul ul {
+  padding-left: 14px;
+}
+.code-tree-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-align: left;
+  width: 100%;
+  font-size: 11pt;
+  border: 0;
+  padding: 7px;
+  background: transparent;
+  color: var(--text);
+  border-radius: 5px;
+  overflow-wrap: anywhere;
+}
+.code-tree-item.active {
+  background: var(--selected);
+}
+.code-caret {
+  display: inline-block;
+  flex: 0 0 12px;
+  text-align: center;
+}
+.code-caret.open {
+  transform: rotate(90deg);
+}
+.static-controls {
+  border: 0;
+  border-top: 1px solid var(--control-border);
+  padding: 14px;
+  min-width: 0;
+}
+.static-controls legend {
+  font-size: 11pt;
+  font-weight: 600;
+}
+.static-controls p,
+.static-controls summary {
+  font-size: 11pt;
+  line-height: 1.6;
+  margin: 8px 0;
+}
+.static-controls label {
+  font-size: 11pt;
+  margin: 12px 0;
+}
+.static-controls input:not([type=file]) {
+  min-width: 0;
+  width: 100%;
+}
+.static-controls .button {
+  font-size: 11pt;
+  width: 100%;
+  white-space: normal;
+  margin: 8px 0;
+}
+.static-controls progress {
+  width: 100%;
+}
+.static-upload {
+  display: block;
+  position: relative;
+  text-align: center;
+  cursor: pointer;
+}
+.static-upload input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  cursor: pointer;
+}
+.code-reader {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.code-reader > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--control-border);
+}
+.code-reader > header strong {
+  font-size: 11pt;
+  overflow-wrap: anywhere;
+}
+.code-reader > header > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.code-reader textarea {
+  border: 0;
+  flex: 1;
+  width: 100%;
+  min-height: 250px;
+  margin: 0;
+  border-radius: 0;
+  font: 11pt/1.7 ui-monospace,monospace;
+  white-space: pre;
+  resize: none;
+  tab-size: 2;
+  padding: 16px;
+  background: var(--input);
+  color: var(--text);
+}
+.code-binary,
+.code-directory {
+  padding: 20px;
+  overflow: auto;
+  flex: 1;
+  font-size: 11pt;
+  line-height: 1.8;
+}
+.code-binary img {
+  display: block;
+  max-width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  background: var(--surface);
+}
+.code-status {
+  font-size: 11pt;
+  line-height: 1.6;
+  padding: 12px;
+  margin: 0;
+  border-top: 1px solid var(--control-border);
+  overflow-wrap: anywhere;
+}
+@media (max-width:900px) {
+  .code-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .code-panes {
+    grid-template-columns: 220px minmax(0,1fr);
+  }
+}
+@media (max-width:700px) {
+  .code-workspace {
+    overflow: visible;
+    min-height: 900px;
+  }
+  .code-toolbar {
+    padding: 16px;
+  }
+  .code-panes {
+    display: flex;
+    flex-direction: column;
+  }
+  .code-files {
+    max-height: 360px;
+    border-right: 0;
+    border-bottom: 1px solid var(--control-border);
+  }
+  .code-files nav {
+    max-height: 200px;
+  }
+  .code-reader {
+    min-height: 500px;
+  }
+  .code-reader > header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .code-reader textarea {
+    min-height: 500px;
+  }
+}
+.static-resource-url {
+  padding: 10px 16px;
+  margin: 0;
+  font-size: 11pt;
+  border-bottom: 1px solid var(--control-border);
+}
+.static-resource-url input {
+  width: 100%;
+  min-width: 0;
+  margin-top: 5px;
+  font: 11pt ui-monospace,monospace;
+}

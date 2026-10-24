@@ -215,6 +215,10 @@ export function projectSourceFiles(
     bytes: socialPng(page.title, website.title),
   }));
   common.push(
+    ...(website.staticDirectories ?? []).map((path) => ({
+      name: (format === "fresh" ? "static/" : "public/") + path + "/",
+      content: "",
+    })),
     ...fontExportFiles(website.pages, format),
     ...socialFiles,
     ...assets.map((asset) => ({
@@ -223,6 +227,16 @@ export function projectSourceFiles(
       bytes: asset.bytes,
     })),
   );
+  const names = new Set<string>();
+  for (const file of common) {
+    if (names.has(file.name)) {
+      throw new Error(
+        "Static path conflicts with a generated asset: " + file.name,
+      );
+    }
+    names.add(file.name);
+  }
+  delete website.staticDirectories;
   const deploy = deploymentFiles.map((file) => ({
     ...file,
     name: "deploy/" + file.name,
@@ -439,7 +453,7 @@ import {handleCommerce} from './commerce.mjs';
 import {metadataHtml} from './seo.mjs';
 const website=JSON.parse(await readFile(new URL('./site.json',import.meta.url),'utf8'));
 const root=resolve('dist');
-const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.jpeg':'image/jpeg','.gif':'image/gif','.woff2':'font/woff2'};
+const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.apng':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.jpeg':'image/jpeg','.gif':'image/gif','.woff2':'font/woff2','.woff':'font/woff','.ttf':'font/ttf','.otf':'font/otf','.pdf':'application/pdf','.txt':'text/plain; charset=utf-8','.md':'text/markdown; charset=utf-8','.csv':'text/csv; charset=utf-8','.xml':'application/xml','.webmanifest':'application/manifest+json','.avif':'image/avif','.ico':'image/x-icon','.mp4':'video/mp4','.webm':'video/webm','.mp3':'audio/mpeg','.ogg':'audio/ogg','.wav':'audio/wav','.wasm':'application/wasm','.htm':'text/html; charset=utf-8'};
 const server=createServer(async(req,res)=>{
  try{
   const url=new URL(req.url,'http://'+req.headers.host);
@@ -452,8 +466,8 @@ const server=createServer(async(req,res)=>{
   const path=resolve(root,'.'+decodeURIComponent(url.pathname));if(path!==root&&!path.startsWith(root+sep)){res.writeHead(403);res.end();return;}
   let file=path;let bytes;try{bytes=await readFile(file);}catch{if(extname(url.pathname)){res.writeHead(404);res.end();return;}file=resolve(root,'index.html');bytes=await readFile(file);}
   const page=website.pages.find(p=>p.path===url.pathname);
-  if(extname(file)==='.html'){if(!page){res.writeHead(404,{'Content-Type':'text/html; charset=utf-8'});res.end('<h1>Page not found</h1>');return;}const origin=process.env.PUBLIC_ORIGIN||url.origin;bytes=Buffer.from(bytes.toString().replace(/<title>[\s\S]*?<\/title>/,'').replace('</head>',metadataHtml(page,origin,website.title)+'</head>'));}
-  res.writeHead(200,{'Content-Type':mime[extname(file)]||'application/octet-stream','X-Content-Type-Options':'nosniff'});res.end(req.method==='HEAD'?undefined:bytes);
+  if(extname(file)==='.html'&&(page||file===resolve(root,'index.html'))){if(!page){res.writeHead(404,{'Content-Type':'text/html; charset=utf-8'});res.end('<h1>Page not found</h1>');return;}const origin=process.env.PUBLIC_ORIGIN||url.origin;bytes=Buffer.from(bytes.toString().replace(/<title>[\s\S]*?<\/title>/,'').replace('</head>',metadataHtml(page,origin,website.title)+'</head>'));}
+  res.writeHead(200,{'Content-Type':mime[extname(file).toLowerCase()]||'application/octet-stream','X-Content-Type-Options':'nosniff'});res.end(req.method==='HEAD'?undefined:bytes);
  }catch{res.writeHead(503,{'Content-Type':'application/json'});res.end(JSON.stringify({error:'Build the website before starting, or check server configuration.'}));}
 });
 server.requestTimeout=15000;server.listen(Number(process.env.PORT||8787),'0.0.0.0',()=>console.log('Website and form API listening on port '+(process.env.PORT||8787)));
