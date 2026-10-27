@@ -7,6 +7,8 @@ export interface Project extends ProjectInput {
   createdAt: string;
   document: WebsiteDocument | SiteDocument | null;
   revision: number;
+  locked?: boolean;
+  permanent?: boolean;
 }
 export type JobStatus =
   | "queued"

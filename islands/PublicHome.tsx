@@ -207,8 +207,8 @@ export default function PublicHome(
               Keep the source.<br />Know the limits.
             </h2>
             <p>
-              Plans pay for website capacity in your workspace, not permission
-              to download your work. Source exports are free on every plan.
+              Plans determine which websites you can access in your workspace.
+              Source exports are free on every plan for accessible websites.
             </p>
             {!user && (
               <button
@@ -248,13 +248,14 @@ export default function PublicHome(
             <li>
               <span>03</span>
               <div>
-                <h3>Cancel without losing your work.</h3>
+                <h3>Choose what stays accessible.</h3>
                 <p>
-                  Cancel the monthly plan through Stripe. Unlimited creation
-                  continues until the paid period ends. Afterward, new websites
-                  need available free or purchased capacity; existing websites
-                  stay editable and exportable. Exported client sites do not
-                  depend on your subscription.
+                  Cancel the monthly plan through Stripe. Unlimited access
+                  continues until the paid period ends. Choose which websites
+                  your free and purchased permanent slots cover. Other websites
+                  stay listed but locked, with their data retained. Buy more
+                  slots or resubscribe to restore access. Exported client sites
+                  do not depend on your subscription.
                 </p>
               </div>
             </li>

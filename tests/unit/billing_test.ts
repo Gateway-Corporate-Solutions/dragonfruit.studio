@@ -231,10 +231,12 @@ Deno.test("free website capacity is atomic, owner-scoped, and never restricts ed
     WebsiteLimitError,
   );
   const project = (await own.listProjects())[0];
+  await own.setPermanentProjects([project.id]);
+  const accessible = await own.getProject(project.id);
   await own.saveEditor(
     project.id,
     0,
-    parseWebsite(project.document),
+    parseWebsite(accessible!.document),
     DEFAULT_MANIFEST,
   );
   for (const format of ["fresh", "react"] as const) {
@@ -380,12 +382,16 @@ Deno.test("unlimited follows current Stripe subscription state, cancellation per
     WebsiteLimitError,
   );
   const project = (await own.listProjects())[0];
+  await own.setPermanentProjects([project.id]);
+  const accessible = await own.getProject(project.id);
   await own.saveEditor(
     project.id,
     0,
-    parseWebsite(project.document),
+    parseWebsite(accessible!.document),
     DEFAULT_MANIFEST,
   );
+  const locked = (await own.listProjects()).find((website) => website.locked)!;
+  await rejects(() => own.getProject(locked.id));
   // A stale "active" event cannot revive a subscription whose current Stripe state is canceled.
   await f.event("customer.subscription.updated", {
     ...f.sub,

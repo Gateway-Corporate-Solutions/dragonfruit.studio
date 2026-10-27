@@ -1,5 +1,6 @@
 import { getServices } from "@/src/services.ts";
 import { define } from "@/utils.ts";
+import PermanentWebsites from "@/islands/PermanentWebsites.tsx";
 export default define.page(async function Projects(ctx) {
   const projects = await ctx.state.store.listProjects();
   const capacity = ctx.state.user
@@ -19,7 +20,7 @@ export default define.page(async function Projects(ctx) {
         <p class="notice">
           {capacity.used} / {capacity.limit ?? "Unlimited"}{" "}
           website slots in use · <a href="/billing">Plans & billing</a>{" "}
-          · Editing and exports always included.
+          · Access outside permanent capacity requires active Unlimited.
         </p>
       )}
       <section class="hero">
@@ -38,13 +39,23 @@ export default define.page(async function Projects(ctx) {
         </div>
         <img src="/dragonfruit.svg" alt="Dragonfruit" />
       </section>
+      {capacity && projects.length > 0 && (
+        <PermanentWebsites
+          projects={projects.map((project) => ({
+            id: project.id,
+            name: project.name,
+            permanent: project.permanent,
+          }))}
+          capacity={1 + capacity.purchasedSlots}
+        />
+      )}
       <div class="metrics">
         <div>
           <span>Websites</span>
           <strong>{projects.length}</strong>
         </div>
         <div>
-          <span>Saved designs</span>
+          <span>Accessible saved designs</span>
           <strong>{projects.filter((p) => p.document !== null).length}</strong>
         </div>
         <div>
@@ -62,18 +73,26 @@ export default define.page(async function Projects(ctx) {
         ? (
           <div class="project-grid">
             {projects.map((p) => (
-              <a class="project-card" href={"/projects/" + p.id} key={p.id}>
+              <a
+                class="project-card"
+                href={p.locked ? "#permanent-access" : "/projects/" + p.id}
+                key={p.id}
+              >
                 <div class="project-icon">
                   F<span>↗</span>
                 </div>
                 <h3>{p.name}</h3>
                 <p>
                   {p.repositoryUrl?.replace("https://", "") ??
-                    "Your website · Open editor"}
+                    (p.locked
+                      ? "Locked · Your website data is retained"
+                      : "Your website · Open editor")}
                 </p>
                 <div>
                   <span class="badge">Fresh 2</span>
-                  <span class="muted">Open editor →</span>
+                  <span class="muted">
+                    {p.locked ? "Choose a permanent slot ↑" : "Open editor →"}
+                  </span>
                 </div>
               </a>
             ))}

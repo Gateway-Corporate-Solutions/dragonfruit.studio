@@ -304,7 +304,7 @@ Validation includes export-compiler and media-extraction tests, strict generated
 
 ## Account plans and Stripe billing
 
-The first website is free forever, with editing and unlimited source exports. Accounts can purchase permanent additional website slots for **$9.99 each**, or subscribe for **$24.99/month** to create unlimited websites while active. Existing websites stay editable and exportable when a subscription ends; new creation requires available free or purchased capacity. See [docs/billing.md](docs/billing.md) for environment variables, migration 004, the required Stripe Prices and signed webhook, Customer Portal setup, and testing. These builder-account payments are separate from commerce checkout in exported user websites.
+One permanent website slot is free forever. Accounts can purchase additional permanent slots for **$9.99 each**, or subscribe for **$24.99/month** for unlimited website access while active. Cancellation takes effect at the paid period end. Users choose which websites occupy their free and purchased slots on the Websites page; excess websites remain listed but locked with data retained. Buying slots or resubscribing restores access. Editing and unlimited source exports require an accessible website. Already-exported projects remain independent. See [docs/billing.md](docs/billing.md) for setup and testing. These builder-account payments are separate from commerce checkout in exported user websites.
 
 
 ## Web fonts in the visual editor

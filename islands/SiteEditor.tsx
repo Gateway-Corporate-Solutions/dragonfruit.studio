@@ -582,7 +582,7 @@ export default function SiteEditor(
     }
     commit({ ...site, nodes: reorder(site.nodes) });
   }
-  function downloadProject() {
+  async function downloadProject() {
     if (
       cssPending || manifestPending || layerPending || apiPending ||
       commercePending || staticPending
@@ -594,6 +594,13 @@ export default function SiteEditor(
     }
     try {
       setSaveError("");
+      const access = await fetch("/api/projects/" + project.id, {
+        cache: "no-store",
+      });
+      if (!access.ok) {
+        const result = await access.json();
+        throw new Error(result.error || "Website access could not be verified");
+      }
       const files = projectSourceFiles(website, exportFormat, DEPLOY_FILES);
       const url = URL.createObjectURL(
         new Blob([sourceZip(files)], { type: "application/zip" }),

@@ -3,6 +3,13 @@ import { NotFoundError } from "../domain/models.ts";
 import type { Manifest, ProjectInput } from "../domain/manifest.ts";
 import type { WebsiteDocument } from "../domain/website.ts";
 import type { SiteDocument } from "../domain/site.ts";
+import type { Project } from "../domain/models.ts";
+import {
+  permanentProjectIds,
+  summarize,
+  WebsiteLockedError,
+} from "../billing/model.ts";
+import { ValidationError } from "../domain/manifest.ts";
 /** Every request-side operation is restricted to its authenticated owner; workers use the base store. */
 export class ScopedStore implements Store {
   readonly durable: boolean;
@@ -18,12 +25,52 @@ export class ScopedStore implements Store {
   ping() {
     return this.base.ping();
   }
-  listProjects() {
-    return this.base.listProjects(this.ownerId);
+  async listProjects() {
+    const projects = await this.base.listProjects(this.ownerId);
+    const state = await this.billing.read(this.ownerId);
+    const permanent = new Set(permanentProjectIds(state, projects));
+    const unlimited = summarize(state, projects.length).unlimited;
+    return projects.map((project) => {
+      const locked = !unlimited && !permanent.has(project.id);
+      return {
+        ...project,
+        ...(locked
+          ? {
+            document: null,
+            repositoryUrl: null,
+            manifest: {} as Project["manifest"],
+          }
+          : {}),
+        locked,
+        permanent: permanent.has(project.id),
+      };
+    });
+  }
+  async setPermanentProjects(ids: string[]) {
+    await this.billing.mutate(this.ownerId, async (state) => {
+      const projects = await this.base.listProjects(this.ownerId);
+      const capacity = 1 + summarize(state, projects.length).purchasedSlots;
+      if (
+        ids.length > capacity || new Set(ids).size !== ids.length ||
+        ids.some((id) => !projects.some((project) => project.id === id))
+      ) {
+        throw new ValidationError([
+          "Choose only your own websites, within your permanent slot capacity.",
+        ]);
+      }
+      state.permanentProjects = ids;
+    });
   }
   async getProject(id: string) {
     const p = await this.base.getProject(id);
-    return p?.ownerId === this.ownerId ? p : undefined;
+    if (p?.ownerId !== this.ownerId) return;
+    const state = await this.billing.read(this.ownerId);
+    if (
+      !summarize(state, 0).unlimited &&
+      !permanentProjectIds(state, await this.base.listProjects(this.ownerId))
+        .includes(id)
+    ) throw new WebsiteLockedError();
+    return p;
   }
   private async requireProject(id: string) {
     if (!await this.getProject(id)) {
@@ -42,8 +89,15 @@ export class ScopedStore implements Store {
     await this.requireProject(id);
     return this.base.saveEditor(id, revision, document, manifest, this.ownerId);
   }
-  listJobs(projectId?: string) {
-    return this.base.listJobs(projectId, this.ownerId);
+  async listJobs(projectId?: string) {
+    const allowed = new Set(
+      (await this.listProjects()).filter((project) => !project.locked).map((
+        project,
+      ) => project.id),
+    );
+    return (await this.base.listJobs(projectId, this.ownerId)).filter((job) =>
+      allowed.has(job.projectId)
+    );
   }
   async getJob(id: string) {
     const j = await this.base.getJob(id);

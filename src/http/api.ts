@@ -1,4 +1,4 @@
-import { WebsiteLimitError } from "../billing/model.ts";
+import { WebsiteLimitError, WebsiteLockedError } from "../billing/model.ts";
 import { FORM_SERVER_SOURCE } from "../domain/form-runtime.ts";
 import { parseWebsite } from "../domain/website.ts";
 import {
@@ -80,6 +80,18 @@ export async function handleApi(req: Request, store: Store): Promise<Response> {
       return error("Method not allowed", 405);
     }
     let match = path.match(new RegExp("^/api/projects/(" + uuid + ")$"));
+    if (path === "/api/projects/permanent" && req.method === "PUT") {
+      if (!store.setPermanentProjects) {
+        return error("Unavailable for operator workspaces", 403);
+      }
+      const data = await body(req) as { ids?: unknown } | null;
+      if (
+        !data || !Array.isArray(data.ids) ||
+        data.ids.some((id) => typeof id !== "string")
+      ) throw new ValidationError(["Provide website IDs."]);
+      await store.setPermanentProjects(data.ids);
+      return Response.json({ projects: await store.listProjects() });
+    }
     if (match && req.method === "GET") {
       const project = await store.getProject(match[1]);
       return project
@@ -162,6 +174,13 @@ export async function handleApi(req: Request, store: Store): Promise<Response> {
     }
     return error("Route not found", 404);
   } catch (e) {
+    if (e instanceof WebsiteLockedError) {
+      return Response.json({
+        error: e.message,
+        code: "WEBSITE_LOCKED",
+        billingUrl: "/billing",
+      }, { status: 402 });
+    }
     if (e instanceof WebsiteLimitError) {
       return Response.json({
         error: e.message,

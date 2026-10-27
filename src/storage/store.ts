@@ -10,6 +10,7 @@ export interface Store {
   countProjects(ownerId: string): Promise<number>;
   ping(): Promise<void>;
   listProjects(ownerId?: string): Promise<Project[]>;
+  setPermanentProjects?(ids: string[]): Promise<void>;
   getProject(id: string): Promise<Project | undefined>;
   createProject(input: ProjectInput, ownerId?: string): Promise<Project>;
   saveEditor(

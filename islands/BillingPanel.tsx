@@ -99,8 +99,8 @@ export default function BillingPanel(
             {summary.purchasedSlots === 1 ? "slot" : "slots"}
           </p>
           <p>
-            Your first website is free forever. Editing and exports are always
-            included.
+            One free permanent slot is included. Editing and exports require
+            permanent coverage or active Unlimited.
           </p>
           {summary.subscriptionStatus && (
             <p>
@@ -108,7 +108,7 @@ export default function BillingPanel(
               {summary.periodEnd
                 ? ` · ${
                   summary.cancelAtPeriodEnd
-                    ? "Unlimited creation ends"
+                    ? "Unlimited access ends"
                     : "Current period ends"
                 } ${new Date(summary.periodEnd * 1000).toLocaleDateString()}`
                 : ""}
@@ -223,7 +223,7 @@ export default function BillingPanel(
           <ul>
             <li>Unlimited website capacity</li>
             <li>Cancel through Stripe at any time</li>
-            <li>Existing sites stay editable and exportable</li>
+            <li>Excess websites lock after the paid period ends</li>
           </ul>
           {signedIn
             ? (
@@ -254,13 +254,15 @@ export default function BillingPanel(
         </p>
       )}
       <p class="billing-policy">
-        Cancel through Stripe at any time; unlimited creation continues until
-        the paid billing period ends. Afterward, new websites require available
-        free or purchased slots. If you are over capacity, you cannot create
-        another website until you add capacity or resubscribe. Existing websites
-        stay editable and exportable, and exported projects run independently of
-        your subscription. All plans include unlimited source exports, not
-        hosting, domains, or third-party service fees. Prices are in USD.
+        Cancel through Stripe at any time; Unlimited access continues until the
+        paid billing period ends. Choose which websites use your free and
+        purchased permanent slots on the Websites page. If you are over
+        capacity, other websites remain listed but locked, with their data
+        retained. Buy more slots or resubscribe to restore access. New websites
+        also require available capacity. Exported projects run independently of
+        your subscription. All plans include unlimited source exports for
+        accessible websites, not hosting, domains, or third-party service fees.
+        Prices are in USD.
       </p>
     </section>
   );
