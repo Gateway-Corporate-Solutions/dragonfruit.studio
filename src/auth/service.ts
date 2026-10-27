@@ -183,6 +183,8 @@ export class AuthService {
         data: { email, intent },
       });
       const link = this.origin(req) + "/auth/email/verify#token=" + token;
+      let deliveryStatus: number | undefined;
+      let deliveryCode: number | undefined;
       try {
         const sent = await this.fetcher("https://api.postmarkapp.com/email", {
           method: "POST",
@@ -206,9 +208,19 @@ export class AuthService {
           redirect: "error",
           signal: AbortSignal.timeout(10000),
         });
+        deliveryStatus = sent.status;
         const result = await sent.json();
+        deliveryCode = typeof result?.ErrorCode === "number"
+          ? result.ErrorCode
+          : undefined;
         if (!sent.ok || result.ErrorCode !== 0) throw Error("Delivery failed");
-      } catch {
+      } catch (error) {
+        console.error("Sign-in email delivery failed", {
+          provider: "postmark",
+          status: deliveryStatus,
+          errorCode: deliveryCode,
+          error: error instanceof Error ? error.name : "UnknownError",
+        });
         await this.store.consumeChallenge(
           digest,
           "email",

@@ -79,6 +79,71 @@ Deno.test("Postmark sign-up sends a fixed sender, bounded one-use link and no tr
   );
   equal(f.calls(), 1);
 });
+Deno.test("email delivery failures log safe diagnostics and invalidate the challenge", async () => {
+  const originalError = console.error;
+  const logs: unknown[][] = [];
+  console.error = (...args: unknown[]) => logs.push(args);
+  try {
+    for (const failure of ["rejected", "network", "malformed"]) {
+      const store = new MemoryAuthStore();
+      const binding = randomToken();
+      let token = "";
+      const auth = new AuthService(config, store, async (_input, init) => {
+        const mail = JSON.parse(String(init!.body));
+        token = mail.TextBody.match(/#token=([a-f0-9]+)/)![1];
+        if (failure === "network") {
+          throw new TypeError("Sensitive transport detail: " + token);
+        }
+        return failure === "malformed"
+          ? new Response("Bad Gateway", { status: 502 })
+          : Response.json({
+            ErrorCode: 400,
+            Message: "Sensitive provider detail: creator@example.com",
+          }, { status: 422 });
+      });
+      const result = (await auth.handle(post(
+        "/auth/email/start",
+        { email: "creator@example.com", intent: "signup" },
+        "df_email=" + binding,
+      )))!;
+      equal(result.status, 503);
+      equal(result.headers.get("set-cookie"), null);
+      deepStrictEqual(await result.json(), {
+        error: "We could not send the sign-in email. Please try again later.",
+      });
+      equal(
+        await store.consumeChallenge(
+          await hashToken(token),
+          "email",
+          await hashToken(binding),
+        ),
+        undefined,
+      );
+      const diagnostics = logs.at(-1)![1];
+      deepStrictEqual(diagnostics, {
+        provider: "postmark",
+        status: failure === "network"
+          ? undefined
+          : failure === "rejected"
+          ? 422
+          : 502,
+        errorCode: failure === "rejected" ? 400 : undefined,
+        error: failure === "network"
+          ? "TypeError"
+          : failure === "malformed"
+          ? "SyntaxError"
+          : "Error",
+      });
+      const serialized = JSON.stringify(logs);
+      equal(serialized.includes(token), false);
+      equal(serialized.includes("creator@example.com"), false);
+      equal(serialized.includes(config.postmarkToken!), false);
+    }
+    equal(logs.length, 3);
+  } finally {
+    console.error = originalError;
+  }
+});
 Deno.test("email proof is browser-bound, does not consume on GET, and cannot be replayed", async () => {
   const f = fixture(), { binding, token } = await emailSignup(f);
   equal(
