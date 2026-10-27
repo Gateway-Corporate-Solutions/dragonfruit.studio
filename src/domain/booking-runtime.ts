@@ -1,7 +1,7 @@
 /** Shared by editor previews and both framework exports. */
 export const BOOKING_BROWSER_SOURCE = String.raw`
 const bookingStates = new WeakMap();
-function renderBookings(widget, slots) {
+function renderBookings(widget, slots, reserve) {
  const content=widget.querySelector('[data-commerce-content]');
  const options=JSON.parse(widget.dataset.bookingOptions||'{}');
  const zone=options.timeZone||Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC';
@@ -10,10 +10,26 @@ function renderBookings(widget, slots) {
  const date=key=>new Date(key+'T12:00:00Z');
  const dateLabel=k=>date(k).toLocaleDateString(undefined,{timeZone:'UTC',weekday:'long',year:'numeric',month:'long',day:'numeric'});
  const time=value=>new Date(value).toLocaleTimeString(undefined,{timeZone:zone,hour:'numeric',minute:'2-digit'});
- const upcoming=slots.filter(s=>Date.parse(s.end)>Date.now()).sort((a,b)=>Date.parse(a.start)-Date.parse(b.start));
+ const upcoming=slots.filter(s=>Date.parse(s.start)>Date.now()).sort((a,b)=>Date.parse(a.start)-Date.parse(b.start));
  const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
  const button=(label,fn,cls)=>{const n=el('button',label,cls);n.type='button';n.addEventListener('click',fn);return n;};
- const bookingLink=s=>{const link=el('a','Book session ↗','df-booking-link');link.href=s.bookingUrl;link.target='_blank';link.rel='noopener noreferrer';return link;};
+ const bookingLink=s=>{
+  if(s.bookingUrl){const link=el('a','Book session ↗','df-booking-link');link.href=s.bookingUrl;link.target='_blank';link.rel='noopener noreferrer';return link;}
+  const form=el('form',undefined,'df-booking-form'),status=el('p');status.setAttribute('role','status');
+  const field=(labelText,name,type,max)=>{const label=el('label',labelText),input=el(type==='textarea'?'textarea':'input');input.name=name;if(type!=='textarea')input.type=type;input.maxLength=max;input.required=name!=='notes';if(name!=='notes')input.autocomplete=name;label.append(input);form.append(label);return input;};
+  const name=field('Name','name','text',200),email=field('Email','email','email',254),notes=field('Notes','notes','textarea',3000);
+  const submit=el('button','Book appointment');submit.type='submit';form.append(submit,status);let pending;
+  form.addEventListener('submit',async event=>{event.preventDefault();if(submit.disabled)return;submit.disabled=true;
+   const values={slotId:s.id,name:name.value.trim(),email:email.value,notes:notes.value};
+   if(pending&&JSON.stringify(pending.values)!==JSON.stringify(values)){status.textContent='Retry with the original details to check your reservation before making changes.';submit.disabled=false;return;}
+   if(!pending)pending={id:crypto.randomUUID(),values};
+    try{status.textContent='Booking appointment…';const result=await reserve({...values,id:pending.id},widget);status.textContent=result.preview?'Preview only. No appointment was reserved.':'Appointment confirmed.';
+    if(result.preview){submit.disabled=false;return;}
+    const link=el('a','Add to calendar','df-booking-link');link.download='appointment.ics';link.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(result.calendar);form.append(link);name.disabled=email.disabled=notes.disabled=true;submit.remove();
+    if(!result.notificationSent){const retry=button('Retry business notification',async()=>{retry.disabled=true;try{const next=await reserve({...pending.values,id:pending.id},widget);status.textContent=next.notificationSent?'Appointment confirmed. Business notified.':'Appointment confirmed. Business notification is delayed.';if(next.notificationSent)retry.remove();}catch(error){status.textContent=error.message;}finally{retry.disabled=false;}});form.append(retry);status.textContent='Appointment confirmed. Business notification is delayed.';}
+   }catch(error){status.textContent=error.message;if(error.conflict)pending=undefined;submit.disabled=false;}
+  });return form;
+ };
  const range=s=>{const n=el('time',time(s.start)+' – '+time(s.end));n.dateTime=s.start;return n;};
  const details=s=>{const body=el('div',undefined,'df-booking-details');body.append(el('p',dateLabel(key(s.start))+(key(s.start)!==key(s.end)?' – '+dateLabel(key(s.end)):'')),range(s),bookingLink(s));return body;};
  content.replaceChildren();
@@ -31,7 +47,7 @@ function renderBookings(widget, slots) {
  const first=date(state.month+'-01'),year=first.getUTCFullYear(),month=first.getUTCMonth();
  const count=new Date(Date.UTC(year,month+1,0)).getUTCDate();
  const forDay=k=>upcoming.filter(s=>key(s.start)<=k&&key(new Date(Date.parse(s.end)-1))>=k);
- const refresh=focus=>{renderBookings(widget,slots);if(focus)widget.querySelector(focus)?.focus();};
+ const refresh=focus=>{renderBookings(widget,slots,reserve);if(focus)widget.querySelector(focus)?.focus();};
  const select=(k,focus=true)=>{state.selected=k;state.month=k.slice(0,7);refresh(focus?'[data-date="'+k+'"]':null);};
  const navigate=delta=>{const d=new Date(Date.UTC(year,month+delta,1,12));state.month=d.toISOString().slice(0,7);state.selected=state.month+'-01';refresh('[data-month-step="'+delta+'"]');};
  const toolbar=el('div',undefined,'df-calendar-toolbar');
@@ -78,6 +94,11 @@ export const BOOKING_CSS = String.raw`
 .df-commerce[data-commerce="calendar"]{min-height:520px}
 .df-commerce .df-booking-zone,.df-commerce .df-calendar-hint{font-size:11pt;line-height:1.5;margin:12px 0;color:#4d6355}
 .df-commerce .df-booking-link{display:inline-block;color:#294c38;font-weight:600;padding:8px 0;overflow-wrap:anywhere}
+.df-booking-form{display:grid;gap:8px;margin-top:12px;min-width:0}
+.df-booking-form label{display:grid;gap:4px}
+.df-booking-form input,.df-booking-form textarea{box-sizing:border-box;width:100%;min-width:0;font:inherit;padding:8px;border:1px solid #b5c7b8;border-radius:4px}
+.df-booking-form button{justify-self:start;max-width:100%;white-space:normal}
+.df-booking-form [role="status"]{overflow-wrap:anywhere}
 .df-agenda-date{font-size:11pt;margin:18px 0 8px}
 .df-agenda-entry{border:1px solid #b5c7b8;border-radius:8px;background:#fff;margin:6px 0;overflow:hidden}
 .df-agenda-entry summary{cursor:pointer;display:flex;align-items:center;gap:12px;padding:10px 12px;list-style:none;font-size:11pt}

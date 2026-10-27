@@ -28,6 +28,7 @@ export interface CommerceConfig {
   provider: "preview" | "stripe";
   products: Product[];
   slots: ScheduleSlot[];
+  businessEmail?: string;
 }
 export const defaultCommerce = (): CommerceConfig => ({
   currency: "usd",
@@ -48,6 +49,12 @@ export function parseCommerce(value: unknown): CommerceConfig | undefined {
     !["usd", "eur", "gbp"].includes(c.currency) ||
     !["preview", "stripe"].includes(c.provider) || !Array.isArray(c.products) ||
     c.products.length > 100 || !Array.isArray(c.slots) || c.slots.length > 100
+  ) return fail();
+  if (
+    c.businessEmail !== undefined &&
+    (typeof c.businessEmail !== "string" || c.businessEmail.length > 254 ||
+      (c.businessEmail !== "" &&
+        !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(c.businessEmail)))
   ) return fail();
   const ids = new Set<string>();
   const id = (s: string) => {
@@ -86,7 +93,7 @@ export function parseCommerce(value: unknown): CommerceConfig | undefined {
       !/Z$|[+-]\d\d:\d\d$/.test(s.end) ||
       !Number.isFinite(Date.parse(s.start)) ||
       !(Date.parse(s.end) > Date.parse(s.start)) || !text(s.bookingUrl, 2000) ||
-      !/^https:\/\/[^\s<>"'\\]+$/.test(s.bookingUrl)
+      (s.bookingUrl !== "" && !/^https:\/\/[^\s<>"'\\]+$/.test(s.bookingUrl))
     ) return fail();
     return {
       id: s.id,
@@ -96,5 +103,13 @@ export function parseCommerce(value: unknown): CommerceConfig | undefined {
       bookingUrl: s.bookingUrl,
     };
   });
-  return { currency: c.currency, provider: c.provider, products, slots };
+  return {
+    currency: c.currency,
+    provider: c.provider,
+    products,
+    slots,
+    ...(c.businessEmail !== undefined
+      ? { businessEmail: c.businessEmail }
+      : {}),
+  };
 }

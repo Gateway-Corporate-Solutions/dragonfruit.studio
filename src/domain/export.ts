@@ -186,9 +186,18 @@ export function projectSourceFiles(
   }
   const integrationReadme =
     `\n## Forms and interactions\n\nInteractive layers include editable JavaScript in the runtime module and embedded layer options. Animation presets respect reduced-motion preferences. The preview editor never delivers submissions.\n\nForm APIs are included in this export. Copy .env.example to .env and fill in only the server environment variables for your chosen integrations. Never put credentials in public browser files. Configure PUBLIC_ORIGIN to the exact browser origin in production (including HTTPS when behind a reverse proxy). Resend needs a verified sender. Mailchimp uses pending status for double opt-in and requires the configured consent checkbox. Webhooks send JSON to the HTTPS URL in the configured server environment variable.\n\nSubmissions are validated, size bounded, honeypot checked, and limited per form per minute in this process. Multi-instance deployments need a shared limiter and any additional abuse controls required by your traffic. Submissions are delivered to the provider, not stored locally. API errors are sanitized; inspect provider logs for delivery diagnostics. Preview connections intentionally deliver nothing.\n\nReferences: https://resend.com/docs/api-reference/emails/send-email and https://mailchimp.com/developer/marketing/api/lists/members/create-member\n`;
-  const sourceReadme =
+  const bookingReadme =
+    "\n## Native appointment bookings\n\nCalendar and Schedule share one booking resource. Leave session booking URLs empty for native bookings; external URLs delegate booking and notifications to that provider. Set the business email in the editor or BOOKINGS_EMAIL_TO on the server. Configure RESEND_API_KEY and verified BOOKINGS_EMAIL_FROM for business notifications, including customer details, a Google Calendar link, and an ICS attachment. Customers receive an Add to calendar download after booking. Previews never reserve or email.\n\nSet BOOKINGS_FILE to a persistent writable JSON file (default .dragonfruit/bookings.json). Keep its directory on a persistent private volume across deployments. Every instance must share the same filesystem with atomic exclusive creation and rename; isolated replicas and serverless storage are unsupported. Native reservations are serialized and reject all overlapping times for this single resource, even after schedule edits. A crashed process can leave an adjacent .lock file: stop all booking processes before removing that lock, never the reservation file. Back up the reservation file; it contains customer data.\n\nEmail failures keep appointments reserved and expose an explicit notification retry; there is no background mail retry worker. Static-only hosting needs the generated backend. Add edge abuse protection for public traffic.\n";
+  const sourceReadme = bookingReadme +
     "\n## Readable source\n\nThe export compiler normalizes the visual page model into semantic markup, an element/text intermediate tree, and ordinary TSX components. Every top-level section has a named component; interactive options are editable constants in its page module. Fresh pages live under routes/ and React pages under src/pages/, registered in src/App.tsx. Styles are page-scoped in assets/styles.css (Fresh) or src/site.css (React). Uploaded images live in static/media/ (Fresh) or public/media/ (React). The shared runtime keeps form endpoints, widget options, custom JavaScript and commerce hooks intact. Edit the generated components and styles directly; exported edits do not sync back into the visual editor.\n";
-  const environment = new Set<string>(["PUBLIC_ORIGIN", "STRIPE_SECRET_KEY"]);
+  const environment = new Set<string>([
+    "PUBLIC_ORIGIN",
+    "STRIPE_SECRET_KEY",
+    "RESEND_API_KEY",
+    "BOOKINGS_EMAIL_FROM",
+    "BOOKINGS_EMAIL_TO",
+    "BOOKINGS_FILE",
+  ]);
   for (const api of website.apis ?? []) {
     if (api.provider === "resend") {
       [api.credentialEnv, api.fromEnv, api.toEnv].forEach((n) =>
@@ -207,7 +216,7 @@ export function projectSourceFiles(
     content: [...environment].map((n) => n + "=").join("\n") + "\n",
   }, {
     name: ".gitignore",
-    content: "node_modules/\n_fresh/\ndist/\n.env\n",
+    content: "node_modules/\n_fresh/\ndist/\n.env\n.dragonfruit/\n",
   }];
   const socialFiles: ProjectFile[] = website.pages.map((page) => ({
     name: (format === "fresh" ? "static" : "public") + socialPath(page.path),
@@ -279,7 +288,7 @@ export function projectSourceFiles(
         dev: "deno run -A --env-file=.env npm:vite --host 127.0.0.1",
         build: "deno run -A npm:vite build",
         start:
-          "deno serve --env-file=.env --allow-net --allow-env --allow-read --host 0.0.0.0 --port 8000 _fresh/server.js",
+          "deno serve --env-file=.env --allow-net --allow-env --allow-read --allow-write --host 0.0.0.0 --port 8000 _fresh/server.js",
         check: "deno check main.ts routes/**/*.tsx",
       },
     };

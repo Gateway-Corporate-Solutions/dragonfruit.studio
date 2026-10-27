@@ -72,7 +72,7 @@ export default function ScheduleEditor(
           />
         </label>
         <label>
-          Booking link<input
+          External booking link (optional)<input
             type="url"
             value={pattern.bookingUrl}
             placeholder="https://your-booking-service.com/your-page"
@@ -232,9 +232,7 @@ export default function ScheduleEditor(
       </div>
       {message && <p role="status">{message}</p>}
       <p>
-        {slots.length}{" "}
-        scheduled sessions. Your booking service manages reservations and
-        availability.
+        {slots.length} scheduled sessions.
       </p>
       <section class="schedule-subpanel" aria-label="Scheduled events">
         <h4>Scheduled events ({slots.length})</h4>
@@ -342,7 +340,7 @@ export default function ScheduleEditor(
                 start: start.toISOString(),
                 end: new Date(start.getTime() + pattern.duration * 60000)
                   .toISOString(),
-                bookingUrl: pattern.bookingUrl || "https://calendly.com/",
+                bookingUrl: pattern.bookingUrl,
               }]);
             } catch (e) {
               setError(e instanceof Error ? e.message : "Invalid session");

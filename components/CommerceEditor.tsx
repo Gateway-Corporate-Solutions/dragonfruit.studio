@@ -35,8 +35,7 @@ export default function CommerceEditor(
         <h2>Commerce API</h2>
         <p>
           One catalog powers Shop, Product, Cart, and Checkout layers. Calendar
-          and Schedule layers show your upcoming sessions and link to your
-          booking provider.
+          and Schedule layers share appointment availability.
         </p>
         <label>
           Checkout provider<select
@@ -178,6 +177,16 @@ export default function CommerceEditor(
         >
           + Add product
         </button>
+        <h3>Booking notifications</h3>
+        <label>
+          Business email<input
+            type="email"
+            value={c.businessEmail ?? ""}
+            maxLength={254}
+            onChange={(e) =>
+              apply({ ...c, businessEmail: e.currentTarget.value.trim() })}
+          />
+        </label>
         <ScheduleEditor
           slots={c.slots}
           onPending={setSchedulePending}
@@ -224,7 +233,8 @@ export default function CommerceEditor(
       <p>
         <code>GET /api/commerce/catalog</code> ·{" "}
         <code>GET /api/commerce/schedule</code> ·{" "}
-        <code>POST /api/commerce/checkout</code>
+        <code>POST /api/commerce/checkout</code> ·{" "}
+        <code>POST /api/commerce/book</code>
       </p>
       {error && <p role="alert" class="form-error">{error}</p>}
     </section>

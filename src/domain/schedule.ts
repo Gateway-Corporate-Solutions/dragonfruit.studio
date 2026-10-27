@@ -63,8 +63,9 @@ export function fillSchedule(
     fail("Give these sessions a name.");
   }
   if (
-    !/^https:\/\/[^\s<>"'\\]+$/.test(p.bookingUrl) || p.bookingUrl.length > 2000
-  ) fail("Enter your HTTPS booking link.");
+    (p.bookingUrl !== "" && !/^https:\/\/[^\s<>"'\\]+$/.test(p.bookingUrl)) ||
+    p.bookingUrl.length > 2000
+  ) fail("Enter an HTTPS booking link or leave it empty for native bookings.");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(p.startDate)) fail("Choose a start date.");
   const first = new Date(p.startDate + "T00:00:00Z");
   if (

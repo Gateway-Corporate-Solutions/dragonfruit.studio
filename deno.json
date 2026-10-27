@@ -47,7 +47,7 @@
     "worker": "deno run --env-file=.env --allow-env --allow-net src/worker/main.ts",
     "migrate": "deno run --env-file=.env --allow-env --allow-net --allow-read=migrations scripts/migrate.ts",
     "check": "deno check main.ts vite.config.ts src/worker/main.ts scripts/migrate.ts scripts/smoke.ts routes/**/*.tsx islands/*.tsx tests/unit/*.ts tests/integration/*.ts",
-    "test": "deno test --allow-env tests/unit/",
+    "test": "deno test --allow-env --allow-read --allow-write tests/unit/",
     "test:integration": "deno test --env-file=.env --allow-env --allow-net --allow-read=migrations tests/integration/",
     "fmt": "deno fmt",
     "lint": "deno lint",
