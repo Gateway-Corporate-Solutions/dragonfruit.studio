@@ -64,8 +64,8 @@ export default function PublicHome(
         </a>
         <nav aria-label="Website navigation">
           <a href="/pricing">Pricing</a>
-          <a href="#possibilities">What you can make</a>
-          <a href="#your-way">Your way of working</a>
+          <a href="#possibilities">Client delivery</a>
+          <a href="#your-way">Ownership & limits</a>
         </nav>
         <div class="public-nav-actions">
           <ThemeToggle />
@@ -95,15 +95,15 @@ export default function PublicHome(
         <section class="public-hero">
           <div class="public-hero-copy">
             <p class="public-eyebrow">
-              <span />A LITTLE IDEA. A BIG POSSIBILITY.
+              <span />BUILD FOR CLIENTS. DELIVER THE SOURCE.
             </p>
             <h1>
-              Your next idea<br />deserves a<br />
-              <em>place to grow.</em>
+              dragonfruit<br />
+              <em>Website builder.</em>
             </h1>
             <p class="public-intro">
-              Build a website that feels like you. Start with a name, make it
-              yours visually, and go deeper whenever inspiration calls.
+              Design client websites visually. Deliver a complete Fresh or React
+              project your client can run, edit, and host without dragonfruit.
             </p>
             <div class="public-hero-actions">
               {user
@@ -118,21 +118,21 @@ export default function PublicHome(
                     class="button primary"
                     onClick={() => open("signup")}
                   >
-                    Start building ↗
+                    Build your first site free ↗
                   </button>
                 )}
               <a class="public-text-link" href="#your-way">
-                See how it works <span>↓</span>
+                See the handoff <span>↓</span>
               </a>
             </div>
             <p class="public-footnote">
-              Simple by default. Expert configuration always available.
+              One free website. Unlimited source exports. Hosting not included.
             </p>
           </div>
           <div class="public-hero-art">
             <div class="fruit-orbit" />
             <span class="art-label art-label-top">
-              A fresh start, every time.
+              Your work. Your source.
             </span>
             <img
               src="/dragonfruit.svg"
@@ -144,29 +144,30 @@ export default function PublicHome(
           </div>
         </section>
         <section class="public-proof" aria-label="Creative tools">
-          <span>VISUAL BY DEFAULT</span>
-          <span>CSS WHEN YOU NEED IT</span>
-          <span>FORMS THAT CONNECT</span>
-          <span>YOUR SOURCE TO KEEP</span>
+          <span>FREE SOURCE EXPORTS</span>
+          <span>FRESH OR REACT</span>
+          <span>CLIENT-READY HANDOFF</span>
+          <span>NO DRAGONFRUIT RUNTIME REQUIRED</span>
         </section>
         <section class="public-features" id="possibilities">
           <div class="public-section-heading">
-            <p class="public-eyebrow">FROM FIRST THOUGHT TO FIRST PAGE</p>
+            <p class="public-eyebrow">FROM CLIENT BRIEF TO SOURCE HANDOFF</p>
             <h2>
-              Room for whatever<br />you have in mind.
+              Build the site.<br />Deliver the whole project.
             </h2>
             <p>
-              A home for your work, a new business, or the idea you have been
-              meaning to start.
+              For freelancers and studios who want to hand over working source,
+              not make every client depend on a builder subscription.
             </p>
           </div>
           <div class="public-feature-grid">
             <article>
               <span class="feature-symbol">▧</span>
-              <h3>Make it feel like you.</h3>
+              <h3>Design for the client.</h3>
               <p>
-                Choose familiar page templates. Shape layouts, colors,
-                typography, images, and interactive layers with visual controls.
+                Start from page templates, then shape layouts, typography,
+                images, and interactions. Use CSS and JavaScript when the brief
+                needs more control.
               </p>
               <span class="feature-detail">
                 ABOUT · PORTFOLIO · CONTACT · MORE
@@ -174,19 +175,22 @@ export default function PublicHome(
             </article>
             <article>
               <span class="feature-symbol">↗</span>
-              <h3>Give ideas somewhere to go.</h3>
+              <h3>Hand over runnable source.</h3>
               <p>
-                Connect your forms to email, newsletters, and the services you
-                already use. Guided setup keeps the first steps clear.
+                Download a Fresh or React project with pages, assets, and the
+                generated backend for connected forms and bookings. Include it
+                in your client delivery or continue development outside the
+                editor.
               </p>
               <span class="feature-detail">RESEND · MAILCHIMP · WEBHOOKS</span>
             </article>
             <article>
               <span class="feature-symbol">{"{}"}</span>
-              <h3>Keep the keys.</h3>
+              <h3>Let the client choose hosting.</h3>
               <p>
-                Open CSS, JavaScript, and API configuration when you need more
-                control. Export a runnable Fresh or React project.
+                The exported project runs independently of dragonfruit. Deploy
+                it to compatible hosting under your client's account. Domains,
+                hosting, and third-party service charges are separate.
               </p>
               <span class="feature-detail">
                 OPEN CONFIGURATION · COMPLETE SOURCE
@@ -196,13 +200,15 @@ export default function PublicHome(
         </section>
         <section class="public-workflow" id="your-way">
           <div>
-            <p class="public-eyebrow">A SMALL START. AN OPEN CANVAS.</p>
+            <p class="public-eyebrow">
+              OWNERSHIP WITHOUT THE FINE-PRINT SURPRISE
+            </p>
             <h2>
-              Start simply.<br />Grow your own way.
+              Keep the source.<br />Know the limits.
             </h2>
             <p>
-              Good tools make space for both your first draft and your next big
-              idea.
+              Plans pay for website capacity in your workspace, not permission
+              to download your work. Source exports are free on every plan.
             </p>
             {!user && (
               <button
@@ -210,7 +216,7 @@ export default function PublicHome(
                 class="button primary"
                 onClick={() => open("signup")}
               >
-                Make something yours ↗
+                Start with one free website ↗
               </button>
             )}
           </div>
@@ -218,33 +224,46 @@ export default function PublicHome(
             <li>
               <span>01</span>
               <div>
-                <h3>Give your website a name.</h3>
-                <p>No repository or configuration required to begin.</p>
+                <h3>One website free. No export limit.</h3>
+                <p>
+                  The free plan includes one website, all editor features, and
+                  unlimited Fresh or React source exports. No trial expiry.
+                  Additional permanent slots cost $9.99 each, or create
+                  unlimited websites for $24.99/month. Prices are in USD.
+                </p>
               </div>
             </li>
             <li>
               <span>02</span>
               <div>
-                <h3>Go straight to the editor.</h3>
-                <p>Pick pages, add layers, and make every detail yours.</p>
+                <h3>Export is delivery, not hosting.</h3>
+                <p>
+                  Export downloads a project; it does not put a website online.
+                  Hosting, domains, and paid integrations are not included.
+                  Connected forms, bookings, and checkout need the exported
+                  backend and your own service credentials.
+                </p>
               </div>
             </li>
             <li>
               <span>03</span>
               <div>
-                <h3>Take it wherever you want.</h3>
+                <h3>Cancel without losing your work.</h3>
                 <p>
-                  Save your draft and export your complete project. Built-in
-                  publishing is coming next.
+                  Cancel the monthly plan through Stripe. Unlimited creation
+                  continues until the paid period ends. Afterward, new websites
+                  need available free or purchased capacity; existing websites
+                  stay editable and exportable. Exported client sites do not
+                  depend on your subscription.
                 </p>
               </div>
             </li>
           </ol>
         </section>
         <section class="public-final">
-          <p class="public-eyebrow">IT DOESN'T NEED TO BE PERFECT TO BEGIN.</p>
+          <p class="public-eyebrow">YOUR NEXT CLIENT PROJECT</p>
           <h2>
-            Something good<br />starts with an idea.
+            Build it here.<br />Hand it over.
           </h2>
           {user
             ? <a class="button primary" href="/websites">Open workspace ↗</a>
@@ -254,7 +273,7 @@ export default function PublicHome(
                 type="button"
                 onClick={() => open("signup")}
               >
-                Let's build it ↗
+                Start free. Export freely. ↗
               </button>
             )}
           {demo && (
@@ -266,7 +285,7 @@ export default function PublicHome(
         <a class="public-brand" href="/">
           dragonfruit<span class="studio-label">STUDIO</span>
         </a>
-        <span>Made with Deno + Fresh. Made for your next idea.</span>
+        <span>Visual editing. Independent source. Client-ready delivery.</span>
         <a href="/pricing">Plans & pricing · Start free</a>
       </footer>
       <dialog

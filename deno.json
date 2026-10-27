@@ -33,6 +33,7 @@
     "fresh": "jsr:@fresh/core@2.3.3",
     "@fresh/plugin-vite": "jsr:@fresh/plugin-vite@1.1.2",
     "preact": "npm:preact@10.29.1",
+    "preact-render-to-string": "npm:preact-render-to-string@6.8.1",
     "vite": "npm:vite@7.1.4",
     "postgres": "npm:postgres@3.4.7",
     "preact/hooks": "npm:preact@10.29.1/hooks",

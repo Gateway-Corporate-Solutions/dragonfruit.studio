@@ -593,6 +593,7 @@ export default function SiteEditor(
       return;
     }
     try {
+      setSaveError("");
       const files = projectSourceFiles(website, exportFormat, DEPLOY_FILES);
       const url = URL.createObjectURL(
         new Blob([sourceZip(files)], { type: "application/zip" }),
@@ -601,6 +602,9 @@ export default function SiteEditor(
       link.href = url;
       link.download = project.slug + "-" + exportFormat + ".zip";
       link.click();
+      setMessage(
+        "Source export requested. Deploy the project on your own hosting; no website has been published.",
+      );
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (error) {
       setSaveError(
@@ -746,14 +750,12 @@ export default function SiteEditor(
           <button
             type="button"
             class="button primary"
-            onClick={() => {
-              setSaveError("");
-              setMessage(
-                "Publishing isn’t available yet. You can save your draft or download your website source.",
-              );
-            }}
+            onClick={downloadProject}
+            title={`Download ${
+              exportFormat === "fresh" ? "Fresh" : "React"
+            } source ZIP. Hosting is not included.`}
           >
-            Publish ↗
+            Export website ↓
           </button>
         </div>
       </header>
@@ -1306,7 +1308,7 @@ export default function SiteEditor(
               <div class="canvas-caption">
                 {mode === "design"
                   ? "Click any element to edit · Changes stay in your draft until you save"
-                  : "Preview of your current draft · Publishing is not connected yet"}
+                  : "Preview of your current draft · Export source to deploy on your own hosting"}
               </div>
             </section>
             {mode === "design" && (

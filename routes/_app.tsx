@@ -7,7 +7,7 @@ export default define.page(function App({ Component, state, url }) {
     active.startsWith("/auth/");
   const origin = state.config.publicOrigin || url.origin;
   const description =
-    "Build expressive websites with dragonfruit. Design pages, publish Markdown articles, and connect your shop, checkout, and bookings.";
+    "Build client websites visually and deliver independent Fresh or React source. One free website, unlimited source exports. Hosting and domains are not included.";
   const image = new URL("/social/home.png", origin).href;
   const editor = /^\/projects\/[0-9a-f-]{36}$/i.test(active);
   return (

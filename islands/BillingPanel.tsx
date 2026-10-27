@@ -108,7 +108,7 @@ export default function BillingPanel(
               {summary.periodEnd
                 ? ` · ${
                   summary.cancelAtPeriodEnd
-                    ? "Access ends"
+                    ? "Unlimited creation ends"
                     : "Current period ends"
                 } ${new Date(summary.periodEnd * 1000).toLocaleDateString()}`
                 : ""}
@@ -254,9 +254,13 @@ export default function BillingPanel(
         </p>
       )}
       <p class="billing-policy">
-        After a subscription ends, new websites require available free or
-        purchased slots. Your existing websites are retained with editing and
-        export access. Prices are in USD.
+        Cancel through Stripe at any time; unlimited creation continues until
+        the paid billing period ends. Afterward, new websites require available
+        free or purchased slots. If you are over capacity, you cannot create
+        another website until you add capacity or resubscribe. Existing websites
+        stay editable and exportable, and exported projects run independently of
+        your subscription. All plans include unlimited source exports, not
+        hosting, domains, or third-party service fees. Prices are in USD.
       </p>
     </section>
   );

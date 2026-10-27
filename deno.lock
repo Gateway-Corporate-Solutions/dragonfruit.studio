@@ -41,6 +41,7 @@
     "npm:esbuild@0.25.7": "0.25.7",
     "npm:esbuild@~0.25.5": "0.25.7",
     "npm:postgres@3.4.7": "3.4.7",
+    "npm:preact-render-to-string@6.8.1": "6.8.1_preact@10.29.1",
     "npm:preact-render-to-string@^6.6.3": "6.8.1_preact@10.29.1",
     "npm:preact@10.29.1": "10.29.1",
     "npm:preact@^10.28.2": "10.29.1",
@@ -91,7 +92,7 @@
         "npm:@preact/signals",
         "npm:esbuild-wasm",
         "npm:esbuild@0.25.7",
-        "npm:preact-render-to-string",
+        "npm:preact-render-to-string@^6.6.3",
         "npm:preact@^10.28.2",
         "npm:preact@^10.29.1"
       ]
@@ -956,6 +957,7 @@
       "jsr:@fresh/core@2.3.3",
       "jsr:@fresh/plugin-vite@1.1.2",
       "npm:postgres@3.4.7",
+      "npm:preact-render-to-string@6.8.1",
       "npm:preact@10.29.1",
       "npm:vite@7.1.4"
     ]
